@@ -37,7 +37,7 @@ _undercoverUnit setVariable ["isUndercover", true, true]; //Allow scripts to pic
 
 
 if (_debug) then {
-	_undercoverUnit spawn {
+	[_undercoverUnit] spawn {
 		params ["_undercoverUnit"];
 		waitUntil {
 			sleep 5;
