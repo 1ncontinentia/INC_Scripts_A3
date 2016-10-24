@@ -9,11 +9,12 @@ INTEL
 
 * Made for ALiVE
 * Units drop intel when they are killed
+
+Dropped intel will: 
 * Find ALiVE asym opcom installations
-* Track phone contacts on map
-* Track radio contacts on map
+* Track phone contacts on map (requires UAV terminal)
+* Track radio contacts on map (requires UAV terminal)
 * Tracking accuracy depends on the weather, overhead cover, range etc.
-* Equip a UAV terminal to see 
 
 
 |||*********************> USAGE <*********************|||
