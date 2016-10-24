@@ -27,3 +27,5 @@ _civRecruitEnabled = true;      //Set this to false to prevent undercover units 
 _armedCivPercentage = 70;       //Percentage of civilians armed with rifles or pistols on person or in backpacks (0 to disable)
 
 _trespassMarkerNames = [];
+
+_debug = false; //Set to true for debug hints
