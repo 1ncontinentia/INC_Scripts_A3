@@ -36,14 +36,6 @@ _unit setVariable ["initLoopRunning", true, true];
 #include "INCON\INC_undercover\unitInitsUndercover.sqf"
 
 
-if (side _unit == independent) exitWith {
-	[_unit] call INCON_fnc_spawnIntelObjects;
-};
-
-if (side _unit == east) exitWith {
-	[_unit] call INCON_fnc_spawnIntelObjects;
-};
-
-if (side _unit == WEST) exitWith {
-	[_unit] call INCON_fnc_spawnIntelObjects;
+if (side _unit in [EAST,WEST,INDEPENDANT]) then {
+    [_unit] call INCON_fnc_spawnIntelObjects;
 };

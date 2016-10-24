@@ -10,7 +10,7 @@ _INC_undercoverSide = toUpper (str (side _undercoverUnit));
 _percentage = ((([ALIVE_civilianHostility, _INC_undercoverSide] call ALIVE_fnc_hashGet) / 2)+ 20);
 
 if (_percentage > 30) then {
-    if ((_percentage > (random 100)) && (_undercoverUnit getVariable ["isUndercover", false])) then {
+    if ((_percentage > (random 100)) && {_undercoverUnit getVariable ["isUndercover", false]}) then {
 
         if (_undercoverGroup < (5 + (ceil random 5))) then {
 
@@ -33,7 +33,7 @@ if (_percentage > 30) then {
 
 } else {
 
-    if ((_percentage > (random 100)) && (_undercoverUnit getVariable ["isUndercover", false]) && !(_undercoverUnit getVariable ["INC_undercoverCompromised", false])) then {
+    if ((_percentage > (random 100)) && {_undercoverUnit getVariable ["isUndercover", false]} && {!(_undercoverUnit getVariable ["INC_undercoverCompromised", false])}) then {
 
         if (_undercoverGroup < (2 + (random 5))) then {
 

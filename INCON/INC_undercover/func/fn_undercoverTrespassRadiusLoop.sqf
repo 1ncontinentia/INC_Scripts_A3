@@ -1,7 +1,8 @@
+private ["_nearReg","_nearAsym","_nearHVT","_nearSuperHVT"];
 
 params [["_undercoverUnit",player],["_regEnySide",east],["_asymEnySide",independent],["_radius1",15],["_radius2",25],["_radius3",60],["_radius4",150]];
 
-if ((!local _undercoverUnit) || (_undercoverUnit getVariable ["INC_trespassRadiusLoopRunning",false])) exitWith {};
+if ((!local _undercoverUnit) || {_undercoverUnit getVariable ["INC_trespassRadiusLoopRunning",false]}) exitWith {};
 
 _undercoverUnit setVariable ["INC_trespassRadiusLoopRunning",true,true];
 
@@ -10,11 +11,11 @@ _undercoverUnit setVariable ["INC_trespassRadiusLoopRunning",true,true];
 
 	waitUntil {
 
-		_nearReg = count ((_undercoverUnit nearEntities _radius1) select {((side _x == _regEnySide) && ((_x knowsAbout _undercoverUnit) > 1))});
+		_nearReg = count ((_undercoverUnit nearEntities _radius1) select {((side _x == _regEnySide) && {(_x knowsAbout _undercoverUnit) > 1})});
 
 		sleep 0.5;
 
-		_nearAsym = count ((_undercoverUnit nearEntities _radius2) select {((side _x == _asymEnySide) && ((_x knowsAbout _undercoverUnit) > 1))});
+		_nearAsym = count ((_undercoverUnit nearEntities _radius2) select {((side _x == _asymEnySide) && {(_x knowsAbout _undercoverUnit) > 1})});
 
 		sleep 0.5;
 
@@ -34,7 +35,7 @@ _undercoverUnit setVariable ["INC_trespassRadiusLoopRunning",true,true];
 
 		sleep 0.5;
 
-		(!(_undercoverUnit getVariable ["isUndercover",false]) || !(alive _undercoverUnit))
+		(!(_undercoverUnit getVariable ["isUndercover",false]) || {!(alive _undercoverUnit)})
 
 	};
 

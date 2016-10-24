@@ -43,8 +43,8 @@ _undercoverUnit setVariable ["INC_trespassType2",false,true];
 		waitUntil {
 			sleep 2;
 			(
-				(_undercoverUnit getVariable ["INC_trespassType1",false])
-				|| (_undercoverUnit getVariable ["INC_trespassType2",false])
+				(_undercoverUnit getVariable ["INC_trespassType1",false]) ||
+				{_undercoverUnit getVariable ["INC_trespassType2",false]}
 			); //Fires if any of the trespassing types are met.
 		};
 
@@ -53,14 +53,14 @@ _undercoverUnit setVariable ["INC_trespassType2",false,true];
 		waitUntil {
 			sleep 2;
 			!(
-				(_undercoverUnit getVariable ["INC_trespassType1",false])
-				|| (_undercoverUnit getVariable ["INC_trespassType2",false])
+				(_undercoverUnit getVariable ["INC_trespassType1",false]) ||
+				{_undercoverUnit getVariable ["INC_trespassType2",false]}
 			); //Fires if all of the trespassing types are inactive.
 		};
 
 		_undercoverUnit setVariable ["INC_trespassing", false, true]; //Publicises trespassing variable on unit to false.
 
-		(!(_undercoverUnit getVariable ["isUndercover",false]) || !(alive _undercoverUnit))
+		(!(_undercoverUnit getVariable ["isUndercover",false]) || {!(alive _undercoverUnit)})
 	};
 };
 

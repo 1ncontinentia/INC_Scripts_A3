@@ -31,7 +31,7 @@ _underCoverUnit addEventHandler["Fired", {
 			_asymAlerted = [INC_ucr_firedEhAsym,_underCoverUnit,50] call INCON_fnc_countAlerted;
 
 			//Once people know where he is, who he is, and that he has fired a weapon, make him compromised
-			if ((_regAlerted != 0) || (_asymAlerted != 0)) exitWith {
+			if ((_regAlerted != 0) || {_asymAlerted != 0}) exitWith {
 
 				[_underCoverUnit] call INCON_fnc_undercoverCompromised;
 			};

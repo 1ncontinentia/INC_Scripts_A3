@@ -59,7 +59,7 @@ _underCoverUnit setVariable ["INC_cooldown", true, true];
 
 
 	//SetsCaptive back to true if nobody has seen him, unless he is already compromised
-	if !((_asymKnowsAboutUnit) || (_regKnowsAboutUnit)) exitWith {
+	if !((_asymKnowsAboutUnit) || {_regKnowsAboutUnit}) exitWith {
 
 		if !(_underCoverUnit getVariable ["INC_undercoverCompromised",false]) then {
 			[_underCoverUnit, true] remoteExec ["setCaptive", _underCoverUnit];
@@ -69,11 +69,11 @@ _underCoverUnit setVariable ["INC_cooldown", true, true];
 	};
 
 	//If both _regEnySide and _asymEnySide know about the unit, wait until neither does.
-	if ((_asymKnowsAboutUnit) && (_regKnowsAboutUnit)) exitWith {
+	if ((_asymKnowsAboutUnit) && {_regKnowsAboutUnit}) exitWith {
 
 		waitUntil {
 			sleep 2;
-			(!(_underCoverUnit getVariable ["INC_AnyKnowsSO",false]) && !(_underCoverUnit getVariable ["INC_armed",false]) && !(_underCoverUnit getVariable ["INC_trespassing",false]))
+			(!(_underCoverUnit getVariable ["INC_AnyKnowsSO",false]) && {!(_underCoverUnit getVariable ["INC_armed",false])} && {!(_underCoverUnit getVariable ["INC_trespassing",false])})
 		};
 
 		if !(_underCoverUnit getVariable ["INC_undercoverCompromised",false]) then {
@@ -89,7 +89,7 @@ _underCoverUnit setVariable ["INC_cooldown", true, true];
 
 		waitUntil {
 			sleep 10;
-			(!(_underCoverUnit getVariable ["INC_AsymKnowsSO",false]) && !(_underCoverUnit getVariable ["INC_armed",false]) && !(_underCoverUnit getVariable ["INC_trespassing",false]))
+			(!(_underCoverUnit getVariable ["INC_AsymKnowsSO",false]) && {!(_underCoverUnit getVariable ["INC_armed",false])} && {!(_underCoverUnit getVariable ["INC_trespassing",false])})
 		};
 
 	//Otherwise, only _regEnySide knows about the unit so wait until they no longer do.
@@ -97,7 +97,7 @@ _underCoverUnit setVariable ["INC_cooldown", true, true];
 
 		waitUntil {
 			sleep 10;
-			(!(_underCoverUnit getVariable ["INC_RegKnowsSO",false]) && !(_underCoverUnit getVariable ["INC_armed",false]) && !(_underCoverUnit getVariable ["INC_trespassing",false]))
+			(!(_underCoverUnit getVariable ["INC_RegKnowsSO",false]) && {!(_underCoverUnit getVariable ["INC_armed",false])} && {!(_underCoverUnit getVariable ["INC_trespassing",false])})
 		};
 
 		//Percentage chance that unit will become compromised anyway

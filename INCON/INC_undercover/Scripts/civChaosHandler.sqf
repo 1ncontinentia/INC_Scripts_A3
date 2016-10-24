@@ -18,10 +18,16 @@ if (missionNamespace getVariable ["civiliansTargeted",false]) exitWith {};
 		missionNameSpace setVariable ["civiliansTargeted", true, true];
 		//Enemies target civs
 		{
-			if (((side _x) == Civilian) && !(_x getVariable ["isUndercover", false])) then {
+			if (((side _x) == Civilian) && {!(_x getVariable ["isUndercover", false])}) then {
 				if (_percentageTarget > (random 100)) then {
+					private _prevGroup = group _x;
+
 					[_x] joinSilent grpNull;
 					[_x] joinSilent (group rebelCommander);
+
+					if ((count _units group _prevGroup) == 0) then {
+						deleteGroup _prevGroup; // clean up empty groups
+					};
 				};
 			};
 		} foreach allunits;
@@ -33,30 +39,37 @@ if (missionNamespace getVariable ["civiliansTargeted",false]) exitWith {};
 	//Armed civs will rebel
 	if (_rebelChance > (random 100)) then {
 		{
-			if ((side _x) == Civilian) then {
-				if !(_x getVariable ["isUndercover", false]) then {
-					if !(_x getVariable ["civIsUnarmed", false]) then {
-						if (_percentageRebel > (random 100)) then {
-							[_x] joinSilent grpNull;
-							[_x] joinSilent (group rebelCommander);
-							if (_x getVariable ["civRifle",false]) exitWith {
-								removeAllWeapons _x;
-								_x addMagazine "30Rnd_762x39_Mag_Tracer_F";
-								_x addWeapon "arifle_AKM_F";
-								_x addMagazine "30Rnd_762x39_Mag_Tracer_F";
-								_x addMagazine "30Rnd_762x39_Mag_Tracer_F";
-								_x setUnitAbility (0.7 + (random 0.25));
-							};
-							removeAllWeapons _x;
-							_x addMagazine "16Rnd_9x21_Mag";
-							_x addWeapon "hgun_Rook40_F";
-							_x addMagazine "16Rnd_9x21_Mag";
-							_x addMagazine "16Rnd_9x21_Mag";
-							_x addMagazine "16Rnd_9x21_Mag";
-							_x setUnitAbility (0.7 + (random 0.25));
-						};
-					};
+			if (
+				((side _x) == Civilian) &&
+				{!(_x getVariable ["isUndercover", false])} &&
+				{!(_x getVariable ["civIsUnarmed", false])} &&
+				{_percentageRebel > (random 100)}
+			) then {
+				private _prevGroup = group _x;
+
+				[_x] joinSilent grpNull;
+				[_x] joinSilent (group rebelCommander);
+
+				if ((count units group _prevGroup) == 0) then {
+					deleteGroup _prevGroup;
 				};
+
+				if (_x getVariable ["civRifle",false]) exitWith {
+					removeAllWeapons _x;
+					_x addMagazine "30Rnd_762x39_Mag_Tracer_F";
+					_x addWeapon "arifle_AKM_F";
+					_x addMagazine "30Rnd_762x39_Mag_Tracer_F";
+					_x addMagazine "30Rnd_762x39_Mag_Tracer_F";
+					_x setUnitAbility (0.7 + (random 0.25));
+				};
+
+				removeAllWeapons _x;
+				_x addMagazine "16Rnd_9x21_Mag";
+				_x addWeapon "hgun_Rook40_F";
+				_x addMagazine "16Rnd_9x21_Mag";
+				_x addMagazine "16Rnd_9x21_Mag";
+				_x addMagazine "16Rnd_9x21_Mag";
+				_x setUnitAbility (0.7 + (random 0.25));
 			};
 		} foreach allunits;
 	};

@@ -24,7 +24,7 @@ _safeUniforms append (["uniforms",_safeFactionUniforms] call INCON_fnc_getFactio
 
 	params ["_civ","_safeUniforms","_safeVests"];
 
-	if ((_civ getVariable ["INC_civArmedLoopRunning",false]) || (isDedicated) || (_civ == player)) exitWith {};
+	if ((_civ getVariable ["INC_civArmedLoopRunning",false]) || {isDedicated} || {_civ == player}) exitWith {};
 
 	_civ setVariable ["INC_civArmedLoopRunning", true, true]; // Stops the script running twice on the same unit
 
@@ -36,14 +36,14 @@ _safeUniforms append (["uniforms",_safeFactionUniforms] call INCON_fnc_getFactio
 
 		waitUntil {
 			sleep 5;
-			(!(uniform _civ in _safeUniforms) || !(vest _civ in _safeVests) || !((currentWeapon _civ == "") || (currentWeapon _civ == "Throw")) || (hmd _civ != "")); //Fires if unit gets out weapon or wears suspicious uniform.
+			(!(uniform _civ in _safeUniforms) || {!(vest _civ in _safeVests)} || {!((currentWeapon _civ == "") || {currentWeapon _civ == "Throw"})} || {hmd _civ != ""}); //Fires if unit gets out weapon or wears suspicious uniform.
 		};
 
 		[_civ, false] remoteExec ["setCaptive", _civ];
 
 		waitUntil {
 			sleep 5;
-			!(!(uniform _civ in _safeUniforms) || !(vest _civ in _safeVests) || !((currentWeapon _civ == "") || (currentWeapon _civ == "Throw")) || (hmd _civ != "")); //Fires if unit gets out weapon or wears suspicious uniform.
+			!(!(uniform _civ in _safeUniforms) || {!(vest _civ in _safeVests)} || {!((currentWeapon _civ == "") || {currentWeapon _civ == "Throw"})} || {hmd _civ != ""}); //Fires if unit gets out weapon or wears suspicious uniform.
 		};
 
 		[_civ, true] remoteExec ["setCaptive", _civ];

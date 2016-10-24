@@ -8,7 +8,7 @@ Returns number of units with beef against the target unit.
 
 */
 
-private ["_alertedUnits","_getHideFromUnit"];
+private ["_alertedUnits","_GroupsKnowAboutUnit","_getHideFromUnit"];
 
 params [["_side",sideEmpty],["_detectedUnit",player],["_distSqr",1400]];
 
@@ -18,7 +18,7 @@ _alertedUnits = [];
 
 _GroupsKnowAboutUnit = allGroups select {
 
-    (side _x isEqualTo _side) && {((leader _x getHideFrom _detectedUnit) distanceSqr _detectedUnit < _distSqr) && (alive leader _x) && (!captive leader _x)}
+    (side _x isEqualTo _side) && {((leader _x getHideFrom _detectedUnit) distanceSqr _detectedUnit < _distSqr) && {alive leader _x} && {!captive leader _x}}
 
 };
 

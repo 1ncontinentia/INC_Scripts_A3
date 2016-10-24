@@ -60,9 +60,9 @@ if (_underCoverUnit getVariable ["INC_compromisedLoopRunning",false]) exitWith {
 			sleep 11;
 			(
 				!(_underCoverUnit getVariable ["INC_AnyKnowsSO",false]) &&
-				!(_underCoverUnit getVariable ["INC_armed",false]) &&
-				!(_underCoverUnit getVariable ["INC_trespassing",false]) &&
-				(1.8 > (_regEnySide knowsAbout _underCoverUnit))
+				{!(_underCoverUnit getVariable ["INC_armed",false])} &&
+				{!(_underCoverUnit getVariable ["INC_trespassing",false])} &&
+				{(1.8 > (_regEnySide knowsAbout _underCoverUnit))}
 			);
 		};
 
@@ -79,8 +79,8 @@ if (_underCoverUnit getVariable ["INC_compromisedLoopRunning",false]) exitWith {
 			sleep 3;
 			(
 				!(_underCoverUnit getVariable ["INC_AnyKnowsSO",false]) &&
-				!(_underCoverUnit getVariable ["INC_armed",false]) &&
-				!(_underCoverUnit getVariable ["INC_trespassing",false])
+				{!(_underCoverUnit getVariable ["INC_armed",false])} &&
+				{!(_underCoverUnit getVariable ["INC_trespassing",false])}
 			);
 		};
 

@@ -4,6 +4,7 @@ Author: Spyderblack723
 
 */
 
+private ["_unit","_linkedItems"];
 
 params ["_gearType","_factions"];
 
