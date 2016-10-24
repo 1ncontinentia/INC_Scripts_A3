@@ -30,7 +30,7 @@ Adds a new element to the battlefield: fear.
 
 Get close enough to an enemy unit and order them to surrender; whether they do surrender depends on a number of factors, including their morale, whether you have taken them by surprise, their weapon, your weapon, its health, and how close you are when you tell them to surrender. 
 
-Ambush a patrol and under certain conditions, they might make a tactical withdrawal, give up and run or even drop their weapons and put their hands up. 
+Ambush a patrol and if they are outnumbered, suprised or unskilled, they might make a tactical withdrawal, give up and run or even drop their weapons and put their hands up. 
 
 Keep an eye on surrendered units, you never know what they might try. 
 
