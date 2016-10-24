@@ -7,6 +7,12 @@ These are currently available as a (very) early Alpha. More scripts will be rele
 
 Requires CBA. 
 
+## Instructions
+
+Place all files in your mission root folder. If you already have a description.ext or init.sqf, add the lines from these files into your pre-existing ones. 
+
+Inside the INCON\INC_undercover and INCON\INC_intel folders, you will find the UCR_setup.sqf and INT_setup.sqf files. Edit these to your preference. Also read the readme in the folder (if there is one) to find out how to set up the scripts fully for your mission. 
+
 ## Overview
 
 (Check individual readme files in the respective addon folders for more information). 
@@ -16,7 +22,7 @@ Go undercover, become a local hero, recruit civilians, and cause mayhem. Feature
 
 Requires: CBA, ALiVE Civ Placement Modules (for civilian recruitment)
 
-Status: Feature complete, untested in Coop but works well in dedicated server / SP environments. 
+Status: Experimental release. Feature complete, untested in Coop but works well in dedicated server / SP environments. 
 
 #### INC_Intel
 Enemy units drop intel when they are killed. Allows units to hack into enemy radio networks and see nearby groups on the map, as well as track cellphone contacts. Also reveals enemy installations. 
