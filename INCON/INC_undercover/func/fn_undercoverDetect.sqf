@@ -19,13 +19,13 @@ if (_underCoverUnit getVariable ["undercoverDetectionRunning",false]) exitWith {
 
 		sleep 5;
 
-		_alertedRegKnows = ([_underCoverUnit, _regEnySide] call INCON_fnc_undercoverGetAlerted);
+		private _alertedRegKnows = ([_underCoverUnit, _regEnySide] call INCON_fnc_undercoverGetAlerted);
 
-		_alertedAsymKnows = ([_underCoverUnit, _asymEnySide] call INCON_fnc_undercoverGetAlerted);
+		private _alertedAsymKnows = ([_underCoverUnit, _asymEnySide] call INCON_fnc_undercoverGetAlerted);
 
-		_anyAlerted = false;
+		private _anyAlerted = false;
 
-		if (_alertedRegKnows || _alertedAsymKnows) then {_anyAlerted = true};
+		if (_alertedRegKnows || {_alertedAsymKnows}) then {_anyAlerted = true};
 
 		//Publicise variables on undercover unit for undercover handler, killed handler & cooldown.
 		_underCoverUnit setVariable ["INC_RegKnowsSO", _alertedRegKnows, true];

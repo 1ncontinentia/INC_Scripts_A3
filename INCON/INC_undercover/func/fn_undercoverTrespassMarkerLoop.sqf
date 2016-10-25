@@ -1,6 +1,6 @@
 params [["_undercoverUnit",objNull],["_trespassMarkers",[]]];
 
-if ((!local _undercoverUnit) || (_undercoverUnit getVariable ["INC_trespassMarkerLoopRunning",false])) exitWith {};
+if ((!local _undercoverUnit) || {_undercoverUnit getVariable ["INC_trespassMarkerLoopRunning",false]}) exitWith {};
 
 _undercoverUnit setVariable ["INC_trespassMarkerLoopRunning",true,true];
 
@@ -45,7 +45,7 @@ _undercoverUnit setVariable ["INC_trespassMarkerLoopRunning",true,true];
 
         } count _trespassMarkers;
 
-        (!(_undercoverUnit getVariable ["isUndercover",false]) || !(alive _undercoverUnit))
+        (!(_undercoverUnit getVariable ["isUndercover",false]) || {!(alive _undercoverUnit)})
 
     };
 

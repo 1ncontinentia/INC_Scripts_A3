@@ -19,9 +19,7 @@ Barbaric (bool) - if true, the unit's side will potentially lash out against civ
 
 params [["_unit",objNull],["_barbaric",false],["_undercoverUnitSide",west]];
 
-if ((_unit getVariable ["INC_undercoverSide",sideEmpty]) isEqualTo _undercoverUnitSide) exitWith {};
-
-if (isNil "ALIVE_fnc_hashGet") exitWith {};
+if ((_unit getVariable ["INC_undercoverSide",sideEmpty]) isEqualTo _undercoverUnitSide || {isNil "ALIVE_fnc_hashGet"}) exitWith {};
 
 _unit setVariable ["INC_undercoverSide",_undercoverUnitSide,true];
 
@@ -112,9 +110,9 @@ if (_barbaric) then {
 
 					if (40 > (random 100)) then {
 
-						_oldHostility = [ALIVE_civilianHostility, _INC_undercoverSide] call ALIVE_fnc_hashGet;
+						private _oldHostility = [ALIVE_civilianHostility, _INC_undercoverSide] call ALIVE_fnc_hashGet;
 
-						_newHostility = _oldHostility + (random 10);
+						private _newHostility = _oldHostility + (random 10);
 
 						[ALIVE_civilianHostility, _INC_undercoverSide,_newHostility] call ALIVE_fnc_hashSet;
 
@@ -133,13 +131,10 @@ if (_barbaric) then {
 
 				private _nearbyUndercoverUnits = ((_unit nearEntities ["Man", 700]) select {
 
-					if (_x getVariable ["isSneaky",false]) then {
-
-						if ((_side knowsAbout _x) > 3.5) then {
+					if (_x getVariable ["isSneaky",false] && {(_side knowsAbout _x) > 3.5}) then {
 
 							true;
 
-						}
 					}
 				});
 
@@ -154,12 +149,13 @@ if (_barbaric) then {
 				};
 
 				//If there is no known suspect and the killer was an undercover unit, then there's a 10% chance they will lash out against civilians
-				if ((33 > (random 100)) && (_killer getVariable ["isSneaky",false])) then {
+				if ((33 > (random 100)) && {_killer getVariable ["isSneaky",false]}) then {
 
 					//makes this side consider civilians a threat if they start to die and know about the underCoverUnit, also make civilians hostile to this side
 					[[80,20], "INCON\INC_undercover\Scripts\civChaosHandler.sqf"] remoteExec ["execVM",2];
 
-					[ALIVE_civilianHostility,toUpper (str _side),-100] call ALIVE_fnc_hashSet;
+					private _sideText = [[_side] call ALIVE_fnc_sideObjectToNumber] call ALIVE_fnc_sideNumberToText;
+					[ALIVE_civilianHostility, _sideText,-100] call ALIVE_fnc_hashSet;
 				};
 
 			};

@@ -41,7 +41,7 @@ _underCoverUnit setVariable ["INC_armedLoopRunning", true, true]; // Stops the s
 
 		waitUntil {
 			sleep 3;
-			(!(uniform _underCoverUnit in _safeUniforms) || !((vest _underCoverUnit in _safeVests) || (vest _underCoverUnit == "")) || !((currentWeapon _underCoverUnit == "") || (currentWeapon _underCoverUnit == "Throw")) || (hmd _underCoverUnit != "")); //Fires if unit gets out weapon or wears suspicious uniform.
+			(!(uniform _underCoverUnit in _safeUniforms) || {!((vest _underCoverUnit in _safeVests) || {vest _underCoverUnit == ""})} || {!((currentWeapon _underCoverUnit == "") || {currentWeapon _underCoverUnit == "Throw"})} || {hmd _underCoverUnit != ""}); //Fires if unit gets out weapon or wears suspicious uniform.
 		};
 
 		_underCoverUnit setVariable ["INC_armed", true, true]; // Sets variable "INC_armed" as true.
@@ -50,10 +50,10 @@ _underCoverUnit setVariable ["INC_armedLoopRunning", true, true]; // Stops the s
 
 		waitUntil {
 			sleep 3;
-			!(!(uniform _underCoverUnit in _safeUniforms) || !((vest _underCoverUnit in _safeVests) || (vest _underCoverUnit == "")) || !((currentWeapon _underCoverUnit == "") || (currentWeapon _underCoverUnit == "Throw")) || (hmd _underCoverUnit != "")); //Fires if unit gets out weapon or wears suspicious uniform.
+			!(!(uniform _underCoverUnit in _safeUniforms) || {!((vest _underCoverUnit in _safeVests) || {vest _underCoverUnit == ""})} || {!((currentWeapon _underCoverUnit == "") || {currentWeapon _underCoverUnit == "Throw"})} || {hmd _underCoverUnit != ""}); //Fires if unit gets out weapon or wears suspicious uniform.
 		};
 
-		(!(_undercoverUnit getVariable ["isUndercover",false]) || !(alive _undercoverUnit))
+		(!(_undercoverUnit getVariable ["isUndercover",false]) || {!(alive _undercoverUnit)})
 
 	};
 

@@ -13,13 +13,13 @@ waitUntil {!(isNull player)};
 #include "UCR_setup.sqf"
 
 //Can only be run once per unit locally on the client who is the undercover unit.
-if ((_undercoverUnit getVariable ["INC_undercoverHandlerRunning",false]) || (isDedicated) || (_undercoverUnit != player)) exitWith {};
+if ((_undercoverUnit getVariable ["INC_undercoverHandlerRunning",false]) || {isDedicated} || {_undercoverUnit != player}) exitWith {};
 
 _undercoverUnit setVariable ["INC_undercoverHandlerRunning", true, true];
 
 _undercoverUnit addMPEventHandler ["MPRespawn",{
 	_this spawn {
-		_undercoverUnit = _this select 0;
+        params ["_undercoverUnit"];
 		_undercoverUnit setVariable ["INC_undercoverHandlerRunning", false, true];
 		_underCoverUnit setVariable ["INC_armedLoopRunning", false, true];
 		_underCoverUnit setVariable ["INC_trespassLoopRunning", false, true];
@@ -37,8 +37,8 @@ _undercoverUnit setVariable ["isUndercover", true, true]; //Allow scripts to pic
 
 
 if (_debug) then {
-	_undercoverUnit spawn {
-		_undercoverUnit = _this select 0;
+	[_undercoverUnit] spawn {
+		params ["_undercoverUnit"];
 		waitUntil {
 			sleep 5;
 
@@ -62,7 +62,7 @@ if (_debug) then {
 missionNamespace setVariable ["INC_civilianRecruitEnabled",_civRecruitEnabled,true];
 
 _undercoverUnit setCaptive false;
-_side = side _undercoverUnit;
+private _side = side _undercoverUnit;
 //Spawn the rebel commader
 [_side] remoteExecCall ["INCON_fnc_spawnRebelCommander",2];
 
@@ -176,7 +176,7 @@ waitUntil {
 	//wait until the unit is armed or trespassing
 	waitUntil {
 		sleep 3;
-		((_undercoverUnit getVariable ["INC_armed",false]) || (_undercoverUnit getVariable ["INC_trespassing",false]));
+		((_undercoverUnit getVariable ["INC_armed",false]) || {_undercoverUnit getVariable ["INC_trespassing",false]});
 	};
 
 	//Once the player is doing naughty stuff, make them vulnerable to being compromised

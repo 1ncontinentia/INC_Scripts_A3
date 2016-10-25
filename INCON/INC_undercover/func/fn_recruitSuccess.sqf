@@ -82,7 +82,7 @@ _recruitedCiv setUnitAbility _skill;
 
 			_weaponType = currentWeapon _unit;
 
-			if ((_weaponType == "") || (_weaponType == "Throw")) exitWith {
+			if ((_weaponType == "") || {_weaponType == "Throw"}) exitWith {
 				private _civComment = selectRandom ["I'm unarmed, let's find a weapon.","I need to find a weapon.","I've got no weapon."];
 				[[_unit, _civComment] remoteExec ["globalChat",0]];
 			};

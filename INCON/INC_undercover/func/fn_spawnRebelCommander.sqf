@@ -5,7 +5,7 @@ if (missionNamespace getVariable ["INC_rebelCommanderSpawned",false]) exitWith {
 
 if (isNil "rebelCommander") then {
 
-	_rebelGroup = [[40,40,10], _side, 1] call BIS_fnc_spawnGroup;
+	private _rebelGroup = [[40,40,10], _side, 1] call BIS_fnc_spawnGroup;
 	rebelCommander = leader _rebelGroup;
 	rebelCommander setRank "COLONEL";
 	rebelCommander disableAI "ALL";
@@ -17,5 +17,6 @@ if (isNil "rebelCommander") then {
 	rebelCommander hideObject true;
 	rebelCommander setUnitAbility 1;
 	INC_rebelCommanderSpawned = true;
-	publicVariable "INC_rebelCommanderSpawned"; 
+	publicVariable "INC_rebelCommanderSpawned";
+
 };
