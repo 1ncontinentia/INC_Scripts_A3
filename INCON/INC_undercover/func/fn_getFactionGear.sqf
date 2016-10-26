@@ -8,7 +8,7 @@ private ["_unit","_linkedItems"];
 
 params ["_gearType","_factions"];
 
-private _result = [];
+private _result = []; 
 
 private _units = [];
 private _cfgVehicles = configFile >> "CfgVehicles";
