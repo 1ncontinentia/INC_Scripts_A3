@@ -18,7 +18,8 @@ for "_i" from 0 to (count _cfgVehicles - 1) do {
 
     if (isclass _entry) then {
         if (
-            (getNumber(_entry >> "scope") >= 2) &&
+            (getText(_entry >> "faction") in _factions) &&
+            {getNumber(_entry >> "scope") >= 2} &&
             {configname _entry isKindOf "Man"}
         ) then {
             _units pushback _entry;
