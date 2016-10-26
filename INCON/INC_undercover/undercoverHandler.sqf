@@ -35,30 +35,6 @@ _undercoverUnit addMPEventHandler ["MPRespawn",{
 
 _undercoverUnit setVariable ["isUndercover", true, true]; //Allow scripts to pick up sneaky units alongside undercover civilians (who do not have the isSneaky variable)
 
-
-if (_debug) then {
-	[_undercoverUnit] spawn {
-		params ["_undercoverUnit"];
-		waitUntil {
-			sleep 5;
-
-			_undercoverUnit globalChat (format ["%1 cover intact: %2",_undercoverUnit,(captive _undercoverUnit)]);
-
-			_undercoverUnit globalChat (format ["%1 compromised: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_undercoverCompromised",false])]);
-
-			_undercoverUnit globalChat (format ["%1 trespassing: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_trespassing",false])]);
-
-			_undercoverUnit globalChat (format ["%1 armed or wearing suspicious uniform: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_armed",false])]);
-
-			_undercoverUnit globalChat (format ["Enemy know about %1: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_AnyKnowsSO",false])]);
-
-			!(_undercoverUnit getVariable ["isUndercover",false])
-		};
-
-		_undercoverUnit globalChat (format ["%1 undercover status: %2",_undercoverUnit,(_undercoverUnit getVariable ["isUndercover",false])]);
-	};
-};
-
 missionNamespace setVariable ["INC_civilianRecruitEnabled",_civRecruitEnabled,true];
 
 _undercoverUnit setCaptive false;
@@ -161,6 +137,38 @@ if (_undercoverUnit isEqualTo (leader group _undercoverUnit)) then {
 };
 
 sleep 2;
+
+
+
+if (_debug) then {
+	[_undercoverUnit] spawn {
+		params ["_undercoverUnit"];
+		waitUntil {
+
+			waitUntil {
+				sleep 1;
+				(_undercoverUnit getVariable ["INC_trespassLoopRunning",false])
+			};
+
+			sleep 0.5;
+
+			_undercoverUnit globalChat (format ["%1 cover intact: %2",_undercoverUnit,(captive _undercoverUnit)]);
+
+			_undercoverUnit globalChat (format ["%1 compromised: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_undercoverCompromised",false])]);
+
+			_undercoverUnit globalChat (format ["%1 trespassing: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_trespassing",false])]);
+
+			_undercoverUnit globalChat (format ["%1 armed or wearing suspicious uniform: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_armed",false])]);
+
+			_undercoverUnit globalChat (format ["Enemy know about %1: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_AnyKnowsSO",false])]);
+
+			!(_undercoverUnit getVariable ["isUndercover",false])
+		};
+
+		_undercoverUnit globalChat (format ["%1 undercover status: %2",_undercoverUnit,(_undercoverUnit getVariable ["isUndercover",false])]);
+	};
+};
+
 
 //Main loop
 waitUntil {
