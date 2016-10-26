@@ -13,16 +13,16 @@ private ["_result"];
 _setSkill = {
 	params ["_unit","_skillArray"];
 	_skillArray params [_unitAccuracy,_unitAimshake,_unitAimingSpeed,_unitEndurance,_unitSpotDistance,_unitSpotTime,_unitCourage,_unitReloadSpeed,_unitCommanding,_unitGeneral];
-	_unit setSkill "aimingAccuracy" _unitAccuracy;
-	_unit setSkill "aimingShake" _unitAimshake;
-	_unit setSkill "aimingSpeed" _unitAimingSpeed;
-	_unit setSkill "endurance" _unitEndurance;
-	_unit setSkill "spotDistance" _unitSpotDistance;
-	_unit setSkill "spotTime" _unitSpotTime;
-	_unit setSkill "courage" _unitCourage;
-	_unit setSkill "reloadSpeed" _unitReloadSpeed;
-	_unit setSkill "commanding" _unitCommanding;
-	_unit setSkill "general" _unitGeneral;
+	_unit setSkill ["aimingAccuracy",_unitAccuracy];
+	_unit setSkill ["aimingShake",_unitAimshake];
+	_unit setSkill ["aimingSpeed",_unitAimingSpeed];
+	_unit setSkill ["endurance",_unitEndurance];
+	_unit setSkill ["spotDistance",_unitSpotDistance];
+	_unit setSkill ["spotTime",_unitSpotTime];
+	_unit setSkill ["courage",_unitCourage];
+	_unit setSkill ["reloadSpeed",_unitReloadSpeed];
+	_unit setSkill ["commanding",_unitCommanding];
+	_unit setSkill ["general",_unitGeneral];
 
 };
 
