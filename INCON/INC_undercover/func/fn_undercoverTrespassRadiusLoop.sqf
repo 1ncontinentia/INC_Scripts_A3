@@ -29,7 +29,7 @@ _undercoverUnit setVariable ["INC_trespassRadiusLoopRunning",true,true];
 
 		sleep 0.2;
 
-		_nearMines = {_x isKindOf "timeBombCore"} count (nearestObjects [_unit,[],3]);
+		_nearMines = {_x isKindOf "timeBombCore"} count (nearestObjects [_undercoverUnit,[],3]);
 
 		if ((_nearReg + _nearAsym + _nearHVT + _nearSuperHVT + _nearMines) != 0) then {
 			_undercoverUnit setVariable ["INC_trespassType1",true,true];
