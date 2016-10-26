@@ -86,11 +86,6 @@ if (_undercoverUnit isEqualTo (leader group _undercoverUnit)) then {
 
 						_weaponType = currentWeapon _unit;
 
-						if ((_weaponType == "") || (_weaponType == "Throw")) exitWith {
-							private _civComment = selectRandom ["I'm unarmed, let's find a weapon.","I need to find a weapon.","I've got no weapon."];
-							[[_unit, _civComment] remoteExec ["globalChat",0]];
-						};
-
 						_ammoCount = _unit ammo (currentWeapon _unit);
 						_mag = currentMagazine _unit;
 						_weaponArray = [_weaponType,_ammoCount,_mag];
@@ -119,13 +114,6 @@ if (_undercoverUnit isEqualTo (leader group _undercoverUnit)) then {
 						_unit addWeapon _weaponType;
 						_unit setAmmo [_weaponType,_ammoCount];
 						_unit setVariable ["weaponStoreActive",false,true];
-
-						if ((_weaponType == "") || (_weaponType == "Throw")) then {
-
-							private _civComment = selectRandom ["I'm unarmed, let's find a weapon.","I need to find a weapon.","I've got no weapon."];
-							[[_unit, _civComment] remoteExec ["globalChat",0]];
-
-						};
 
 					},[],6,false,true,"","((_this == _target) && ((currentWeapon _this == 'Throw') || (currentWeapon _this == '')) && (_this getVariable ['weaponStoreActive',false]))"
 
