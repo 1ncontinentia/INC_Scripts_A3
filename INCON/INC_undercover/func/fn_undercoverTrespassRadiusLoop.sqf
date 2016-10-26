@@ -13,7 +13,9 @@ _undercoverUnit setVariable ["INC_trespassRadiusLoopRunning",true,true];
 
 	waitUntil {
 
-		_nearReg = count ((_undercoverUnit nearEntities _radius1) select {((side _x == _regEnySide) && {(_x knowsAbout _undercoverUnit) > 1})});
+		private _disguiseValue = (_undercoverUnit getVariable ["INC_compromisedValue",1]);
+
+		_nearReg = count ((_undercoverUnit nearEntities (_radius1 * _disguiseValue)) select {((side _x == _regEnySide) && {(_x knowsAbout _undercoverUnit) > 1})});
 
 		sleep 0.2;
 
@@ -25,7 +27,7 @@ _undercoverUnit setVariable ["INC_trespassRadiusLoopRunning",true,true];
 
 		sleep 0.2;
 
-		_nearSuperHVT = count ((_undercoverUnit nearEntities _radius4) select {_x getVariable ["isSuperHVT",false]});
+		_nearSuperHVT = count ((_undercoverUnit nearEntities (_radius4 * _disguiseValue)) select {_x getVariable ["isSuperHVT",false]});
 
 		sleep 0.2;
 

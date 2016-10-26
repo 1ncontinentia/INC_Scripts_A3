@@ -3,7 +3,7 @@ Changes the _percentage number of units of a given side to side enemy. Useful fo
 
 Arguments
 
-_underCoverUnit: The compromised unit
+_undercoverUnit: The compromised unit
 _regEnySide: Regular / conventional enemy side
 _asymEnySide: Asymmetric enemy side (doesn't remember as long due to lack of information sharing between cells)
 
@@ -31,69 +31,129 @@ Wanted level will only descrease when nobody knows about the unit anymore (alert
 */
 
 
-params ["_underCoverUnit",["_regEnySide",sideEmpty],["_asymEnySide",sideEmpty]];
+params ["_undercoverUnit",["_regEnySide",sideEmpty],["_asymEnySide",sideEmpty]];
 
-if (_underCoverUnit getVariable ["INC_compromisedLoopRunning",false]) exitWith {}; //Stops multiple instances of the code being ran on the unit
+if (_undercoverUnit getVariable ["INC_compromisedLoopRunning",false]) exitWith {}; //Stops multiple instances of the code being ran on the unit
 
-[_underCoverUnit,_regEnySide,_asymEnySide] spawn {
+//Compromised loop
+[_undercoverUnit,_regEnySide,_asymEnySide] spawn {
 
-	params ["_underCoverUnit",["_regEnySide",sideEmpty],["_asymEnySide",sideEmpty]];
+	params ["_undercoverUnit",["_regEnySide",sideEmpty],["_asymEnySide",sideEmpty]];
 
-	_underCoverUnit setVariable ["INC_compromisedLoopRunning", true, true];
+	_undercoverUnit setVariable ["INC_compromisedLoopRunning", true, true];
 
 	// Publicize undercoverCompromised variable to true. This prevents other scripts from setting captive while unit is still compromised.
-	_underCoverUnit setVariable ["INC_undercoverCompromised", true, true];
+	_undercoverUnit setVariable ["INC_undercoverCompromised", true, true];
 
 	// SetCaptive after suspicious act has been committed
-	[_underCoverUnit, false] remoteExec ["setCaptive", _underCoverUnit];
+	[_undercoverUnit, false] remoteExec ["setCaptive", _undercoverUnit];
 
 	// Cooldown Timer to simulate how long it would take for word to get out
-	_cooldownTimer = (30 + (random 180));
+	_cooldownTimer = (30 + (random 240));
 	sleep _cooldownTimer;
 
 
 	//If there are still alerted units alive then wait until he's all sparkly and knowsabout _regEnySide has dropped off, otherwise just wait until he's sparkly
-	if (_underCoverUnit getVariable ["INC_AnyKnowsSO",false]) then {
+	if (_undercoverUnit getVariable ["INC_AnyKnowsSO",false]) then {
+
+		private ["_unitUniform","_unitGoggles","_unitHeadgear"];
+
+		_unitUniform = uniform _undercoverUnit;
+		_unitGoggles = goggles _undercoverUnit;
+		_unitHeadgear = headgear _undercoverUnit;
 
 		// Wait until nobody knows nuffing and the unit isn't being naughty
 		waituntil {
-			sleep 11;
+
+			sleep 5;
+
+			if (
+				(uniform _undercoverUnit != _unitUniform) &&
+				{(goggles _undercoverUnit != _unitGoggles) || {(headgear _undercoverUnit != _unitHeadgear)}}
+
+			) then {
+
+				if (
+
+					(([_regEnySide,_undercoverUnit,150] call INCON_fnc_countAlerted) == 0) &&
+					{(([_asymEnySide,_undercoverUnit,150] call INCON_fnc_countAlerted) == 0)}
+					
+				) then {
+
+					_undercoverUnit setVariable ["INC_disguiseChanged",true];
+
+				} else {
+
+				_unitUniform = uniform _undercoverUnit;
+				_unitGoggles = goggles _undercoverUnit;
+				_unitHeadgear = headgear _undercoverUnit;
+
+				};
+
+			};
+
+
+			sleep 3;
+
+			if (_undercoverUnit getVariable ["INC_disguiseChanged",false]) exitWith {
+
+				private ["_disguiseValue","_newDisguiseValue"];
+
+				_disguiseValue = (_undercoverUnit getVariable ["INC_compromisedValue",1]);
+
+				_newDisguiseValue = _disguiseValue + (random 1);
+
+				_undercoverUnit setVariable ["INC_disguiseChanged",false,true];
+
+				_undercoverUnit setVariable ["INC_compromisedValue",_newDisguiseValue,true];
+
+				// Publicize undercoverCompromised to false.
+				_undercoverUnit setVariable ["INC_undercoverCompromised", false, true];
+
+				// SetCaptive back to true.
+				[_undercoverUnit, true] remoteExec ["setCaptive", _undercoverUnit];
+			};
+
+			sleep 2;
+
 			(
-				!(_underCoverUnit getVariable ["INC_AnyKnowsSO",false]) &&
-				{!(_underCoverUnit getVariable ["INC_armed",false])} &&
-				{!(_underCoverUnit getVariable ["INC_trespassing",false])} &&
-				{(1.8 > (_regEnySide knowsAbout _underCoverUnit))}
+				!(_undercoverUnit getVariable ["INC_AnyKnowsSO",false]) &&
+				{!(_undercoverUnit getVariable ["INC_armed",false])} &&
+				{!(_undercoverUnit getVariable ["INC_trespassing",false])} &&
+				{(1.8 > (_regEnySide knowsAbout _undercoverUnit))}
 			);
 		};
 
 		// Publicize undercoverCompromised to false.
-		_underCoverUnit setVariable ["INC_undercoverCompromised", false, true];
+		_undercoverUnit setVariable ["INC_undercoverCompromised", false, true];
 
 		// SetCaptive back to true.
-		[_underCoverUnit, true] remoteExec ["setCaptive", _underCoverUnit];
+		[_undercoverUnit, true] remoteExec ["setCaptive", _undercoverUnit];
 
 	} else {
 
 		// Wait until nobody knows nuffing and the unit isn't being naughty
 		waituntil {
-			sleep 3;
+
+			sleep 5;
+
 			(
-				!(_underCoverUnit getVariable ["INC_AnyKnowsSO",false]) &&
-				{!(_underCoverUnit getVariable ["INC_armed",false])} &&
-				{!(_underCoverUnit getVariable ["INC_trespassing",false])}
+				!(_undercoverUnit getVariable ["INC_AnyKnowsSO",false]) &&
+				{!(_undercoverUnit getVariable ["INC_armed",false])} &&
+				{!(_undercoverUnit getVariable ["INC_trespassing",false])}
 			);
 		};
 
 		// Publicize undercoverCompromised to false.
-		_underCoverUnit setVariable ["INC_undercoverCompromised", false, true];
+		_undercoverUnit setVariable ["INC_undercoverCompromised", false, true];
 
 
 		// SetCaptive back to true.
-		[_underCoverUnit, true] remoteExec ["setCaptive", _underCoverUnit];
+		[_undercoverUnit, true] remoteExec ["setCaptive", _undercoverUnit];
 
 	};
 
 	//Allow the loop to run again
-	_underCoverUnit setVariable ["INC_compromisedLoopRunning", false, true];
+	_undercoverUnit setVariable ["INC_compromisedLoopRunning", false, true];
 
 };
