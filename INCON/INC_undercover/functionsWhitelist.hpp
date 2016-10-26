@@ -16,3 +16,4 @@ class undercoverKilledHandler {allowedTargets=0;};
 class undercoverTrespassHandler {allowedTargets=0;};
 class undercoverTrespassMarkerLoop {allowedTargets=0;};
 class undercoverTrespassRadiusLoop {allowedTargets=0;};
+class unitPersist {allowedTargets=0;}; 

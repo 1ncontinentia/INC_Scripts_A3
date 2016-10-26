@@ -19,4 +19,5 @@ class undercoverRecruit
 	class undercoverTrespassHandler {description = "Handles unit trespassing in different situations, returning the 'trespassing' variable on the unit for the undercover handler.";};
 	class undercoverTrespassMarkerLoop {description = "Handles unit trespassing in prohibited markers.";};
 	class undercoverTrespassRadiusLoop {description = "Handles unit getting too close to enemy units.";};
+	class unitPersist {description = "Gets data for unit persistence and executes it."}; 
 };
