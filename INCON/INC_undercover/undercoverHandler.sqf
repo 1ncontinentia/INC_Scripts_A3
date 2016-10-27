@@ -12,8 +12,8 @@ waitUntil {!(isNull player)};
 
 #include "UCR_setup.sqf"
 
-//Can only be run once per unit locally on the client who is the undercover unit.
-if ((_undercoverUnit getVariable ["INC_undercoverHandlerRunning",false]) || {isDedicated} || {_undercoverUnit != player}) exitWith {};
+//Can only be run once per unit.
+if (_undercoverUnit getVariable ["INC_undercoverHandlerRunning",false]) exitWith {};
 
 _undercoverUnit setVariable ["INC_undercoverHandlerRunning", true, true];
 
@@ -29,7 +29,7 @@ if (_persistentGroup) then {
 			(_undercoverUnit getvariable ["alive_sys_player_playerloaded",false])
 		};
 
-		_groupData = [[[_dataKey],"loadData"]] remoteExecCall ["INCON_fnc_aliveDataHandler",2];
+		_groupData = [_dataKey,"loadData"] remoteExecCall ["INCON_fnc_aliveDataHandler",2];
 
 		if (count _groupData != 0) then {
 
@@ -135,9 +135,11 @@ if (_persistentGroup) then {
 
 			_groupData = [_undercoverUnit,"saveGroup"] call INCON_fnc_unitPersist;
 
-			[[[_dataKey,_groupData],"saveData"]] remoteExecCall ["INCON_fnc_aliveDataHandler",2];
-
 			sleep 1;
+
+			[[_dataKey,_groupData],"saveData"] remoteExecCall ["INCON_fnc_aliveDataHandler",2];
+
+			!(_undercoverUnit getVariable ["isSneaky",false])
 
 		};
 	};
