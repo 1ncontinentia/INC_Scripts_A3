@@ -1,7 +1,7 @@
 class undercoverRecruit
 {
 	file = "INCON\INC_undercover\func";
-	class aliveDataHander {description = "Saves and loads ALiVE custom data on the server"}; 
+	class aliveDataHandler {description = "Saves and loads ALiVE custom data on the server"}; 
 	class countAlerted {description = "Counts units of the defined side who have been alerted to a unit.";};
 	class exportLoadout {description = "Copy a unit's loadout and store it in SQF.";};
 	class getFactionGear {description = "Gets a faction's gear.";};
