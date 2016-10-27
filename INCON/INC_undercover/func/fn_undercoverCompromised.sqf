@@ -53,40 +53,51 @@ if (_undercoverUnit getVariable ["INC_compromisedLoopRunning",false]) exitWith {
 	sleep _cooldownTimer;
 
 
-	//If there are still alerted units alive then wait until he's all sparkly and knowsabout _regEnySide has dropped off, otherwise just wait until he's sparkly
+	//If there are still alerted units alive...
 	if (_undercoverUnit getVariable ["INC_AnyKnowsSO",false]) then {
 
-		private ["_unitUniform","_unitGoggles","_unitHeadgear"];
+		private ["_unitUniform","_unitGoggles","_unitHeadgear","_compUniform","_compHeadGear"];
 
-		_unitUniform = uniform _undercoverUnit;
-		_unitGoggles = goggles _undercoverUnit;
-		_unitHeadgear = headgear _undercoverUnit;
+		_compUniform = (_undercoverUnit getVariable ["INC_compUniforms",[]]);
+		_compUniform pushBackUnique (uniform _undercoverUnit);
+		_undercoverUnit setVariable ["INC_compUniforms",_compUniform];
 
-		// Wait until nobody knows nuffing and the unit isn't being naughty
+		_compHeadGear = (_undercoverUnit getVariable ["INC_compHeadGear",[]]);
+		_compHeadGear pushBackUnique (goggles _undercoverUnit);
+		_compHeadGear pushBackUnique (headgear _undercoverUnit);
+		_undercoverUnit setVariable ["INC_compHeadGear",_compHeadGear];
+
+		// Wait until nobody knows nuffing and the unit isn't being naughty (or has changed disguise)
 		waituntil {
+
+			_compUniform = (_undercoverUnit getVariable ["INC_compUniforms",[]]);
+			_compHeadGear = (_undercoverUnit getVariable ["INC_compHeadGear",[]]);
 
 			sleep 5;
 
 			if (
-				(uniform _undercoverUnit != _unitUniform) &&
-				{(goggles _undercoverUnit != _unitGoggles) || {(headgear _undercoverUnit != _unitHeadgear)}}
+				!(uniform _undercoverUnit in _compUniform) &&
+				{!(goggles _undercoverUnit in _compHeadGear) || {!(headgear _undercoverUnit in _compHeadGear)}}
 
 			) then {
 
 				if (
 
-					(([_regEnySide,_undercoverUnit,150] call INCON_fnc_countAlerted) == 0) &&
-					{(([_asymEnySide,_undercoverUnit,150] call INCON_fnc_countAlerted) == 0)}
-					
+					(([_regEnySide,_undercoverUnit,50] call INCON_fnc_countAlerted) == 0) &&
+					{(([_asymEnySide,_undercoverUnit,50] call INCON_fnc_countAlerted) == 0)}
+
 				) then {
 
 					_undercoverUnit setVariable ["INC_disguiseChanged",true];
 
 				} else {
 
-				_unitUniform = uniform _undercoverUnit;
-				_unitGoggles = goggles _undercoverUnit;
-				_unitHeadgear = headgear _undercoverUnit;
+					_compUniform pushBackUnique (uniform _undercoverUnit);
+					_undercoverUnit setVariable ["INC_compUniforms",_compUniform];
+
+					_compHeadGear pushBackUnique (goggles _undercoverUnit);
+					_compHeadGear pushBackUnique (headgear _undercoverUnit);
+					_undercoverUnit setVariable ["INC_compHeadGear",_compHeadGear];
 
 				};
 
@@ -95,31 +106,29 @@ if (_undercoverUnit getVariable ["INC_compromisedLoopRunning",false]) exitWith {
 
 			sleep 3;
 
-			if (_undercoverUnit getVariable ["INC_disguiseChanged",false]) exitWith {
+			if (
+
+				((_undercoverUnit getVariable ["INC_disguiseChanged",false]) && {(80 > (random 100))})
+
+			) exitWith {
 
 				private ["_disguiseValue","_newDisguiseValue"];
 
 				_disguiseValue = (_undercoverUnit getVariable ["INC_compromisedValue",1]);
 
-				_newDisguiseValue = _disguiseValue + (random 1);
-
-				_undercoverUnit setVariable ["INC_disguiseChanged",false,true];
+				_newDisguiseValue = _disguiseValue + (random 2);
 
 				_undercoverUnit setVariable ["INC_compromisedValue",_newDisguiseValue,true];
 
-				// Publicize undercoverCompromised to false.
-				_undercoverUnit setVariable ["INC_undercoverCompromised", false, true];
+				_undercoverUnit setVariable ["INC_disguiseChanged",false,true];
 
-				// SetCaptive back to true.
-				[_undercoverUnit, true] remoteExec ["setCaptive", _undercoverUnit];
+				true
 			};
 
-			sleep 2;
+			sleep 1;
 
 			(
 				!(_undercoverUnit getVariable ["INC_AnyKnowsSO",false]) &&
-				{!(_undercoverUnit getVariable ["INC_armed",false])} &&
-				{!(_undercoverUnit getVariable ["INC_trespassing",false])} &&
 				{(1.8 > (_regEnySide knowsAbout _undercoverUnit))}
 			);
 		};
@@ -130,19 +139,8 @@ if (_undercoverUnit getVariable ["INC_compromisedLoopRunning",false]) exitWith {
 		// SetCaptive back to true.
 		[_undercoverUnit, true] remoteExec ["setCaptive", _undercoverUnit];
 
+	//Otherwise he is no longer compromised
 	} else {
-
-		// Wait until nobody knows nuffing and the unit isn't being naughty
-		waituntil {
-
-			sleep 5;
-
-			(
-				!(_undercoverUnit getVariable ["INC_AnyKnowsSO",false]) &&
-				{!(_undercoverUnit getVariable ["INC_armed",false])} &&
-				{!(_undercoverUnit getVariable ["INC_trespassing",false])}
-			);
-		};
 
 		// Publicize undercoverCompromised to false.
 		_undercoverUnit setVariable ["INC_undercoverCompromised", false, true];
