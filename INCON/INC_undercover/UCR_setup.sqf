@@ -26,8 +26,6 @@ _HMDallowed = false; //Are HMDs (night vision goggles etc.) safe to wear? Set to
 //ALiVE specific features (turn off if not using ALiVE)
 _civRecruitEnabled = true;      //Set this to false to prevent undercover units from recruiting civilians (only works with ALiVE)
 _armedCivPercentage = 70;       //Percentage of civilians armed with rifles or pistols on person or in backpacks (0 to disable)
-_persistentGroup = true;        //Attempt to save and load AI in player group using ALiVE persistence
-
-_trespassMarkerNames = [];
+_persistentGroup = true;        //Attempt to save and load AI in player group using ALiVE persistence (only works with ALiVE)
 
 _debug = false; //Set to true for debug hints
