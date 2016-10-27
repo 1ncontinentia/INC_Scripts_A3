@@ -146,9 +146,11 @@ if (_debug) then {
 
 			_undercoverUnit globalChat (format ["%1 trespassing: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_trespassing",false])]);
 
-			_undercoverUnit globalChat (format ["%1 armed or wearing suspicious clothing / HMD: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_armed",false])]);
+			_undercoverUnit globalChat (format ["%1 armed / wearing suspicious item: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_armed",false])]);
 
 			_undercoverUnit globalChat (format ["Enemy know about %1: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_AnyKnowsSO",false])]);
+
+			_undercoverUnit globalChat (format ["Compromised radius multiplier: %1",(_undercoverUnit getVariable ["INC_compromisedValue",1])]);
 
 			!(_undercoverUnit getVariable ["isUndercover",false])
 		};
@@ -161,7 +163,7 @@ if (_debug) then {
 //Main loop
 waitUntil {
 
-	sleep 5;
+	sleep 1;
 
 	//Pause while the unit is compromised
 	waitUntil {
