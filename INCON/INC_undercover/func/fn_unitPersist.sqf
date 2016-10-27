@@ -6,12 +6,17 @@ Author: Incontinentia
 
 */
 
-params [["_unit",objNull],["_leader",objNull],["_mode","copy"],["_unitInfoArray",[]]];
+params [["_input",objNull],["_mode","copy"],["_leader",objNull]];
 
 private ["_result"];
 
 switch (_mode) do {
+
 	case "copy": {
+
+		private ["_unit"];
+
+		_unit = _input;
 
 		_unitVarName = _unit;
 		_unitType = typeOf _unit;
@@ -43,7 +48,8 @@ switch (_mode) do {
 	};
 
 	case "create": {
-		_unitInfoArray params ["_spawnedUnit","_unitType","_unitPos","_unitName","_unitFace","_unitSpeaker","_unitLoadout","_unitDamage","_skillArray"];
+
+		_input params ["_spawnedUnit","_unitType","_unitPos","_unitName","_unitFace","_unitSpeaker","_unitLoadout","_unitDamage","_skillArray"];
 
 		_spawnedUnit = (group _leader) createUnit [_unitType,[0,0,0],[],0,""];
 		_spawnedUnit setVariable ["noChanges",true,true];
@@ -87,6 +93,40 @@ switch (_mode) do {
 		};
 
 		_result = _spawnedUnit;
+	};
+
+	case "saveGroup": {
+
+		private ["_unit"];
+
+		_unit = _input;
+
+		_result = [];
+
+		for "_i" from 1 to (count units group _unit) do {
+
+			private ["_groupMember","_unitInfo"];
+
+			_groupMember = (units group _unit) select _i;
+			_unitInfo = [_groupMember] call INCON_fnc_unitPersist;
+			_result pushBack _unitInfo;
+
+		};
+	};
+
+	case "loadGroup": {
+
+		for "_i" from 0 to (count (_input - 1)) do {
+
+			private ["_groupMember","_unitInfo"];
+
+			_result = [];
+
+			_unitInfo = _input select _i;
+			_groupMember = [_unitInfo,"create",_leader] call INCON_fnc_unitPersist;
+			_result pushBack _newTeamMember;
+
+		};
 	};
 };
 
