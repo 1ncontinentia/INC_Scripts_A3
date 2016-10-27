@@ -17,6 +17,31 @@ if ((_undercoverUnit getVariable ["INC_undercoverHandlerRunning",false]) || {isD
 
 _undercoverUnit setVariable ["INC_undercoverHandlerRunning", true, true];
 
+if (_persistentGroup) then {
+	[_undercoverUnit] spawn {
+		params ["_undercoverUnit"];
+		private ["_groupData","_dataKey"];
+
+		_dataKey = format ["ALiVE_INC_persGroupData%1",_undercoverUnit];
+
+		waitUntil {
+			sleep 3;
+			(_undercoverUnit getvariable ["alive_sys_player_playerloaded",false])
+		};
+
+		_groupData = [[[_dataKey],"loadData"]] remoteExecCall ["INCON_fnc_aliveDataHandler",2];
+
+		if (count _groupData != 0) then {
+
+			{if (_x != leader group _x) then {deleteVehicle _x}} forEach units group _undercoverUnit;
+
+			[_groupData,"loadGroup",_undercoverUnit] call INCON_fnc_unitPersist;
+
+		};
+
+	};
+};
+
 _undercoverUnit addMPEventHandler ["MPRespawn",{
 	_this spawn {
         params ["_undercoverUnit"];
@@ -64,7 +89,61 @@ sleep 2;
 
 sleep 2;
 
-//Run a low-impact version on group members (no proximity check)
+if (_debug) then {
+	[_undercoverUnit] spawn {
+		params ["_undercoverUnit"];
+		waitUntil {
+
+			waitUntil {
+				sleep 1;
+				(_undercoverUnit getVariable ["INC_trespassLoopRunning",false])
+			};
+
+			sleep 0.5;
+
+			_undercoverUnit globalChat (format ["%1 cover intact: %2",_undercoverUnit,(captive _undercoverUnit)]);
+
+			_undercoverUnit globalChat (format ["%1 compromised: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_undercoverCompromised",false])]);
+
+			_undercoverUnit globalChat (format ["%1 trespassing: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_trespassing",false])]);
+
+			_undercoverUnit globalChat (format ["%1 armed / wearing suspicious item: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_armed",false])]);
+
+			_undercoverUnit globalChat (format ["Enemy know about %1: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_AnyKnowsSO",false])]);
+
+			_undercoverUnit globalChat (format ["Compromised radius multiplier: %1",(_undercoverUnit getVariable ["INC_compromisedValue",1])]);
+
+			!(_undercoverUnit getVariable ["isUndercover",false])
+		};
+
+		_undercoverUnit globalChat (format ["%1 undercover status: %2",_undercoverUnit,(_undercoverUnit getVariable ["isUndercover",false])]);
+	};
+};
+
+sleep 2;
+
+if (_persistentGroup) then {
+	[_undercoverUnit] spawn {
+		params ["_undercoverUnit"];
+		private ["_groupData","_dataKey"];
+
+		_dataKey = format ["ALiVE_INC_persGroupData%1",_undercoverUnit];
+
+		waitUntil {
+
+			sleep 15;
+
+			_groupData = [_undercoverUnit,"saveGroup"] call INCON_fnc_unitPersist;
+
+			[[[_dataKey,_groupData],"saveData"]] remoteExecCall ["INCON_fnc_aliveDataHandler",2];
+
+			sleep 1;
+
+		};
+	};
+};
+
+//Run a low-impact version of the undercover script on group members (no proximity check)
 if (_undercoverUnit isEqualTo (leader group _undercoverUnit)) then {
 	{
 		if !(_x getVariable ["isSneaky",false]) then {
@@ -76,6 +155,22 @@ if (_undercoverUnit isEqualTo (leader group _undercoverUnit)) then {
 			[_x,_undercoverUnit] spawn {
 
 				params ["_unit","_undercoverUnit"];
+
+				[_unit, [
+					"<t color='#9933FF'>Dismiss</t>", {
+
+						private _unit = _this select 0;
+
+						[_unit] join grpNull;
+						_unit remoteExec ["removeAllActions",0];
+						_unit setVariable ["isUndercover", false, true];
+
+						_wp1 = (group _unit) addWaypoint [(getPosWorld _unit), 3];
+						(group _unit) setBehaviour "SAFE";
+						_wp1 setWaypointType "DISMISS";
+
+					},[],5.9,false,true,"","((_this == _target) && (_this getVariable ['isUndercover',false]))"
+				]] remoteExec ["addAction", _undercoverUnit];
 
 				[_unit, [
 
@@ -123,42 +218,6 @@ if (_undercoverUnit isEqualTo (leader group _undercoverUnit)) then {
 		};
 	} forEach units group _undercoverUnit;
 };
-
-sleep 2;
-
-
-
-if (_debug) then {
-	[_undercoverUnit] spawn {
-		params ["_undercoverUnit"];
-		waitUntil {
-
-			waitUntil {
-				sleep 1;
-				(_undercoverUnit getVariable ["INC_trespassLoopRunning",false])
-			};
-
-			sleep 0.5;
-
-			_undercoverUnit globalChat (format ["%1 cover intact: %2",_undercoverUnit,(captive _undercoverUnit)]);
-
-			_undercoverUnit globalChat (format ["%1 compromised: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_undercoverCompromised",false])]);
-
-			_undercoverUnit globalChat (format ["%1 trespassing: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_trespassing",false])]);
-
-			_undercoverUnit globalChat (format ["%1 armed / wearing suspicious item: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_armed",false])]);
-
-			_undercoverUnit globalChat (format ["Enemy know about %1: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_AnyKnowsSO",false])]);
-
-			_undercoverUnit globalChat (format ["Compromised radius multiplier: %1",(_undercoverUnit getVariable ["INC_compromisedValue",1])]);
-
-			!(_undercoverUnit getVariable ["isUndercover",false])
-		};
-
-		_undercoverUnit globalChat (format ["%1 undercover status: %2",_undercoverUnit,(_undercoverUnit getVariable ["isUndercover",false])]);
-	};
-};
-
 
 //Main loop
 waitUntil {
