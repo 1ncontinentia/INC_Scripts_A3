@@ -103,7 +103,7 @@ switch (_mode) do {
 
 		_result = [];
 
-		for "_i" from 1 to (count units group _unit) do {
+		for "_i" from 1 to ((count units group _unit) - 1) do {
 
 			private ["_groupMember","_unitInfo"];
 
@@ -116,7 +116,7 @@ switch (_mode) do {
 
 	case "loadGroup": {
 
-		for "_i" from 0 to (count (_input - 1)) do {
+		for "_i" from 0 to ((count _input) - 1) do {
 
 			private ["_groupMember","_unitInfo"];
 
@@ -124,7 +124,7 @@ switch (_mode) do {
 
 			_unitInfo = _input select _i;
 			_groupMember = [_unitInfo,"create",_leader] call INCON_fnc_unitPersist;
-			_result pushBack _newTeamMember;
+			_result pushBack _groupMember;
 
 		};
 	};
