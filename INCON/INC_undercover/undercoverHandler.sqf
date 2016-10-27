@@ -187,7 +187,7 @@ waitUntil {
 	if (_undercoverUnit getVariable ["INC_armed",false]) then {
 
 		//While he's armed and not compromised, run these checks
-		while { sleep 2; ((_undercoverUnit getVariable ["INC_armed",false]) && !(_undercoverUnit getVariable ["INC_undercoverCompromised",false]))} do {
+		while { sleep 2; ((_undercoverUnit getVariable ["INC_armed",false]) && {!(_undercoverUnit getVariable ["INC_undercoverCompromised",false])})} do {
 
 			//Do nothing until he's also trespassing
 			if (_undercoverUnit getVariable ["INC_trespassing",false]) then {
@@ -199,7 +199,7 @@ waitUntil {
 					private _asymAlerted = [_asymEnySide,_undercoverUnit,50] call INCON_fnc_countAlerted;
 
 					//Once people know exactly where he is, who he is, and that he is both armed and trespassing, make him compromised
-					if ((_regAlerted != 0) || (_asymAlerted != 0)) exitWith {
+					if ((_regAlerted != 0) || {(_asymAlerted != 0)}) exitWith {
 
 						[_undercoverUnit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCompromised",_undercoverUnit];
 					};
@@ -210,7 +210,7 @@ waitUntil {
 	} else {
 
 		//While he's trespassing and not compromised, run these checks
-		while {sleep 2; ((_undercoverUnit getVariable ["INC_trespassing",false]) && !(_undercoverUnit getVariable ["INC_undercoverCompromised",false]))} do {
+		while {sleep 2; ((_undercoverUnit getVariable ["INC_trespassing",false]) && {!(_undercoverUnit getVariable ["INC_undercoverCompromised",false])})} do {
 
 			//Do nothing until he is armed
 			if (_undercoverUnit getVariable ["INC_armed",false]) then {
@@ -222,7 +222,7 @@ waitUntil {
 					private _asymAlerted = [_asymEnySide,_undercoverUnit,50] call INCON_fnc_countAlerted;
 
 					//Once people know exactly where he is, who he is, and that he is both armed and trespassing, make him compromised
-					if ((_regAlerted != 0) || (_asymAlerted != 0)) exitWith {
+					if ((_regAlerted != 0) || {(_asymAlerted != 0)}) exitWith {
 
 						[_undercoverUnit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCompromised",_undercoverUnit];
 					};
@@ -234,7 +234,7 @@ waitUntil {
 	//Wait until he is no longer armed or trespassing...
 	waitUntil {
 		sleep 4;
-		!((_undercoverUnit getVariable ["INC_trespassing",false]) && (_undercoverUnit getVariable ["INC_armed",false]));
+		!((_undercoverUnit getVariable ["INC_trespassing",false]) && {(_undercoverUnit getVariable ["INC_armed",false])});
 	};
 
 	//Then stop the holding variable and allow cooldown to commence
