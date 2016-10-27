@@ -1,4 +1,5 @@
 
+class aliveDataHander {allowedTargets=0;};
 class countAlerted {allowedTargets=0;};
 class exportLoadout {allowedTargets=0;};
 class getFactionGear {allowedTargets=0;};
