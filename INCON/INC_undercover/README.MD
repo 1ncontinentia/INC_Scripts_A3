@@ -2,11 +2,10 @@ Requires:
 
 ALiVE (for civilian recruitment)
 CBA
-See the full readme.txt in the MissionFolder.terrain\INCON\INC_undercover folder.
 
 FEATURES
 
-Allows a player and his group to dress as civilians and go incognito, recruit actual civilians, and cause mayhem.
+Allows a player and his group to dress as civilians and go incognito, recruit civilians, and cause mayhem.
 Integrates with ALiVE
 Undercover simulation for stealth / sneaky beaky / guerilla missions without killing performance
 Works on players and their AI group members
