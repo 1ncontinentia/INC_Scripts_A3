@@ -16,7 +16,7 @@ waitUntil {!(isNull player)};
 if (_undercoverUnit getVariable ["INC_undercoverHandlerRunning",false]) exitWith {};
 
 _undercoverUnit setVariable ["INC_undercoverHandlerRunning", true, true];
-
+ 
 if (_persistentGroup) then {
 	switch (_persGroupSaveType) do {
 		case "alive" : {
