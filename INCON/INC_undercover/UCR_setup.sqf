@@ -30,3 +30,4 @@ _persistentGroup = true;        //Persist player group between sessions
 _persGroupSaveType = "local";   //Either "local" or "alive" - local means saving your group to your local Arma 3 profile (will only load if ALiVE player data present / experimental: USE WITH CAUTION, may not match your ALiVE session), "alive" means using ALiVE custom data to save the group which is currently unreliable
 
 _debug = false; //Set to true for debug hints
+ 
