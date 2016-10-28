@@ -1,5 +1,7 @@
 
+class aliveDataHandler {allowedTargets=0;};
 class countAlerted {allowedTargets=0;};
+class exportLoadout {allowedTargets=0;};
 class getFactionGear {allowedTargets=0;};
 class recruitAttempt {allowedTargets=0;};
 class recruitCiv {allowedTargets=0;};
@@ -16,3 +18,4 @@ class undercoverKilledHandler {allowedTargets=0;};
 class undercoverTrespassHandler {allowedTargets=0;};
 class undercoverTrespassMarkerLoop {allowedTargets=0;};
 class undercoverTrespassRadiusLoop {allowedTargets=0;};
+class unitPersist {allowedTargets=0;};

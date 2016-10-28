@@ -1,7 +1,9 @@
 class undercoverRecruit
 {
 	file = "INCON\INC_undercover\func";
+	class aliveDataHandler {description = "Saves and loads ALiVE custom data on the server"}; 
 	class countAlerted {description = "Counts units of the defined side who have been alerted to a unit.";};
+	class exportLoadout {description = "Copy a unit's loadout and store it in SQF.";};
 	class getFactionGear {description = "Gets a faction's gear.";};
 	class recruitAttempt {description = "Attempt to recruit - requires ALiVE.";};
 	class recruitCiv {description = "Allows civilians to be recruited. Also gives them either a rifle or pistol.";};
@@ -19,4 +21,5 @@ class undercoverRecruit
 	class undercoverTrespassHandler {description = "Handles unit trespassing in different situations, returning the 'trespassing' variable on the unit for the undercover handler.";};
 	class undercoverTrespassMarkerLoop {description = "Handles unit trespassing in prohibited markers.";};
 	class undercoverTrespassRadiusLoop {description = "Handles unit getting too close to enemy units.";};
+	class unitPersist {description = "Gets data for unit persistence and executes it."};
 };

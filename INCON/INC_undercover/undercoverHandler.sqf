@@ -12,10 +12,35 @@ waitUntil {!(isNull player)};
 
 #include "UCR_setup.sqf"
 
-//Can only be run once per unit locally on the client who is the undercover unit.
-if ((_undercoverUnit getVariable ["INC_undercoverHandlerRunning",false]) || {isDedicated} || {_undercoverUnit != player}) exitWith {};
+//Can only be run once per unit.
+if (_undercoverUnit getVariable ["INC_undercoverHandlerRunning",false]) exitWith {};
 
 _undercoverUnit setVariable ["INC_undercoverHandlerRunning", true, true];
+
+if (_persistentGroup) then {
+	[_undercoverUnit] spawn {
+		params ["_undercoverUnit"];
+		private ["_groupData","_dataKey"];
+
+		_dataKey = format ["ALiVE_INC_persGroupData%1",_undercoverUnit];
+
+		waitUntil {
+			sleep 3;
+			(_undercoverUnit getvariable ["alive_sys_player_playerloaded",false])
+		};
+
+		_groupData = [_dataKey,"loadData"] remoteExecCall ["INCON_fnc_aliveDataHandler",2];
+
+		if (count _groupData != 0) then {
+
+			{if (_x != leader group _x) then {deleteVehicle _x}} forEach units group _undercoverUnit;
+
+			[_groupData,"loadGroup",_undercoverUnit] call INCON_fnc_unitPersist;
+
+		};
+
+	};
+};
 
 _undercoverUnit addMPEventHandler ["MPRespawn",{
 	_this spawn {
@@ -64,7 +89,63 @@ sleep 2;
 
 sleep 2;
 
-//Run a low-impact version on group members (no proximity check)
+if (_debug) then {
+	[_undercoverUnit] spawn {
+		params ["_undercoverUnit"];
+		waitUntil {
+
+			waitUntil {
+				sleep 1;
+				(_undercoverUnit getVariable ["INC_trespassLoopRunning",false])
+			};
+
+			sleep 0.5;
+
+			_undercoverUnit globalChat (format ["%1 cover intact: %2",_undercoverUnit,(captive _undercoverUnit)]);
+
+			_undercoverUnit globalChat (format ["%1 compromised: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_undercoverCompromised",false])]);
+
+			_undercoverUnit globalChat (format ["%1 trespassing: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_trespassing",false])]);
+
+			_undercoverUnit globalChat (format ["%1 armed / wearing suspicious item: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_armed",false])]);
+
+			_undercoverUnit globalChat (format ["Enemy know about %1: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_AnyKnowsSO",false])]);
+
+			_undercoverUnit globalChat (format ["Compromised radius multiplier: %1",(_undercoverUnit getVariable ["INC_compromisedValue",1])]);
+
+			!(_undercoverUnit getVariable ["isUndercover",false])
+		};
+
+		_undercoverUnit globalChat (format ["%1 undercover status: %2",_undercoverUnit,(_undercoverUnit getVariable ["isUndercover",false])]);
+	};
+};
+
+sleep 2;
+
+if (_persistentGroup) then {
+	[_undercoverUnit] spawn {
+		params ["_undercoverUnit"];
+		private ["_groupData","_dataKey"];
+
+		_dataKey = format ["ALiVE_INC_persGroupData%1",_undercoverUnit];
+
+		waitUntil {
+
+			sleep 15;
+
+			_groupData = [_undercoverUnit,"saveGroup"] call INCON_fnc_unitPersist;
+
+			sleep 1;
+
+			[[_dataKey,_groupData],"saveData"] remoteExecCall ["INCON_fnc_aliveDataHandler",2];
+
+			!(_undercoverUnit getVariable ["isSneaky",false])
+
+		};
+	};
+};
+
+//Run a low-impact version of the undercover script on group members (no proximity check)
 if (_undercoverUnit isEqualTo (leader group _undercoverUnit)) then {
 	{
 		if !(_x getVariable ["isSneaky",false]) then {
@@ -78,6 +159,22 @@ if (_undercoverUnit isEqualTo (leader group _undercoverUnit)) then {
 				params ["_unit","_undercoverUnit"];
 
 				[_unit, [
+					"<t color='#9933FF'>Dismiss</t>", {
+
+						private _unit = _this select 0;
+
+						[_unit] join grpNull;
+						_unit remoteExec ["removeAllActions",0];
+						_unit setVariable ["isUndercover", false, true];
+
+						_wp1 = (group _unit) addWaypoint [(getPosWorld _unit), 3];
+						(group _unit) setBehaviour "SAFE";
+						_wp1 setWaypointType "DISMISS";
+
+					},[],5.9,false,true,"","((_this == _target) && (_this getVariable ['isUndercover',false]))"
+				]] remoteExec ["addAction", _undercoverUnit];
+
+				[_unit, [
 
 					"<t color='#334FFF'>Conceal weapon</t>", {
 
@@ -85,11 +182,6 @@ if (_undercoverUnit isEqualTo (leader group _undercoverUnit)) then {
 						private ["_weaponType","_ammoCount","_mag","_magazineCount","_weaponArray"];
 
 						_weaponType = currentWeapon _unit;
-
-						if ((_weaponType == "") || (_weaponType == "Throw")) exitWith {
-							private _civComment = selectRandom ["I'm unarmed, let's find a weapon.","I need to find a weapon.","I've got no weapon."];
-							[[_unit, _civComment] remoteExec ["globalChat",0]];
-						};
 
 						_ammoCount = _unit ammo (currentWeapon _unit);
 						_mag = currentMagazine _unit;
@@ -120,13 +212,6 @@ if (_undercoverUnit isEqualTo (leader group _undercoverUnit)) then {
 						_unit setAmmo [_weaponType,_ammoCount];
 						_unit setVariable ["weaponStoreActive",false,true];
 
-						if ((_weaponType == "") || (_weaponType == "Throw")) then {
-
-							private _civComment = selectRandom ["I'm unarmed, let's find a weapon.","I need to find a weapon.","I've got no weapon."];
-							[[_unit, _civComment] remoteExec ["globalChat",0]];
-
-						};
-
 					},[],6,false,true,"","((_this == _target) && ((currentWeapon _this == 'Throw') || (currentWeapon _this == '')) && (_this getVariable ['weaponStoreActive',false]))"
 
 				]] remoteExec ["addAction", _undercoverUnit];
@@ -136,44 +221,10 @@ if (_undercoverUnit isEqualTo (leader group _undercoverUnit)) then {
 	} forEach units group _undercoverUnit;
 };
 
-sleep 2;
-
-
-
-if (_debug) then {
-	[_undercoverUnit] spawn {
-		params ["_undercoverUnit"];
-		waitUntil {
-
-			waitUntil {
-				sleep 1;
-				(_undercoverUnit getVariable ["INC_trespassLoopRunning",false])
-			};
-
-			sleep 0.5;
-
-			_undercoverUnit globalChat (format ["%1 cover intact: %2",_undercoverUnit,(captive _undercoverUnit)]);
-
-			_undercoverUnit globalChat (format ["%1 compromised: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_undercoverCompromised",false])]);
-
-			_undercoverUnit globalChat (format ["%1 trespassing: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_trespassing",false])]);
-
-			_undercoverUnit globalChat (format ["%1 armed or wearing suspicious clothing / HMD: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_armed",false])]);
-
-			_undercoverUnit globalChat (format ["Enemy know about %1: %2",_undercoverUnit,(_undercoverUnit getVariable ["INC_AnyKnowsSO",false])]);
-
-			!(_undercoverUnit getVariable ["isUndercover",false])
-		};
-
-		_undercoverUnit globalChat (format ["%1 undercover status: %2",_undercoverUnit,(_undercoverUnit getVariable ["isUndercover",false])]);
-	};
-};
-
-
 //Main loop
 waitUntil {
 
-	sleep 5;
+	sleep 1;
 
 	//Pause while the unit is compromised
 	waitUntil {
@@ -197,7 +248,7 @@ waitUntil {
 	if (_undercoverUnit getVariable ["INC_armed",false]) then {
 
 		//While he's armed and not compromised, run these checks
-		while { sleep 2; ((_undercoverUnit getVariable ["INC_armed",false]) && !(_undercoverUnit getVariable ["INC_undercoverCompromised",false]))} do {
+		while { sleep 2; ((_undercoverUnit getVariable ["INC_armed",false]) && {!(_undercoverUnit getVariable ["INC_undercoverCompromised",false])})} do {
 
 			//Do nothing until he's also trespassing
 			if (_undercoverUnit getVariable ["INC_trespassing",false]) then {
@@ -209,7 +260,7 @@ waitUntil {
 					private _asymAlerted = [_asymEnySide,_undercoverUnit,50] call INCON_fnc_countAlerted;
 
 					//Once people know exactly where he is, who he is, and that he is both armed and trespassing, make him compromised
-					if ((_regAlerted != 0) || (_asymAlerted != 0)) exitWith {
+					if ((_regAlerted != 0) || {(_asymAlerted != 0)}) exitWith {
 
 						[_undercoverUnit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCompromised",_undercoverUnit];
 					};
@@ -220,7 +271,7 @@ waitUntil {
 	} else {
 
 		//While he's trespassing and not compromised, run these checks
-		while {sleep 2; ((_undercoverUnit getVariable ["INC_trespassing",false]) && !(_undercoverUnit getVariable ["INC_undercoverCompromised",false]))} do {
+		while {sleep 2; ((_undercoverUnit getVariable ["INC_trespassing",false]) && {!(_undercoverUnit getVariable ["INC_undercoverCompromised",false])})} do {
 
 			//Do nothing until he is armed
 			if (_undercoverUnit getVariable ["INC_armed",false]) then {
@@ -232,7 +283,7 @@ waitUntil {
 					private _asymAlerted = [_asymEnySide,_undercoverUnit,50] call INCON_fnc_countAlerted;
 
 					//Once people know exactly where he is, who he is, and that he is both armed and trespassing, make him compromised
-					if ((_regAlerted != 0) || (_asymAlerted != 0)) exitWith {
+					if ((_regAlerted != 0) || {(_asymAlerted != 0)}) exitWith {
 
 						[_undercoverUnit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCompromised",_undercoverUnit];
 					};
@@ -244,7 +295,7 @@ waitUntil {
 	//Wait until he is no longer armed or trespassing...
 	waitUntil {
 		sleep 4;
-		!((_undercoverUnit getVariable ["INC_trespassing",false]) && (_undercoverUnit getVariable ["INC_armed",false]));
+		!((_undercoverUnit getVariable ["INC_trespassing",false]) && {(_undercoverUnit getVariable ["INC_armed",false])});
 	};
 
 	//Then stop the holding variable and allow cooldown to commence

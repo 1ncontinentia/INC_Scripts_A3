@@ -33,7 +33,6 @@ _underCoverUnit setVariable ["INC_armedLoopRunning", true, true]; // Stops the s
 	sleep 5;
 
 	[_underCoverUnit, true] remoteExec ["setCaptive", _underCoverUnit]; //Makes enemies not hostile to the unit
-	_underCoverUnit setVariable ["isCaptive", true, true];
 
 	waitUntil {
 
