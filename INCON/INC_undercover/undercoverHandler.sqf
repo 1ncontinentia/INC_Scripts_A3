@@ -18,27 +18,54 @@ if (_undercoverUnit getVariable ["INC_undercoverHandlerRunning",false]) exitWith
 _undercoverUnit setVariable ["INC_undercoverHandlerRunning", true, true];
 
 if (_persistentGroup) then {
-	[_undercoverUnit] spawn {
-		params ["_undercoverUnit"];
-		private ["_groupData","_dataKey"];
+	switch (_persGroupSaveType) do {
+		case "alive" : {
+			[_undercoverUnit] spawn {
+				params ["_undercoverUnit"];
+				private ["_groupData","_dataKey"];
 
-		_dataKey = format ["ALiVE_INC_persGroupData%1",_undercoverUnit];
+				_dataKey = format ["ALiVE_INC_persGroupData%1",_undercoverUnit];
 
-		waitUntil {
-			sleep 3;
-			(_undercoverUnit getvariable ["alive_sys_player_playerloaded",false])
+				waitUntil {
+					sleep 3;
+					(_undercoverUnit getvariable ["alive_sys_player_playerloaded",false])
+				};
+
+				_groupData = [_dataKey,"loadData"] remoteExecCall ["INCON_fnc_aliveDataHandler",2];
+
+				if (count _groupData != 0) then {
+
+					{if (_x != leader group _x) then {deleteVehicle _x}} forEach units group _undercoverUnit;
+
+					[_groupData,"loadGroup",_undercoverUnit] call INCON_fnc_unitPersist;
+
+				};
+
+			};
 		};
+		case "local" : {
+			[_undercoverUnit] spawn {
+				params ["_undercoverUnit"];
+				private ["_groupData","_dataKey"];
 
-		_groupData = [_dataKey,"loadData"] remoteExecCall ["INCON_fnc_aliveDataHandler",2];
+				waitUntil {
+					sleep 3;
+					(_undercoverUnit getvariable ["alive_sys_player_playerloaded",false])
+				};
 
-		if (count _groupData != 0) then {
+				_dataKey = format ["INC_persGroupDataProf%1%2",_undercoverUnit,missionName];
 
-			{if (_x != leader group _x) then {deleteVehicle _x}} forEach units group _undercoverUnit;
+				_groupData = profileNamespace getVariable [_dataKey,[]];
 
-			[_groupData,"loadGroup",_undercoverUnit] call INCON_fnc_unitPersist;
+				if (count _groupData != 0) then {
 
+					{if (_x != leader group _x) then {deleteVehicle _x}} forEach units group _undercoverUnit;
+
+					[_groupData,"loadGroup",_undercoverUnit] call INCON_fnc_unitPersist;
+
+				};
+			};
 		};
-
 	};
 };
 
@@ -123,24 +150,54 @@ if (_debug) then {
 sleep 2;
 
 if (_persistentGroup) then {
-	[_undercoverUnit] spawn {
-		params ["_undercoverUnit"];
-		private ["_groupData","_dataKey"];
+	switch (_persGroupSaveType) do {
+		case "alive" : {
+			[_undercoverUnit] spawn {
+				params ["_undercoverUnit"];
+				private ["_groupData","_dataKey"];
 
-		_dataKey = format ["ALiVE_INC_persGroupData%1",_undercoverUnit];
+				_dataKey = format ["ALiVE_INC_persGroupData%1",_undercoverUnit];
 
-		waitUntil {
+				sleep 60;
 
-			sleep 15;
+				waitUntil {
 
-			_groupData = [_undercoverUnit,"saveGroup"] call INCON_fnc_unitPersist;
+					sleep 15;
 
-			sleep 1;
+					_groupData = [_undercoverUnit,"saveGroup"] call INCON_fnc_unitPersist;
 
-			[[_dataKey,_groupData],"saveData"] remoteExecCall ["INCON_fnc_aliveDataHandler",2];
+					sleep 1;
 
-			!(_undercoverUnit getVariable ["isSneaky",false])
+					[[_dataKey,_groupData],"saveData"] remoteExecCall ["INCON_fnc_aliveDataHandler",2];
 
+					!(_undercoverUnit getVariable ["isSneaky",false])
+
+				};
+			};
+		};
+		case "local" : {
+			[_undercoverUnit] spawn {
+				params ["_undercoverUnit"];
+				private ["_groupData","_dataKey"];
+
+				_dataKey = format ["INC_persGroupDataProf%1%2",_undercoverUnit,missionName];
+
+				sleep 60;
+
+				waitUntil {
+
+					sleep 15;
+
+					_groupData = [_undercoverUnit,"saveGroup"] call INCON_fnc_unitPersist;
+
+					sleep 1;
+
+					profileNamespace setVariable [_dataKey,_groupData];
+
+					!(_undercoverUnit getVariable ["isSneaky",false])
+
+				};
+			};
 		};
 	};
 };
