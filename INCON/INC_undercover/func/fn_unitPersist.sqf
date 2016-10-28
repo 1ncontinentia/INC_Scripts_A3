@@ -18,7 +18,6 @@ switch (_mode) do {
 
 		_unit = _input;
 
-		_unitVarName = _unit;
 		_unitType = typeOf _unit;
 		_unitPos = getPosWorld _unit;
 
@@ -44,12 +43,12 @@ switch (_mode) do {
 			(_unit skill "commanding"),
 			(_unit skill "general")
 		];
-		_result = [_unitVarName,_unitType,_unitPos,_unitName,_unitFace,_unitSpeaker,_unitLoadout,_unitDamage,_skillArray];
+		_result = [_unitType,_unitPos,_unitName,_unitFace,_unitSpeaker,_unitLoadout,_unitDamage,_skillArray];
 	};
 
 	case "create": {
 
-		_input params ["_spawnedUnit","_unitType","_unitPos","_unitName","_unitFace","_unitSpeaker","_unitLoadout","_unitDamage","_skillArray"];
+		_input params ["_unitType","_unitPos","_unitName","_unitFace","_unitSpeaker","_unitLoadout","_unitDamage","_skillArray"];
 
 		_spawnedUnit = (group _leader) createUnit [_unitType,[0,0,0],[],0,""];
 		_spawnedUnit setVariable ["noChanges",true,true];
