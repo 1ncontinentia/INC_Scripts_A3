@@ -6,7 +6,7 @@ Author: Incontinentia
 
 */
 
-params [["_input",objNull],["_mode","copy"],["_leader",objNull]];
+params [["_input",objNull],["_mode","copy"],["_leader",objNull],["_dataBase",objNull]];
 
 private ["_result"];
 
@@ -126,6 +126,46 @@ switch (_mode) do {
 			_result pushBack _groupMember;
 
 		};
+	};
+
+	case "saveGroupINIDB": {
+
+		private ["_unit"];
+
+		_unit = _input;
+
+		_result = [];
+
+		for "_i" from 1 to ((count units group _unit) - 1) do {
+
+			private ["_groupMember","_unitInfo"];
+
+			if (_i >= 5) exitWith {};
+
+			_groupMember = (units group _unit) select _i;
+			_unitInfo = [_groupMember] call INCON_fnc_unitPersist;
+			_encodedData = ["encodeBase64", (str _unitInfo)] call _database;
+			_result pushBack _encodedData;
+
+		};
+	};
+
+	case "loadGroupINIDB": {
+
+		{
+			[_x,"createINIDB",_leader,_database] call INCON_fnc_unitPersist;
+		} forEach _input;
+
+		_result = true;
+	};
+
+	case "createINIDB": {
+
+		_input params ["_unitInfoEncoded"];
+		_unitInfo = ["decodeBase64", _unitInfoEncoded] call _database;
+		_groupMember = [(call compile _unitInfo),"create",_leader] call INCON_fnc_unitPersist;
+
+		_result = true;
 	};
 };
 
