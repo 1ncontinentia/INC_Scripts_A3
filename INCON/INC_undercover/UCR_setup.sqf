@@ -29,8 +29,6 @@ _armedCivPercentage = 70;       //Percentage of civilians armed with rifles or p
 
 //Persistent player group settings (EXPERIMENTAL)
 _persistentGroup = true;        //Persist player group between ALiVE persistent sessions
-_persGroupSaveType = "local";   //Either "local" or "alive" - local means storing group data locally (will still only load if ALiVE player data present, may not match your ALiVE session), "alive" means using ALiVE custom data to save the group (currently unreliable)
-_localStoreType = "iniDBI2";    //Can be "profle" or "iniDBI2", if using iniDBI2, iniDBI2 mod must be loaded on both server and player system, "profile" is a horrible, hacky workaround that will save the data directly to your user profile vars file, which can increase its filesize dramatically over several missions.
-
+_persGroupSaveType = "iniDBI2";   //Either "iniDBI2" or "alive" - if using iniDBI2, iniDBI2 mod must be loaded on both server and player system (will still only load if ALiVE player data present, may not match your ALiVE session), "alive" means using ALiVE custom data to save the group (currently unreliable)
 
 _debug = false; //Set to true for debug hints

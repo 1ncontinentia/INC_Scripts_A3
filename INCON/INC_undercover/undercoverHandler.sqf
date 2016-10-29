@@ -19,6 +19,7 @@ _undercoverUnit setVariable ["INC_undercoverHandlerRunning", true, true];
 
 if (_persistentGroup) then {
 	switch (_persGroupSaveType) do {
+
 		case "alive" : {
 			[_undercoverUnit] spawn {
 				params ["_undercoverUnit"];
@@ -44,62 +45,31 @@ if (_persistentGroup) then {
 			};
 		};
 
-		case "local" : {
+		case "iniDBI2" : {
+			[_undercoverUnit] spawn {
+				params ["_undercoverUnit"];
+				private ["_groupData","_dataKey"];
 
-            switch (_localStoreType) do {
+				inidbi = ["new", "INC_undercoverGroupPersDB"] call OO_INIDBI;
 
-        		case "profle" : {
-        			[_undercoverUnit] spawn {
-        				params ["_undercoverUnit"];
-        				private ["_groupData","_dataKey"];
+				waitUntil {
+					sleep 3;
+					(_undercoverUnit getvariable ["alive_sys_player_playerloaded",false])
+				};
 
-                        _dataKey = format ["INC_persGroupDataProf%1%2",_undercoverUnit,(getPlayerUID _undercoverUnit)];
+                _dataKey = format ["INC_persGroupDataProf%1%2",_undercoverUnit,(getPlayerUID _undercoverUnit)];
+                _read = ["read", [(str missionName), _dataKey,[]]] call inidbi;
 
-        				waitUntil {
-        					sleep 3;
-        					(_undercoverUnit getvariable ["alive_sys_player_playerloaded",false])
-        				};
+				if !(_read isEqualTo []) then {
 
-        				_groupData = [_dataKey,"loadData"] remoteExecCall ["INCON_fnc_aliveDataHandler",2];
+					{if (_x != leader group _x) then {deleteVehicle _x}} forEach units group _undercoverUnit;
 
-        				if (count _groupData != 0) then {
+                    sleep 0.1;
 
-        					{if (_x != leader group _x) then {deleteVehicle _x}} forEach units group _undercoverUnit;
+                    [_read,"loadGroupINIDB",_undercoverUnit,inidbi] call INCON_fnc_unitPersist;
 
-        					[_groupData,"loadGroup",_undercoverUnit] call INCON_fnc_unitPersist;
-
-        				};
-
-        			};
-        		};
-
-        		case "iniDBI2" : {
-        			[_undercoverUnit] spawn {
-        				params ["_undercoverUnit"];
-        				private ["_groupData","_dataKey"];
-
-        				inidbi = ["new", "INC_undercoverGroupPersDB"] call OO_INIDBI;
-
-        				waitUntil {
-        					sleep 3;
-        					(_undercoverUnit getvariable ["alive_sys_player_playerloaded",false])
-        				};
-
-                        _dataKey = format ["INC_persGroupDataProf%1%2",_undercoverUnit,(getPlayerUID _undercoverUnit)];
-                        _read = ["read", [(str missionName), _dataKey,[]]] call inidbi;
-
-        				if !(_read isEqualTo []) then {
-
-        					{if (_x != leader group _x) then {deleteVehicle _x}} forEach units group _undercoverUnit;
-
-                            sleep 0.1;
-
-                            [_read,"loadGroupINIDB",_undercoverUnit,inidbi] call INCON_fnc_unitPersist;
-
-        				};
-        			};
-        		};
-        	};
+				};
+			};
 		};
 	};
 };
@@ -186,6 +156,7 @@ sleep 2;
 
 if (_persistentGroup) then {
 	switch (_persGroupSaveType) do {
+
 		case "alive" : {
 			[_undercoverUnit] spawn {
 				params ["_undercoverUnit"];
@@ -210,59 +181,29 @@ if (_persistentGroup) then {
 				};
 			};
 		};
-		case "local" : {
-            switch (_localStoreType) do {
 
-                case "profile" : {
-        			[_undercoverUnit] spawn {
-        				params ["_undercoverUnit"];
-        				private ["_groupData","_dataKey"];
+        case "iniDBI2" : {
+			[_undercoverUnit] spawn {
+				params ["_undercoverUnit"];
+				private ["_groupData","_dataKey"];
 
-                        _dataKey = format ["INC_persGroupDataProf%1%2",_undercoverUnit,(getPlayerUID _undercoverUnit)];
+                _dataKey = format ["INC_persGroupDataProf%1%2",_undercoverUnit,(getPlayerUID _undercoverUnit)];
 
-        				sleep 60;
+				sleep 60;
 
-        				waitUntil {
+				waitUntil {
 
-        					sleep 15;
+					sleep 15;
 
-        					_groupData = [_undercoverUnit,"saveGroup"] call INCON_fnc_unitPersist;
+                    _encodedData = [_undercoverUnit,"saveGroupINIDB",_undercoverUnit,inidbi] call INCON_fnc_unitPersist;
+                    _dataKey = format ["INC_persGroupDataProf%1%2",_undercoverUnit,(getPlayerUID _undercoverUnit)];
+                    ["write", [(str missionName), _dataKey, _encodedData]] call inidbi;
 
-        					sleep 1;
+					!(_undercoverUnit getVariable ["isSneaky",false])
 
-        					profileNamespace setVariable [_dataKey,_groupData];
-
-        					!(_undercoverUnit getVariable ["isSneaky",false])
-
-        				};
-        			};
-                };
-
-
-                case "profile" : {
-        			[_undercoverUnit] spawn {
-        				params ["_undercoverUnit"];
-        				private ["_groupData","_dataKey"];
-
-                        _dataKey = format ["INC_persGroupDataProf%1%2",_undercoverUnit,(getPlayerUID _undercoverUnit)];
-
-        				sleep 60;
-
-        				waitUntil {
-
-        					sleep 15;
-
-                            _encodedData = [_undercoverUnit,"saveGroupINIDB",_undercoverUnit,inidbi] call INCON_fnc_unitPersist;
-                            _dataKey = format ["INC_persGroupDataProf%1%2",_undercoverUnit,(getPlayerUID _undercoverUnit)];
-                            ["write", [(str missionName), _dataKey, _encodedData]] call inidbi;
-
-        					!(_undercoverUnit getVariable ["isSneaky",false])
-
-        				};
-        			};
-                };
-            };
-		};
+				};
+			};
+        };
 	};
 };
 
