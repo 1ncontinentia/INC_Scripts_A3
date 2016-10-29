@@ -25,8 +25,12 @@ _HMDallowed = false; //Are HMDs (night vision goggles etc.) safe to wear? Set to
 
 //ALiVE specific features (turn off if not using ALiVE)
 _civRecruitEnabled = true;      //Set this to false to prevent undercover units from recruiting civilians (only works with ALiVE)
-_armedCivPercentage = 70;       //Percentage of civilians armed with rifles or pistols on person or in backpacks (0 to disable)
-_persistentGroup = true;        //Persist player group between sessions (EXPERIMENTAL)
-_persGroupSaveType = "local";   //Either "local" or "alive" - local means saving your group to your local Arma 3 profile (will only load if ALiVE player data present / experimental: USE WITH CAUTION, may not match your ALiVE session), "alive" means using ALiVE custom data to save the group which is currently unreliable
+_armedCivPercentage = 70;       //Percentage of civilians armed with rifles or pistols on person or in backpacks (if _civRecruitEnabled is set to true, otherwise this is ignored)
+
+//Persistent player group settings (EXPERIMENTAL)
+_persistentGroup = true;        //Persist player group between ALiVE persistent sessions
+_persGroupSaveType = "local";   //Either "local" or "alive" - local means storing group data locally (will still only load if ALiVE player data present, may not match your ALiVE session), "alive" means using ALiVE custom data to save the group (currently unreliable)
+_localStoreType = "iniDBI2";    //Can be "profle" or "iniDBI2", if using iniDBI2, iniDBI2 mod must be loaded on both server and player system, "profile" is a horrible, hacky workaround that will save the data directly to your user profile vars file, which can increase its filesize dramatically over several missions.
+
 
 _debug = false; //Set to true for debug hints
