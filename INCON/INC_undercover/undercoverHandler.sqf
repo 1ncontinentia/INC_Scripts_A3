@@ -17,6 +17,7 @@ if (_undercoverUnit getVariable ["INC_undercoverHandlerRunning",false]) exitWith
 
 _undercoverUnit setVariable ["INC_undercoverHandlerRunning", true, true];
 
+//If there is persistent group data and ALiVE player persistence data, then spawn the persistent group now
 if (_persistentGroup) then {
 	switch (_persGroupSaveType) do {
 
@@ -74,6 +75,7 @@ if (_persistentGroup) then {
 	};
 };
 
+//Add respawn eventhandler so all scripts work properly on respawn
 _undercoverUnit addMPEventHandler ["MPRespawn",{
 	_this spawn {
         params ["_undercoverUnit"];
@@ -96,6 +98,7 @@ missionNamespace setVariable ["INC_civilianRecruitEnabled",_civRecruitEnabled,tr
 
 _undercoverUnit setCaptive false;
 private _side = side _undercoverUnit;
+
 //Spawn the rebel commader
 [_side] remoteExecCall ["INCON_fnc_spawnRebelCommander",2];
 
@@ -121,6 +124,7 @@ sleep 2;
 
 sleep 2;
 
+//Debug hints
 if (_debug) then {
 	[_undercoverUnit] spawn {
 		params ["_undercoverUnit"];
@@ -154,6 +158,8 @@ if (_debug) then {
 
 sleep 2;
 
+
+//Persistent group loop
 if (_persistentGroup) then {
 	switch (_persGroupSaveType) do {
 
@@ -252,7 +258,9 @@ if (_undercoverUnit isEqualTo (leader group _undercoverUnit)) then {
 						_unit setVariable ["weaponStore",_weaponArray,true];
 						_unit setVariable ["weaponStoreActive",true,true];
 						_unit removeWeaponGlobal _weaponType;
-						_unit call ace_weaponselect_fnc_putWeaponAway;
+						if (isClass(configFile >> "CfgPatches" >> "ace_main")) then {
+							_unit call ace_weaponselect_fnc_putWeaponAway;
+						};
 
 					},[],6,false,true,"","((_this == _target) && !((currentWeapon _this == 'Throw') || (currentWeapon _this == '')))"
 
