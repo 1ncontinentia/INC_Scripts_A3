@@ -23,12 +23,11 @@ _safeUniforms = ["U_BG_Guerilla2_2","U_BG_Guerilla2_1","U_BG_Guerilla2_3","U_I_C
 
 _HMDallowed = false; //Are HMDs (night vision goggles etc.) safe to wear? Set to false if wearing HMDs will cause suspicion.
 
-//ALiVE specific features (turn off if not using ALiVE)
+//ALiVE specific features (will only work if ALiVE is loaded)
 _civRecruitEnabled = true;      //Set this to false to prevent undercover units from recruiting civilians (only works with ALiVE)
 _armedCivPercentage = 70;       //Percentage of civilians armed with rifles or pistols on person or in backpacks (if _civRecruitEnabled is set to true, otherwise this is ignored)
 
 //Persistent player group settings (EXPERIMENTAL)
-_persistentGroup = true;        //Persist player group between ALiVE persistent sessions
-_persGroupSaveType = "iniDBI2";   //Either "iniDBI2" or "alive" - if using iniDBI2, iniDBI2 mod must be loaded on both server and player system (will still only load if ALiVE player data present, may not match your ALiVE session), "alive" means using ALiVE custom data to save the group (currently unreliable)
+_persistentGroup = true;        //Persist player group between ALiVE persistent sessions (requires INCON_groupPersist and INIDBI2 loaded on server)
 
 _debug = false; //Set to true for debug hints
