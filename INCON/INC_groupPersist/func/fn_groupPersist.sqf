@@ -30,7 +30,7 @@ switch (_database) do {
 						(_unit getvariable ["alive_sys_player_playerloaded",false])
 					};
 
-					_dataKey = format ["INC_persGroupDataProf%1%2",_unit,(getPlayerUID _unit)];
+					_dataKey = format ["INC_persGroupData%1%2",_unit,(getPlayerUID _unit)];
 
 					_groupData = [_dataKey,"loadAliveData"] remoteExecCall ["INCON_fnc_persHandler",2];
 
@@ -56,7 +56,7 @@ switch (_database) do {
 
 							sleep 60;
 
-							_dataKey = format ["INC_persGroupDataProf%1%2",_unit,(getPlayerUID _unit)];
+							_dataKey = format ["INC_persGroupData%1%2",_unit,(getPlayerUID _unit)];
 
 							waitUntil {
 
@@ -81,7 +81,7 @@ switch (_database) do {
 
 							sleep 60;
 
-			                _dataKey = format ["INC_persGroupDataProf%1%2",_unit,(getPlayerUID _unit)];
+			                _dataKey = format ["INC_persGroupData%1%2",_unit,(getPlayerUID _unit)];
 
 							waitUntil {
 
@@ -119,12 +119,10 @@ switch (_database) do {
                     waitUntil {
                         sleep 3;
 
-						if (time > 60) exitWith {true};
-
                         (_unit getvariable ["alive_sys_player_playerloaded",false])
                     };
 
-                    _dataKey = format ["INC_persGroupDataProf%1%2%3",missionName,_unit,(getPlayerUID _unit)];
+                    _dataKey = format ["INC_persGroupData%1%2",_unit,(getPlayerUID _unit)];
 
                     _read = ["read", [(str missionName), _dataKey,[]]] call inidbi;
 
@@ -157,13 +155,13 @@ switch (_database) do {
 
         					waitUntil {
 
-        	                	_dataKey = format ["INC_persGroupDataProf%1%2%3",missionName,_unit,(getPlayerUID _unit)];
-
         						sleep 59;
 
-        	                    _encodedData = [_unit,"saveGroupINIDB",_unit,inidbi] remoteExecCall ["INCON_fnc_persHandler",2];
+        	                    _encodedData = [_unit,"saveGroupINIDB",_unit,inidbi] call INCON_fnc_persHandler;
 
-								sleep 1; 
+								sleep 1;
+
+            	                _dataKey = format ["INC_persGroupData%1%2",_unit,(getPlayerUID _unit)];
 
         	                    ["write", [(str missionName), _dataKey, _encodedData]] call inidbi;
 
@@ -180,7 +178,7 @@ switch (_database) do {
 
         					sleep 60;
 
-        	                _dataKey = format ["INC_persGroupDataProf%1%2%3",missionName,_unit,(getPlayerUID _unit)];
+        	                _dataKey = format ["INC_persGroupData%1%2",_unit,(getPlayerUID _unit)];
 
 							waitUntil {
 
@@ -190,7 +188,7 @@ switch (_database) do {
 
 							};
 
-    	                    _encodedData = [_unit,"saveGroupINIDB",_unit,inidbi] remoteExecCall ["INCON_fnc_persHandler",2];
+    	                    _encodedData = [_unit,"saveGroupINIDB",_unit,inidbi] call INCON_fnc_persHandler;
     	                    ["write", [(str missionName), _dataKey, _encodedData]] call inidbi;
 
         				};

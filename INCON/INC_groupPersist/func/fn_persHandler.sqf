@@ -49,9 +49,14 @@ switch (_mode) do {
 
 		_input params ["_unitType","_unitName","_unitFace","_unitSpeaker","_unitLoadout","_unitDamage","_skillArray"];
 
+		private ["_pos","_newPos"];
+
+		_pos = getPosWorld _leader;
+		_newPos = ([_pos, 6] call CBA_fnc_randPos);
+
 		_spawnedUnit = (group _leader) createUnit [_unitType,[0,0,0],[],0,""];
 		_spawnedUnit setVariable ["noChanges",true,true];
-		_spawnedUnit setPosWorld (getPosWorld _leader);
+		_spawnedUnit setPosWorld _newPos;
 
 		_skillArray params ["_unitAccuracy","_unitAimshake","_unitAimingSpeed","_unitEndurance","_unitSpotDistance","_unitSpotTime","_unitCourage","_unitReloadSpeed","_unitCommanding","_unitGeneral"];
 		_spawnedUnit setSkill ["aimingAccuracy",_unitAccuracy];
@@ -142,7 +147,7 @@ switch (_mode) do {
 
 			private ["_groupMember","_unitInfo"];
 
-			if (_i >= 5) exitWith {};
+			if (count _result >= 6) exitWith {};
 
 			_groupMember = (units group _unit) select _i;
 			_unitInfo = [_groupMember] call INCON_fnc_persHandler;
