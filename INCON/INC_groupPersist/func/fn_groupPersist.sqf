@@ -60,7 +60,7 @@ switch (_database) do {
 
 							waitUntil {
 
-								sleep 15;
+								sleep 59;
 
 								_groupData = [_unit,"saveGroup"] call INCON_fnc_persHandler;
 
@@ -159,9 +159,12 @@ switch (_database) do {
 
         	                	_dataKey = format ["INC_persGroupDataProf%1%2%3",missionName,_unit,(getPlayerUID _unit)];
 
-        						sleep 15;
+        						sleep 59;
 
         	                    _encodedData = [_unit,"saveGroupINIDB",_unit,inidbi] remoteExecCall ["INCON_fnc_persHandler",2];
+
+								sleep 1; 
+
         	                    ["write", [(str missionName), _dataKey, _encodedData]] call inidbi;
 
         						!(isPlayer _unit)
