@@ -1,6 +1,6 @@
 /*
 
-Civilian Recruit Success
+Group Persistence Handler
 
 Author: Incontinentia
 
@@ -19,7 +19,6 @@ switch (_mode) do {
 		_unit = _input;
 
 		_unitType = typeOf _unit;
-		_unitPos = getPosWorld _unit;
 
 		_unitName = name _unit;
 		_unitFace = face _unit;
@@ -43,16 +42,16 @@ switch (_mode) do {
 			(_unit skill "commanding"),
 			(_unit skill "general")
 		];
-		_result = [_unitType,_unitPos,_unitName,_unitFace,_unitSpeaker,_unitLoadout,_unitDamage,_skillArray];
+		_result = [_unitType,_unitName,_unitFace,_unitSpeaker,_unitLoadout,_unitDamage,_skillArray];
 	};
 
 	case "create": {
 
-		_input params ["_unitType","_unitPos","_unitName","_unitFace","_unitSpeaker","_unitLoadout","_unitDamage","_skillArray"];
+		_input params ["_unitType","_unitName","_unitFace","_unitSpeaker","_unitLoadout","_unitDamage","_skillArray"];
 
 		_spawnedUnit = (group _leader) createUnit [_unitType,[0,0,0],[],0,""];
 		_spawnedUnit setVariable ["noChanges",true,true];
-		_spawnedUnit setPosWorld _unitPos;
+		_spawnedUnit setPosWorld (getPosWorld _leader);
 
 		_skillArray params ["_unitAccuracy","_unitAimshake","_unitAimingSpeed","_unitEndurance","_unitSpotDistance","_unitSpotTime","_unitCourage","_unitReloadSpeed","_unitCommanding","_unitGeneral"];
 		_spawnedUnit setSkill ["aimingAccuracy",_unitAccuracy];
@@ -72,8 +71,8 @@ switch (_mode) do {
 
 		[_spawnedUnit] call compile _unitLoadout;
 
-		[_spawnedUnit,_unitType,_unitPos,_unitName,_unitFace,_unitSpeaker,_unitLoadout,_unitDamage,_skillArray] spawn {
-			params ["_unit","_unitType","_unitPos","_unitName","_unitFace","_unitSpeaker","_unitLoadout","_unitDamage","_skillArray"];
+		[_spawnedUnit,_unitType,_unitName,_unitFace,_unitSpeaker,_unitLoadout,_unitDamage,_skillArray] spawn {
+			params ["_unit","_unitType","_unitName","_unitFace","_unitSpeaker","_unitLoadout","_unitDamage","_skillArray"];
 
 			sleep 0.1;
 
@@ -107,7 +106,7 @@ switch (_mode) do {
 			private ["_groupMember","_unitInfo"];
 
 			_groupMember = (units group _unit) select _i;
-			_unitInfo = [_groupMember] call INCON_fnc_unitPersist;
+			_unitInfo = [_groupMember] call INCON_fnc_persHandler;
 			_result pushBack _unitInfo;
 
 		};
@@ -122,19 +121,22 @@ switch (_mode) do {
 			_result = [];
 
 			_unitInfo = _input select _i;
-			_groupMember = [_unitInfo,"create",_leader] call INCON_fnc_unitPersist;
+			_groupMember = [_unitInfo,"create",_leader] call INCON_fnc_persHandler;
 			_result pushBack _groupMember;
 
 		};
 	};
 
 	case "saveGroupINIDB": {
+		//Creates an array starting with a date float (select 0) and followed by encoded unit information
 
-		private ["_unit"];
+		private ["_unit","_float"];
 
 		_unit = _input;
 
-		_result = [];
+		_float = dateToNumber date;
+
+		_result = [_float];
 
 		for "_i" from 1 to ((count units group _unit) - 1) do {
 
@@ -143,7 +145,7 @@ switch (_mode) do {
 			if (_i >= 5) exitWith {};
 
 			_groupMember = (units group _unit) select _i;
-			_unitInfo = [_groupMember] call INCON_fnc_unitPersist;
+			_unitInfo = [_groupMember] call INCON_fnc_persHandler;
 			_encodedData = ["encodeBase64", (str _unitInfo)] call _database;
 			_result pushBack _encodedData;
 
@@ -151,21 +153,39 @@ switch (_mode) do {
 	};
 
 	case "loadGroupINIDB": {
+		//From the group array, remove the date float and create the group
+		//Returns the dateToNumber of the group
+
+		_result = _input select 0;
+
+		if (typeName _result == "SCALAR") then {_input deleteAt 0};
 
 		{
-			[_x,"createINIDB",_leader,_database] call INCON_fnc_unitPersist;
+			[_x,"createINIDB",_leader,_database] call INCON_fnc_persHandler;
 		} forEach _input;
+	};
+
+	case "createINIDB": {
+		//Decode unit's data and create that unit
+
+		_input params ["_unitInfoEncoded"];
+		_unitInfo = ["decodeBase64", _unitInfoEncoded] call _database;
+		_groupMember = [(call compile _unitInfo),"create",_leader] call INCON_fnc_persHandler;
 
 		_result = true;
 	};
 
-	case "createINIDB": {
-
-		_input params ["_unitInfoEncoded"];
-		_unitInfo = ["decodeBase64", _unitInfoEncoded] call _database;
-		_groupMember = [(call compile _unitInfo),"create",_leader] call INCON_fnc_unitPersist;
-
+	case "saveAliveData": {
+		if !(isDedicated) exitWith {};
+		_input params ["_key","_value"];
+		[_key, _value] call ALiVE_fnc_setData;
 		_result = true;
+	};
+
+	case "loadAliveData": {
+		if !(isDedicated) exitWith {};
+		_input params ["_key"];
+		_result = [_key] call ALiVE_fnc_getData;
 	};
 };
 
