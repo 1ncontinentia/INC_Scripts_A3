@@ -17,62 +17,10 @@ if (_undercoverUnit getVariable ["INC_undercoverHandlerRunning",false]) exitWith
 
 _undercoverUnit setVariable ["INC_undercoverHandlerRunning", true, true];
 
-//If there is persistent group data and ALiVE player persistence data, then spawn the persistent group now
-if (_persistentGroup) then {
-	switch (_persGroupSaveType) do {
-
-		case "alive" : {
-			[_undercoverUnit] spawn {
-				params ["_undercoverUnit"];
-				private ["_groupData","_dataKey"];
-
-				_dataKey = format ["ALiVE_INC_persGroupData%1",_undercoverUnit];
-
-				waitUntil {
-					sleep 3;
-					(_undercoverUnit getvariable ["alive_sys_player_playerloaded",false])
-				};
-
-				_groupData = [_dataKey,"loadData"] remoteExecCall ["INCON_fnc_aliveDataHandler",2];
-
-				if (count _groupData != 0) then {
-
-					{if (_x != leader group _x) then {deleteVehicle _x}} forEach units group _undercoverUnit;
-
-					[_groupData,"loadGroup",_undercoverUnit] call INCON_fnc_unitPersist;
-
-				};
-
-			};
-		};
-
-		case "iniDBI2" : {
-			[_undercoverUnit] spawn {
-				params ["_undercoverUnit"];
-				private ["_groupData","_dataKey"];
-
-				inidbi = ["new", "INC_undercoverGroupPersDB"] call OO_INIDBI;
-
-				waitUntil {
-					sleep 3;
-					(_undercoverUnit getvariable ["alive_sys_player_playerloaded",false])
-				};
-
-                _dataKey = format ["INC_persGroupDataProf%1%2",_undercoverUnit,(getPlayerUID _undercoverUnit)];
-                _read = ["read", [(str missionName), _dataKey,[]]] call inidbi;
-
-				if !(_read isEqualTo []) then {
-
-					{if (_x != leader group _x) then {deleteVehicle _x}} forEach units group _undercoverUnit;
-
-                    sleep 0.1;
-
-                    [_read,"loadGroupINIDB",_undercoverUnit,inidbi] call INCON_fnc_unitPersist;
-
-				};
-			};
-		};
-	};
+//Group persistence
+if ((_persistentGroup) && {!(isNil "INCON_fnc_groupPersist")}) then {
+	["loadGroup",_undercoverUnit] remoteExecCall ["INCON_fnc_groupPersist",2];
+	["saveGroup",_undercoverUnit] remoteExecCall ["INCON_fnc_groupPersist",2];
 };
 
 //Add respawn eventhandler so all scripts work properly on respawn
@@ -157,61 +105,6 @@ if (_debug) then {
 };
 
 sleep 2;
-
-
-//Persistent group loop
-if (_persistentGroup) then {
-	switch (_persGroupSaveType) do {
-
-		case "alive" : {
-			[_undercoverUnit] spawn {
-				params ["_undercoverUnit"];
-				private ["_groupData","_dataKey"];
-
-				_dataKey = format ["ALiVE_INC_persGroupData%1",_undercoverUnit];
-
-				sleep 60;
-
-				waitUntil {
-
-					sleep 15;
-
-					_groupData = [_undercoverUnit,"saveGroup"] call INCON_fnc_unitPersist;
-
-					sleep 1;
-
-					[[_dataKey,_groupData],"saveData"] remoteExecCall ["INCON_fnc_aliveDataHandler",2];
-
-					!(_undercoverUnit getVariable ["isSneaky",false])
-
-				};
-			};
-		};
-
-        case "iniDBI2" : {
-			[_undercoverUnit] spawn {
-				params ["_undercoverUnit"];
-				private ["_groupData","_dataKey"];
-
-                _dataKey = format ["INC_persGroupDataProf%1%2",_undercoverUnit,(getPlayerUID _undercoverUnit)];
-
-				sleep 60;
-
-				waitUntil {
-
-					sleep 15;
-
-                    _encodedData = [_undercoverUnit,"saveGroupINIDB",_undercoverUnit,inidbi] call INCON_fnc_unitPersist;
-                    _dataKey = format ["INC_persGroupDataProf%1%2",_undercoverUnit,(getPlayerUID _undercoverUnit)];
-                    ["write", [(str missionName), _dataKey, _encodedData]] call inidbi;
-
-					!(_undercoverUnit getVariable ["isSneaky",false])
-
-				};
-			};
-        };
-	};
-};
 
 //Run a low-impact version of the undercover script on group members (no proximity check)
 if (_undercoverUnit isEqualTo (leader group _undercoverUnit)) then {
