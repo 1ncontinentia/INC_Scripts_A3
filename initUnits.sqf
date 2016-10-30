@@ -33,9 +33,11 @@ if (_unit getVariable ["noChanges",false]) exitWith {};
 
 _unit setVariable ["initLoopRunning", true, true];
 
+//Recruitment script
 #include "INCON\INC_undercover\unitInitsUndercover.sqf"
 
 
+//Intel script
 if (side _unit in [EAST,WEST,INDEPENDANT]) then {
     [_unit] call INCON_fnc_spawnIntelObjects;
 };
