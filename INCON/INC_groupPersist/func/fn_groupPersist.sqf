@@ -140,13 +140,17 @@ switch (_database) do {
 
 					_index = (_read select 0);
 
-                    _index params ["_float","_groupSize"];
+                    _index params ["_float","_groupSize","_rating"];
 
 					_floatCompare = dateToNumber date;
 
                     if ((typeName _float == "SCALAR") && {_float > (_floatCompare - 0.000022)} && {_float < (_floatCompare + 0.000022)}) then {
 
                         {if (_x != leader group _x) then {deleteVehicle _x}} forEach units group _unit;
+
+                        _unit addRating (0 - (rating _unit));
+
+                        _unit addRating _rating;
 
                         [_read,"loadGroupINIDB",_unit,inidbi] call INCON_fnc_persHandler;
 

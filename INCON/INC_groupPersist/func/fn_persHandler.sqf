@@ -154,7 +154,7 @@ switch (_mode) do {
 
 				_float = dateToNumber date;
 
-				_result = [[_float,(count units group _unit)]];
+				_result = [[_float,(count units group _unit),rating _unit]];
 
 				for "_i" from 1 to ((count units group _unit) - 1) do {
 
@@ -224,7 +224,7 @@ switch (_mode) do {
 	case "loadLargeGroupINIDB": {
 		//Creates group from array of encoded information
 
-		_result = (count _input); 
+		_result = (count _input);
 
 		{
 			[_x,"createINIDB",_leader,_database] call INCON_fnc_persHandler;
