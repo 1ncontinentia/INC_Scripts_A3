@@ -13,22 +13,6 @@ private ["_return"];
 
 #include "..\UCR_setup.sqf"
 
-_compatibleMags = {
-	private _configEntry = configFile >> "CfgWeapons" >> _this;
-	private _result = [];
-	{
-		_result pushBack (
-			if (_x == "this") then {
-				getArray(_cls >> "magazines")
-			} else {
-				getArray(_cls >> _x >> "magazines")
-			}
-		);
-	} forEach getArray(_cls >> "muzzles");
-
-	_result
-};
-
 switch (_operation) do {
 
 	case "getCompatMags": {
@@ -40,14 +24,12 @@ switch (_operation) do {
 		{
 			_result pushBack (
 				if (_x == "this") then {
-					getArray(_cls >> "magazines")
-				} else {
-					getArray(_cls >> _x >> "magazines")
+					getArray(_configEntry >> "magazines")
 				}
 			);
-		} forEach getArray(_cls >> "muzzles");
+		} forEach getArray(_configEntry >> "muzzles");
 
-		_return = _result
+		_return = _result select 0; 
 	};
 
 	case "addBackpack": {
@@ -74,7 +56,7 @@ switch (_operation) do {
 		_input params ["_unit"];
 
 		private _wpn = selectRandom _civWpnArray;
-		private _magsArray = [_wpn,"getCompatMags"] call INCON_fnc_civHandler;
+		private _magsArray = ([_wpn,"getCompatMags"] call INCON_fnc_civHandler);
 
 		_return = true;
 
