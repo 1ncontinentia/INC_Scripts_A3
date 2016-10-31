@@ -14,8 +14,7 @@ deleteVehicle _civ;
 _skill = (0.7 + (random 0.25));
 
 _unitType = typeOf _undercoverUnit;
-_civLoadout = [_unit,"script",false] call INCON_fnc_getLoadout;
-_civLoadout = [_civLoadout, """", "'"] call CBA_fnc_replace;
+_civLoadout = getUnitLoadout _civ;
 
 _recruitedCiv = (group _undercoverUnit) createUnit [_unitType,[0,0,0],[],0,""];
 _recruitedCiv setVariable ["noChanges",true,true];
@@ -33,7 +32,7 @@ if ((count units _prevGroup) == 0) then {
 
 	sleep 0.1;
 
-	[_recruitedCiv] call compile _civLoadout;
+	_recruitedCiv setUnitLoadout _civLoadout;
 
 	sleep 0.1;
 
@@ -56,7 +55,7 @@ if ((count units _prevGroup) == 0) then {
 		"<t color='#9933FF'>Dismiss</t>", {
 
 			private _recruitedCiv = _this select 0;
-			private _civComment = selectRandom ["I'll just hang around here then I suppose","My back is killing me anyway.","It's been a pleasure.","I'm just not cut out for this.","I'll continue our good work.","Ah well, I've got better things to do","I don't need you to have a good time.","I'm my own woman.","What time is it? I need to get high.","I've got some paperwork to do anyway.","Well thank God for that."];
+			private _civComment = selectRandom ["I'll just hang around here then I suppose.","My back is killing me anyway.","It's been a pleasure.","I'm just not cut out for this.","I'll continue our good work.","See you later.","I don't need you to have a good time.","I'm my own woman.","What time is it? I need to get high.","I've got some paperwork to do anyway.","Well thank God for that."];
 			[[_recruitedCiv, _civComment] remoteExec ["globalChat",0]];
 
 			[_recruitedCiv] join grpNull;
@@ -107,7 +106,7 @@ if ((count units _prevGroup) == 0) then {
 				_unit call ace_weaponselect_fnc_putWeaponAway;
 			};
 
-		},[],6,false,true,"","(_this == _target) && !{(currentWeapon _this == 'Throw') || (currentWeapon _this == '')} && {(_this canAddItemToUniform (currentWeapon _this)) || (_this canAddItemToBackpack (currentWeapon _this))} && {!(_unit getVariable ['INC_weaponStoreActive',false])}"
+		},[],6,false,true,"","(_this == _target) && !{(currentWeapon _this == 'Throw') || (currentWeapon _this == '')} && {(_this canAddItemToUniform (currentWeapon _this)) || (_this canAddItemToBackpack (currentWeapon _this))}"
 
 	]] remoteExec ["addAction", _undercoverUnit];
 
@@ -118,65 +117,30 @@ if ((count units _prevGroup) == 0) then {
 			params ["_unit"];
 			private ["_wpn","_ammoCount","_mag","_magazineCount","_weaponArray"];
 
-			_weaponArray = _unit getVariable ["INC_weaponStore",[]];
-			if (_weaponArray != []) then {
+			_weaponArray = (_unit getVariable ["INC_weaponStore",[]]);
+
+			if ((_weaponArray != []) && {((_weaponArray select 0) in weapons _unit)}) then {
 				_wpn = _weaponArray select 0;
 				_ammoCount = _weaponArray select 1;
 				_mag = _weaponArray select 2;
-				if !(_wpn in (weapons _unit)) then {_wpn = selectRandom (weapons _unit)};
 			} else {
 				_wpn = selectRandom (weapons _unit);
-				_ammoCount = 500; 
+				_ammoCount = 500;
 				_mag = selectRandom ([_wpn,"getCompatMags"] call INCON_fnc_civHandler);
 			};
 
-
-
 			_unit addMagazine _mag;
-			_unit addWeapon _weaponType;
-			_unit setAmmo [_weaponType,_ammoCount];
-			_unit setVariable ["INC_weaponStoreActive",false,true];
-
-			if ((_weaponType == "") || (_weaponType == "Throw")) then {
-
-				private _civComment = selectRandom ["I'm unarmed, let's find a weapon.","I need to find a weapon.","I've got no weapon."];
-				[[_unit, _civComment] remoteExec ["globalChat",0]];
-
-			};
+			_unit addWeapon _wpn;
+			_unit setAmmo [_wpn,_ammoCount];
+			_unit setVariable ["INC_weaponStoreActive",false];
 
 		},[],6,false,true,"","((_this == _target) && {((currentWeapon _this == 'Throw') || (currentWeapon _this == ''))} && {(weapons _unit != [])})"
 
 	]] remoteExec ["addAction", _undercoverUnit];
 
-	//[_recruitedCiv] call INCON_fnc_simpleArmedTracker;
-
-	//[_recruitedCiv] call INCON_fnc_undercoverDetect;
-
 	[_recruitedCiv] remoteExecCall ["INCON_fnc_simpleArmedTracker",_undercoverUnit];
 
 	[_recruitedCiv] remoteExecCall ["INCON_fnc_undercoverDetect",_undercoverUnit];
-
-	if !(_civUnarmed) then {
-
-		if !(_civRifle) then {
-
-			_recruitedCiv addMagazine "16Rnd_9x21_Mag";
-			_recruitedCiv addMagazine "16Rnd_9x21_Mag";
-			_recruitedCiv addMagazine "16Rnd_9x21_Mag";
-			_recruitedCiv addMagazine "16Rnd_9x21_Mag";
-			_recruitedCiv addWeapon "hgun_Rook40_F";
-
-		} else {
-
-			_recruitedCiv addMagazine "30Rnd_545x39_Mag_Green_F";
-			_recruitedCiv addMagazine "30Rnd_545x39_Mag_Green_F";
-			_recruitedCiv addMagazine "30Rnd_545x39_Mag_Green_F";
-			_recruitedCiv addMagazine "30Rnd_545x39_Mag_Green_F";
-			_recruitedCiv addWeapon "arifle_AKS_F";
-
-		};
-
-	};
 
 };
 
