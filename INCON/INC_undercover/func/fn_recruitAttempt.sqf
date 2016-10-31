@@ -1,12 +1,13 @@
 params ["_civ","_undercoverUnit"];
 
 private _undercoverGroup = count units group _undercoverUnit;
+private _skill = (0.4 + (random 0.5));
 
 //if (!local _civ) exitWith {};
 
 _INC_undercoverSide = toUpper (str (side _undercoverUnit));
 
-_percentage = (linearConversion [0, 20000, (rating _undercoverUnit), 15, 80, true]);
+_percentage = ((([ALIVE_civilianHostility, _INC_undercoverSide] call ALIVE_fnc_hashGet) / 2)+ 20);
 
 if (_percentage > 30) then {
     if ((_percentage > (random 100)) && {_undercoverUnit getVariable ["isUndercover", false]}) then {

@@ -19,7 +19,7 @@ Barbaric (bool) - if true, the unit's side will potentially lash out against civ
 
 params [["_unit",objNull],["_barbaric",false],["_undercoverUnitSide",west]];
 
-if ((_unit getVariable ["INC_undercoverSide",sideEmpty]) isEqualTo _undercoverUnitSide) exitWith {};
+if ((_unit getVariable ["INC_undercoverSide",sideEmpty]) isEqualTo _undercoverUnitSide || {isNil "ALIVE_fnc_hashGet"}) exitWith {};
 
 _unit setVariable ["INC_undercoverSide",_undercoverUnitSide,true];
 
@@ -31,10 +31,6 @@ if !(_barbaric) then {
 
 		params["_unit","_killer"];
 
-		if (_killer getVariable ["isSneaky",true]) then {
-			[_killer, 1000] remoteExec ["addRating", _killer];
-		};
-
 		[_unit,_killer] spawn {
 
 			params["_unit","_killer"];
@@ -42,6 +38,23 @@ if !(_barbaric) then {
 			private _side = (_unit getVariable ["INC_unitSide",west]);
 
 			_INC_undercoverSide = toUpper (str (_unit getVariable ["INC_undercoverSide",west]));
+
+			//Make civilians support the undercover unit if enemies start dying
+			if !(missionNamespace getVariable ["civSupport1", false]) then {
+
+				if (INC_civilianRecruitEnabled) then {
+
+					if (30 > (random 100)) then {
+
+						_oldHostility = [ALIVE_civilianHostility, _INC_undercoverSide] call ALIVE_fnc_hashGet;
+						_newHostility = _oldHostility + (random 20);
+						[ALIVE_civilianHostility, _INC_undercoverSide,_newHostility] call ALIVE_fnc_hashSet;
+						if (_newHostility > 50) then {missionNamespace setVariable ["civSupport1", true, true]};
+
+					};
+
+				};
+			};
 
 			if (30 > (random 100)) then {
 
@@ -64,7 +77,6 @@ if !(_barbaric) then {
 
 					_suspect = selectRandom _nearbyUndercoverUnits;
 					[_suspect] remoteExecCall ["INCON_fnc_undercoverCompromised",_suspect];
-					_suspect addRating 5000;
 
 				};
 
@@ -87,13 +99,31 @@ if (_barbaric) then {
 
 			params["_unit","_killer"];
 
-			if (_killer getVariable ["isSneaky",true]) then {
-				[_killer, 1500] remoteExec ["addRating", _killer];
-			};
-
 			private _side = (_unit getVariable ["INC_unitSide",west]);
 
 			_INC_undercoverSide = toUpper (str (_unit getVariable ["INC_undercoverSide",west]));
+
+			if (INC_civilianRecruitEnabled) then {
+
+					//Make civilians have a chance of supporting the undercover unit if enemies start dying
+				if !(missionNamespace getVariable ["civSupport2", false]) then {
+
+					if (40 > (random 100)) then {
+
+						private _oldHostility = [ALIVE_civilianHostility, _INC_undercoverSide] call ALIVE_fnc_hashGet;
+
+						private _newHostility = _oldHostility + (random 10);
+
+						[ALIVE_civilianHostility, _INC_undercoverSide,_newHostility] call ALIVE_fnc_hashSet;
+
+						if (_newHostility > 50) then {missionNamespace setVariable ["civSupport2", true, true]};
+
+					};
+
+				};
+
+			};
+
 
 			if (30 > (random 100)) then {
 
