@@ -3,40 +3,32 @@ params ["_civ","_undercoverUnit"];
 private ["_civPos","_civUnitorm","_civFace","_civSpeaker","_civHeadgear","_civRifle","_civBackpack","_civName","_civType"];
 
 _civPos = getPosWorld _civ;
-_civUnitorm = uniform _civ;
+
 _civFace = face _civ;
 _civSpeaker = speaker _civ;
 _civHeadgear = selectRandom ["H_Shemag_olive","H_ShemagOpen_tan","H_ShemagOpen_khk"];
-_civUnarmed = (_civ getVariable ["INC_civIsUnarmed", false]);
-_civRifle = (_civ getVariable ["INC_civRifle", false]);
-_civBackpack = backpack _civ;
 _civName = name _civ;
 _civType = typeOf _civ;
 deleteVehicle _civ;
 _skill = (0.7 + (random 0.25));
 _unitType = typeOf _undercoverUnit;
+_civLoadout = [_unit,"script",false] call INCON_fnc_getLoadout;
+_civLoadout = [_civLoadout, """", "'"] call CBA_fnc_replace;
 
 _recruitedCiv = (group _undercoverUnit) createUnit [_unitType,[0,0,0],[],0,""];
 _recruitedCiv setVariable ["noChanges",true,true];
 _recruitedCiv setVariable ["isUndercover", true, true];
 
 _recruitedCiv setPosWorld _civPos;
-
-removeAllWeapons _recruitedCiv;
-removeAllItems _recruitedCiv;
-removeAllAssignedItems _recruitedCiv;
-removeUniform _recruitedCiv;
-removeVest _recruitedCiv;
-removeBackpack _recruitedCiv;
-removeHeadgear _recruitedCiv;
-removeGoggles _recruitedCiv;
-_recruitedCiv forceAddUniform _civUnitorm;
-_recruitedCiv addBackpack _civBackpack;
-
 _recruitedCiv setUnitAbility _skill;
 
-[_recruitedCiv,_civUnitorm,_civHeadgear,_civFace,_civName,_civSpeaker,_civBackpack,_civHeadgear,_civUnarmed,_civRifle,_undercoverUnit] spawn {
-	params ["_recruitedCiv","_civUnitorm","_civHeadgear","_civFace","_civName","_civSpeaker","_civBackpack","_civHeadgear","_civUnarmed","_civRifle","_undercoverUnit"];
+[_recruitedCiv,_civLoadout,_civHeadgear,_civFace,_civName,_civSpeaker,_undercoverUnit] spawn {
+	params ["_recruitedCiv","_civLoadout","_civHeadgear","_civFace","_civName","_civSpeaker","_undercoverUnit"];
+
+	sleep 0.1;
+
+	[_recruitedCiv] call compile _civLoadout;
+
 	sleep 0.1;
 
 	[_recruitedCiv, _civFace] remoteExec ["setFace", 0];
