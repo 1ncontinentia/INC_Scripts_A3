@@ -119,6 +119,12 @@ switch (_database) do {
                     params ["_unit"];
                     private ["_read","_read2","_read3","_groupData","_dataKey","_dataKey2","_dataKey3","_index"];
 
+                    waitUntil {
+                        sleep 3;
+
+                        (_unit getvariable ["alive_sys_player_playerloaded",false])
+                    };
+
                     _dataKey = format ["INC_persGroupData%1%2",_unit,(getPlayerUID _unit)];
                     _read = ["read", [(str missionName), _dataKey,[]]] call inidbi;
 
@@ -130,11 +136,7 @@ switch (_database) do {
 
                     if (_read isEqualTo []) exitWith {};
 
-                    waitUntil {
-                        sleep 3;
-
-                        (_unit getvariable ["alive_sys_player_playerloaded",false])
-                    };
+					sleep 2;
 
 					_index = (_read select 0);
 
@@ -174,7 +176,7 @@ switch (_database) do {
         					params ["_unit"];
         					private ["_groupData","_dataKey","_encodedData","_secondIteration"];
 
-        					sleep 60;
+        					sleep 180;
 
         					waitUntil {
 
