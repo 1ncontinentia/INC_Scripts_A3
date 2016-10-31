@@ -23,7 +23,6 @@ _safeUniforms = ["U_BG_Guerilla2_2","U_BG_Guerilla2_1","U_BG_Guerilla2_3","U_I_C
 
 _HMDallowed = false; //Are HMDs (night vision goggles etc.) safe to wear? Set to false if wearing HMDs will cause suspicion.
 
-//ALiVE specific features (will only work if ALiVE is loaded)
 _civRecruitEnabled = true;      //Set this to false to prevent undercover units from recruiting civilians (only works with ALiVE)
 _armedCivPercentage = 70;       //Percentage of civilians armed with rifles or pistols on person or in backpacks (if _civRecruitEnabled is set to true, otherwise this is ignored)
 

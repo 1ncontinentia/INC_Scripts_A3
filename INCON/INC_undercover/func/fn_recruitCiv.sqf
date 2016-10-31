@@ -22,9 +22,9 @@ if (_unit getVariable ["isPrisonGuard",false]) exitWith {};
 
 		[_civ, _undercoverUnit] remoteExecCall ["INCON_fnc_recruitAttempt",_civ];
 
-		_civ remoteExec ["removeAllActions",0];
+		_civ setVariable ["INC_alreadyTried",true,true];
 
-	},[],6,true,true,"","((alive _target) && (_this getVariable ['isUndercover',false]))",4
+	},[],6,true,true,"","((alive _target) && {(_this getVariable ['isUndercover',false])} && {!(_target getVariable ['INC_alreadyTried',false])})",4
 ]] remoteExec ["addAction", 0];
 
 if (_armedCivPercentage > (random 100)) exitWith {
@@ -61,14 +61,13 @@ if (_armedCivPercentage > (random 100)) exitWith {
 		_unit addMagazine "16Rnd_9x21_Mag";
 		_unit addMagazine "16Rnd_9x21_Mag";
 		_unit addMagazine "16Rnd_9x21_Mag";
-		_unit call ace_weaponselect_fnc_putWeaponAway;
 		_unit action ["SwitchWeapon", _unit, _unit, 99];
 		_unit action ["HandGunOffStand", _unit];
 		_unit removeWeapon (currentWeapon _unit); null = [_unit] spawn {_unit = (_this select 0); sleep 5; _unit action ['SwitchWeapon', _unit, _unit, 100];};
 
 	} else {
 
-		private _backpackToAdd = selectRandom ["B_FieldPack_blk","B_FieldPack_cbr","B_FieldPack_khk","B_FieldPack_oucamo","ace_gunbag","ace_gunbag_Tan","B_Carryall_cbr"];
+		private _backpackToAdd = selectRandom ["B_FieldPack_blk","B_FieldPack_cbr","B_FieldPack_khk","B_FieldPack_oucamo","B_Carryall_cbr"];
 		_unit addMagazine "30Rnd_545x39_Mag_Green_F";
 
 		if (60 > (random 100)) then {
