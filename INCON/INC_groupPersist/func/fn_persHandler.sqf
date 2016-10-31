@@ -31,16 +31,13 @@ switch (_mode) do {
 		_unitDamage = damage _unit;
 
 		_skillArray = [
+			(skill _unit),
 			(_unit skill "aimingAccuracy"),
 			(_unit skill "aimingShake"),
 			(_unit skill "aimingSpeed"),
-			(_unit skill "endurance"),
 			(_unit skill "spotDistance"),
 			(_unit skill "spotTime"),
-			(_unit skill "courage"),
-			(_unit skill "reloadSpeed"),
-			(_unit skill "commanding"),
-			(_unit skill "general")
+			(_unit skill "courage")
 		];
 		_result = [_unitType,_unitName,_unitFace,_unitSpeaker,_unitLoadout,_unitDamage,_skillArray];
 	};
@@ -52,29 +49,37 @@ switch (_mode) do {
 		private ["_pos","_newPos"];
 
 		_pos = getPosWorld _leader;
-		_newPos = ([_pos, 6] call CBA_fnc_randPos);
+		_newPos = ([_pos, 4] call CBA_fnc_randPos);
 
 		_spawnedUnit = (group _leader) createUnit [_unitType,[0,0,0],[],0,""];
 		_spawnedUnit setVariable ["noChanges",true,true];
 		_spawnedUnit setPosWorld _newPos;
 
-		_skillArray params ["_unitAccuracy","_unitAimshake","_unitAimingSpeed","_unitEndurance","_unitSpotDistance","_unitSpotTime","_unitCourage","_unitReloadSpeed","_unitCommanding","_unitGeneral"];
+		_skillArray params ["_overallSkill","_unitAccuracy","_unitAimshake","_unitAimingSpeed","_unitSpotDistance","_unitSpotTime","_unitCourage"];
+		_spawnedUnit setSkill _overallSkill;
 		_spawnedUnit setSkill ["aimingAccuracy",_unitAccuracy];
 		_spawnedUnit setSkill ["aimingShake",_unitAimshake];
 		_spawnedUnit setSkill ["aimingSpeed",_unitAimingSpeed];
-		_spawnedUnit setSkill ["endurance",_unitEndurance];
 		_spawnedUnit setSkill ["spotDistance",_unitSpotDistance];
 		_spawnedUnit setSkill ["spotTime",_unitSpotTime];
 		_spawnedUnit setSkill ["courage",_unitCourage];
-		_spawnedUnit setSkill ["reloadSpeed",_unitReloadSpeed];
-		_spawnedUnit setSkill ["commanding",_unitCommanding];
-		_spawnedUnit setSkill ["general",_unitGeneral];
+
+		removeAllWeapons _spawnedUnit;
+		removeAllItems _spawnedUnit;
+		removeAllAssignedItems _spawnedUnit;
+		removeUniform _spawnedUnit;
+		removeVest _spawnedUnit;
+		removeBackpack _spawnedUnit;
+		removeHeadgear _spawnedUnit;
+		removeGoggles _spawnedUnit;
 
 		[_spawnedUnit, _unitName] remoteExec ["setName", 0];
 		[_spawnedUnit, _unitFace] remoteExec ["setFace", 0];
 		[_spawnedUnit, _unitSpeaker] remoteExec ["setSpeaker", 0];
 
 		[_spawnedUnit] call compile _unitLoadout;
+
+		_spawnedUnit allowDamage false;
 
 		[_spawnedUnit,_unitType,_unitName,_unitFace,_unitSpeaker,_unitLoadout,_unitDamage,_skillArray] spawn {
 			params ["_unit","_unitType","_unitName","_unitFace","_unitSpeaker","_unitLoadout","_unitDamage","_skillArray"];
@@ -88,6 +93,10 @@ switch (_mode) do {
 			[_unit, _unitName] remoteExec ["setName", 0];
 			[_unit, _unitFace] remoteExec ["setFace", 0];
 			[_unit, _unitSpeaker] remoteExec ["setSpeaker", 0];
+
+			sleep 0.5;
+
+			_unit allowDamage true;
 
 			sleep 0.1;
 
@@ -133,27 +142,69 @@ switch (_mode) do {
 	};
 
 	case "saveGroupINIDB": {
-		//Creates an array starting with a date float (select 0) and followed by encoded unit information
+		//Creates an array starting with an array of [date float,number of units in group] and followed by max 6 units' encoded information
+		//Case "second" creates an array with max 6 units' information from teammate 7 +
 
-		private ["_unit","_float"];
+		_input params ["_unit",["_iteration","first"]];
 
-		_unit = _input;
+		private ["_float"];
 
-		_float = dateToNumber date;
+		switch (_iteration) do {
+			case "first": {
 
-		_result = [_float];
+				_float = dateToNumber date;
 
-		for "_i" from 1 to ((count units group _unit) - 1) do {
+				_result = [[_float,(count units group _unit)]];
 
-			private ["_groupMember","_unitInfo"];
+				for "_i" from 1 to ((count units group _unit) - 1) do {
 
-			if (count _result >= 6) exitWith {};
+					private ["_groupMember","_unitInfo"];
 
-			_groupMember = (units group _unit) select _i;
-			_unitInfo = [_groupMember] call INCON_fnc_persHandler;
-			_encodedData = ["encodeBase64", (str _unitInfo)] call _database;
-			_result pushBack _encodedData;
+					if (count _result <= 4) then {
 
+						_groupMember = (units group _unit) select _i;
+						_unitInfo = [_groupMember] call INCON_fnc_persHandler;
+						_encodedData = ["encodeBase64", (str _unitInfo)] call _database;
+						_result pushBack _encodedData;
+					};
+				};
+			};
+
+			case "second": {
+
+				_result = [];
+
+				for "_i" from 5 to ((count units group _unit) - 1) do {
+
+					private ["_groupMember","_unitInfo"];
+
+					if (count _result <= 3) then {
+
+						_groupMember = (units group _unit) select _i;
+						_unitInfo = [_groupMember] call INCON_fnc_persHandler;
+						_encodedData = ["encodeBase64", (str _unitInfo)] call _database;
+						_result pushBack _encodedData;
+					};
+				};
+			};
+
+			case "third": {
+
+				_result = [];
+
+				for "_i" from 9 to ((count units group _unit) - 1) do {
+
+					private ["_groupMember","_unitInfo"];
+
+					if (count _result <= 3) then {
+
+						_groupMember = (units group _unit) select _i;
+						_unitInfo = [_groupMember] call INCON_fnc_persHandler;
+						_encodedData = ["encodeBase64", (str _unitInfo)] call _database;
+						_result pushBack _encodedData;
+					};
+				};
+			};
 		};
 	};
 
@@ -161,9 +212,19 @@ switch (_mode) do {
 		//From the group array, remove the date float and create the group
 		//Returns the dateToNumber of the group
 
-		_result = _input select 0;
+		_result = (_input select 0) select 0;
 
 		if (typeName _result == "SCALAR") then {_input deleteAt 0};
+
+		{
+			[_x,"createINIDB",_leader,_database] call INCON_fnc_persHandler;
+		} forEach _input;
+	};
+
+	case "loadLargeGroupINIDB": {
+		//Creates group from array of encoded information
+
+		_result = (count _input); 
 
 		{
 			[_x,"createINIDB",_leader,_database] call INCON_fnc_persHandler;

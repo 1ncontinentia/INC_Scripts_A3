@@ -39,15 +39,6 @@ _fnc_addMultiple = {
 _export = _export + "_unit = _this select 0;" + _br;
 _var = "_unit";
 
-_export = _export + format ["removeAllWeapons %1;",_var] + _br;
-_export = _export + format ["removeAllItems %1;",_var] + _br;
-_export = _export + format ["removeAllAssignedItems %1;",_var] + _br;
-_export = _export + format ["removeUniform %1;",_var] + _br;
-_export = _export + format ["removeVest %1;",_var] + _br;
-_export = _export + format ["removeBackpack %1;",_var] + _br;
-_export = _export + format ["removeHeadgear %1;",_var] + _br;
-_export = _export + format ["removeGoggles %1;",_var] + _br;
-
 if (uniform _center != "") then {
 	_export = _export + format ["%1 forceAddUniform ""%2"";",_var,uniform _center] + _br;
 	[uniformitems _center,"%1 addItemToUniform ""%2"";"] call _fnc_addMultiple;
