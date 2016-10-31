@@ -1,16 +1,18 @@
 params ["_civ","_undercoverUnit"];
 
-private ["_civPos","_civUnitorm","_civFace","_civSpeaker","_civHeadgear","_civRifle","_civBackpack","_civName","_civType"];
+private ["_civPos","_prevGroup","_civUnitorm","_civFace","_civSpeaker","_civHeadgear","_civRifle","_civBackpack","_civName","_civType"];
 
 _civPos = getPosWorld _civ;
-
+_prevGroup = group _civ;
 _civFace = face _civ;
 _civSpeaker = speaker _civ;
 _civHeadgear = selectRandom ["H_Shemag_olive","H_ShemagOpen_tan","H_ShemagOpen_khk"];
 _civName = name _civ;
 _civType = typeOf _civ;
 deleteVehicle _civ;
+
 _skill = (0.7 + (random 0.25));
+
 _unitType = typeOf _undercoverUnit;
 _civLoadout = [_unit,"script",false] call INCON_fnc_getLoadout;
 _civLoadout = [_civLoadout, """", "'"] call CBA_fnc_replace;
@@ -21,6 +23,10 @@ _recruitedCiv setVariable ["isUndercover", true, true];
 
 _recruitedCiv setPosWorld _civPos;
 _recruitedCiv setUnitAbility _skill;
+
+if ((count units _prevGroup) == 0) then {
+	deleteGroup _prevGroup;
+};
 
 [_recruitedCiv,_civLoadout,_civHeadgear,_civFace,_civName,_civSpeaker,_undercoverUnit] spawn {
 	params ["_recruitedCiv","_civLoadout","_civHeadgear","_civFace","_civName","_civSpeaker","_undercoverUnit"];
@@ -67,28 +73,41 @@ _recruitedCiv setUnitAbility _skill;
 
 	[_recruitedCiv, [
 
-		"<t color='#334FFF'>Conceal weapon</t>", {
+		"<t color='#334FFF'>Hide current weapon</t>", {
 
 			params ["_unit"];
-			private ["_weaponType","_ammoCount","_mag","_magazineCount","_weaponArray"];
+			private ["_wpn","_ammoCount","_mag","_magazineCount","_weaponArray"];
 
-			_weaponType = currentWeapon _unit;
+			_wpn = currentWeapon _unit;
+			_mag = currentMagazine _unit;
+			_ammoCount = _unit ammo (currentWeapon _unit);
 
-			if ((_weaponType == "") || {_weaponType == "Throw"}) exitWith {
-				private _civComment = selectRandom ["I'm unarmed, let's find a weapon.","I need to find a weapon.","I've got no weapon."];
-				[[_unit, _civComment] remoteExec ["globalChat",0]];
+			if (_unit canAddItemToUniform _wpn) then {
+
+				_unit addItemToUniform _wpn;
+				_unit addMagazine _mag;
+				_unit removeWeaponGlobal _wpn;
+
+			} else {
+
+				if (_unit canAddItemToBackpack _wpn) then {
+
+					_unit addItemToBackpack _wpn;
+					_mag = currentMagazine _unit;
+
+				};
 			};
 
-			_ammoCount = _unit ammo (currentWeapon _unit);
-			_mag = currentMagazine _unit;
-			_weaponArray = [_weaponType,_ammoCount,_mag];
+			_weaponArray = [_wpn,_ammoCount,_mag];
 
-			_unit setVariable ["INC_weaponStore",_weaponArray,true];
-			_unit setVariable ["INC_weaponStoreActive",true,true];
-			_unit removeWeaponGlobal _weaponType;
-			_unit call ace_weaponselect_fnc_putWeaponAway;
+			_unit setVariable ["INC_weaponStore",_weaponArray];
+			_unit setVariable ["INC_weaponStoreActive",true];
 
-		},[],6,false,true,"","((_this == _target) && !((currentWeapon _this == 'Throw') || (currentWeapon _this == '')))"
+			if (isClass(configFile >> "CfgPatches" >> "ace_main")) then {
+				_unit call ace_weaponselect_fnc_putWeaponAway;
+			};
+
+		},[],6,false,true,"","(_this == _target) && !{(currentWeapon _this == 'Throw') || (currentWeapon _this == '')} && {(_this canAddItemToUniform (currentWeapon _this)) || (_this canAddItemToBackpack (currentWeapon _this))} && {!(_unit getVariable ['INC_weaponStoreActive',false])}"
 
 	]] remoteExec ["addAction", _undercoverUnit];
 
@@ -97,12 +116,22 @@ _recruitedCiv setUnitAbility _skill;
 		"<t color='#FF33BB'>Get concealed weapon out</t>", {
 
 			params ["_unit"];
-			private ["_weaponType","_ammoCount","_mag","_magazineCount","_weaponArray"];
+			private ["_wpn","_ammoCount","_mag","_magazineCount","_weaponArray"];
 
 			_weaponArray = _unit getVariable ["INC_weaponStore",[]];
-			_weaponType = _weaponArray select 0;
-			_ammoCount = _weaponArray select 1;
-			_mag = _weaponArray select 2;
+			if (_weaponArray != []) then {
+				_wpn = _weaponArray select 0;
+				_ammoCount = _weaponArray select 1;
+				_mag = _weaponArray select 2;
+				if !(_wpn in (weapons _unit)) then {_wpn = selectRandom (weapons _unit)};
+			} else {
+				_wpn = selectRandom (weapons _unit);
+				_ammoCount = 500; 
+				_mag = selectRandom ([_wpn,"getCompatMags"] call INCON_fnc_civHandler);
+			};
+
+
+
 			_unit addMagazine _mag;
 			_unit addWeapon _weaponType;
 			_unit setAmmo [_weaponType,_ammoCount];
@@ -115,7 +144,7 @@ _recruitedCiv setUnitAbility _skill;
 
 			};
 
-		},[],6,false,true,"","((_this == _target) && ((currentWeapon _this == 'Throw') || (currentWeapon _this == '')) && (_this getVariable ['weaponStoreActive',false]))"
+		},[],6,false,true,"","((_this == _target) && {((currentWeapon _this == 'Throw') || (currentWeapon _this == ''))} && {(weapons _unit != [])})"
 
 	]] remoteExec ["addAction", _undercoverUnit];
 
