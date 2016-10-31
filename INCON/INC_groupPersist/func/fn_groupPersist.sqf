@@ -146,8 +146,6 @@ switch (_database) do {
 
                         {if (_x != leader group _x) then {deleteVehicle _x}} forEach units group _unit;
 
-                        sleep 0.1;
-
                         [_read,"loadGroupINIDB",_unit,inidbi] call INCON_fnc_persHandler;
 
                         if (_groupSize >= 5) then {
