@@ -31,6 +31,25 @@ _compatibleMags = {
 
 switch (_operation) do {
 
+	case "getCompatMags": {
+
+		_input params ["_weapon"];
+
+		private _configEntry = configFile >> "CfgWeapons" >> _weapon;
+		private _result = [];
+		{
+			_result pushBack (
+				if (_x == "this") then {
+					getArray(_cls >> "magazines")
+				} else {
+					getArray(_cls >> _x >> "magazines")
+				}
+			);
+		} forEach getArray(_cls >> "muzzles");
+
+		_return = _result
+	};
+
 	case "addBackpack": {
 
 		_input params ["_unit"];
@@ -55,7 +74,7 @@ switch (_operation) do {
 		_input params ["_unit"];
 
 		private _wpn = selectRandom _civWpnArray;
-		private _magsArray = _wnp call _compatibleMags;
+		private _magsArray = [_wpn,"getCompatMags"] call INCON_fnc_civHandler;
 
 		_return = true;
 
