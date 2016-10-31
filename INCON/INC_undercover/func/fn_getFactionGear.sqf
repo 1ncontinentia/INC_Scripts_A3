@@ -8,7 +8,7 @@ private ["_unit","_linkedItems"];
 
 params ["_gearType","_factions"];
 
-private _result = []; 
+private _result = [];
 
 private _units = [];
 private _cfgVehicles = configFile >> "CfgVehicles";
@@ -76,7 +76,6 @@ switch (_gearType) do {
             _result pushbackunique _uniform;
         } forEach _units;
     };
-
 };
 
 _result
