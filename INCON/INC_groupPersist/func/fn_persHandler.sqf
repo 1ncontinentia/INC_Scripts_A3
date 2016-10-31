@@ -80,16 +80,16 @@ switch (_mode) do {
 
 			_unit setDamage _unitDamage;
 
-			sleep 0.1; 
+			sleep 0.1;
 
 			_skillArray params ["_overallSkill","_unitAccuracy","_unitAimshake","_unitAimingSpeed","_unitSpotDistance","_unitSpotTime","_unitCourage"];
-			_spawnedUnit setSkill _overallSkill;
-			_spawnedUnit setSkill ["aimingAccuracy",_unitAccuracy];
-			_spawnedUnit setSkill ["aimingShake",_unitAimshake];
-			_spawnedUnit setSkill ["aimingSpeed",_unitAimingSpeed];
-			_spawnedUnit setSkill ["spotDistance",_unitSpotDistance];
-			_spawnedUnit setSkill ["spotTime",_unitSpotTime];
-			_spawnedUnit setSkill ["courage",_unitCourage];
+			_unit setSkill _overallSkill;
+			_unit setSkill ["aimingAccuracy",_unitAccuracy];
+			_unit setSkill ["aimingShake",_unitAimshake];
+			_unit setSkill ["aimingSpeed",_unitAimingSpeed];
+			_unit setSkill ["spotDistance",_unitSpotDistance];
+			_unit setSkill ["spotTime",_unitSpotTime];
+			_unit setSkill ["courage",_unitCourage];
 
 		};
 
