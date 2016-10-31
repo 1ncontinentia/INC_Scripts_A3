@@ -25,7 +25,7 @@ if (missionNamespace getVariable ["civiliansTargeted",false]) exitWith {};
 					[_x] joinSilent grpNull;
 					[_x] joinSilent (group rebelCommander);
 
-					if ((count _units group _prevGroup) == 0) then {
+					if ((count units _prevGroup) == 0) then {
 						deleteGroup _prevGroup; // clean up empty groups
 					};
 				};
@@ -41,34 +41,25 @@ if (missionNamespace getVariable ["civiliansTargeted",false]) exitWith {};
 		{
 			if (
 				((side _x) == Civilian) &&
+				{_percentageRebel > (random 100)} &&
 				{!(_x getVariable ["isUndercover", false])} &&
-				{!(_x getVariable ["civIsUnarmed", false])} &&
-				{_percentageRebel > (random 100)}
+				{!((count weapons _x) == 0)}
 			) then {
 				private _prevGroup = group _x;
 
 				[_x] joinSilent grpNull;
 				[_x] joinSilent (group rebelCommander);
 
-				if ((count units group _prevGroup) == 0) then {
+				if ((count units _prevGroup) == 0) then {
 					deleteGroup _prevGroup;
 				};
 
-				if (_x getVariable ["civRifle",false]) exitWith {
-					removeAllWeapons _x;
-					_x addMagazine "30Rnd_762x39_Mag_Tracer_F";
-					_x addWeapon "arifle_AKM_F";
-					_x addMagazine "30Rnd_762x39_Mag_Tracer_F";
-					_x addMagazine "30Rnd_762x39_Mag_Tracer_F";
-					_x setUnitAbility (0.7 + (random 0.25));
-				};
+				private _wpn = selectRandom (weapons _x);
+				_x removeWeapon _wpn;
+				private _mag = selectRandom ([_wpn,"getCompatMags"] call INCON_fnc_civHandler);
+				_x addMagazine _mag; 
+				_x addWeapon _wpn;
 
-				removeAllWeapons _x;
-				_x addMagazine "16Rnd_9x21_Mag";
-				_x addWeapon "hgun_Rook40_F";
-				_x addMagazine "16Rnd_9x21_Mag";
-				_x addMagazine "16Rnd_9x21_Mag";
-				_x addMagazine "16Rnd_9x21_Mag";
 				_x setUnitAbility (0.7 + (random 0.25));
 			};
 		} foreach allunits;
