@@ -1,11 +1,11 @@
 
+class civHandler {allowedTargets=0;};
 class countAlerted {allowedTargets=0;};
 class getFactionGear {allowedTargets=0;};
 class getLoadout {allowedTargets=0;};
 class recruitAttempt {allowedTargets=0;};
 class recruitCiv {allowedTargets=0;};
 class recruitSuccess {allowedTargets=0;};
-class runAway {allowedTargets=0;};
 class simpleArmedTracker {allowedTargets=0;};
 class undercoverArmedTracker {allowedTargets=0;};
 class undercoverCompromised {allowedTargets=0;};

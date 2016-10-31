@@ -1,13 +1,13 @@
 class undercoverRecruit
 {
 	file = "INCON\INC_undercover\func";
+	class civHandler {description = "Contains functions for arming recruitable civilians."};
 	class countAlerted {description = "Counts units of the defined side who have been alerted to a unit.";};
 	class getFactionGear {description = "Gets a faction's gear.";};
 	class getLoadout {description = "Copy a unit's loadout and store it in SQF.";};
 	class recruitAttempt {description = "Attempt to recruit - requires ALiVE.";};
 	class recruitCiv {description = "Allows civilians to be recruited. Also gives them either a rifle or pistol.";};
 	class recruitSuccess {description = "Unit join's initiator's group and adds dismiss, conceal weapon and show weapon actions.";};
-	class runAway {description = "Unit runs away from someone who is trying to steal their stuff.";};
 	class simpleArmedTracker {description = "Sets captive depending on whether the unit is armed, wearing suspicious clothing or enemy units know about them.";};
 	class spawnRebelCommander {description = "Spawns a commander for civilian units to join in an uprising.";};
 	class undercoverArmedTracker {description = "Sets 'armed' variable to be picked up by undercover handler depending on whether the unit is armed, wearing suspicious clothing or enemy units know about them.";};

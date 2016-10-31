@@ -21,10 +21,16 @@ _safeVests = [];
 //Array of safe uniforms (on top of the specific factions above - must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])
 _safeUniforms = ["U_BG_Guerilla2_2","U_BG_Guerilla2_1","U_BG_Guerilla2_3","U_I_C_Soldier_Bandit_4_F","U_I_C_Soldier_Bandit_1_F","U_I_C_Soldier_Bandit_2_F","U_I_C_Soldier_Bandit_5_F","U_I_C_Soldier_Bandit_3_F"];
 
-_HMDallowed = false; //Are HMDs (night vision goggles etc.) safe to wear? Set to false if wearing HMDs will cause suspicion.
+_HMDallowed = false; //Are HMDs (night vision goggles etc.) safe to wear? Set to false if wearing HMDs will cause suspicion (must be stored in backpack).
 
-_civRecruitEnabled = true;      //Set this to false to prevent undercover units from recruiting civilians (only works with ALiVE)
-_armedCivPercentage = 70;       //Percentage of civilians armed with rifles or pistols on person or in backpacks (if _civRecruitEnabled is set to true, otherwise this is ignored)
+_civRecruitEnabled = true;          //Set this to false to prevent undercover units from recruiting civilians
+_armedCivPercentage = 70;           //Percentage of civilians armed with rifles or pistols on person or in backpacks (if _civRecruitEnabled is set to true, otherwise this is ignored)
+
+//Weapon classnames for armed civilians
+_civWpnArray = ["arifle_AKS_F","hgun_Rook40_F"];
+
+//Civilian backpack classes
+_civPackArray = ["B_FieldPack_blk","B_FieldPack_cbr","B_FieldPack_khk","B_FieldPack_oucamo","B_Carryall_cbr"];
 
 //Persistent player group settings (EXPERIMENTAL)
 _persistentGroup = true;        //Persist player group between ALiVE persistent sessions (requires INCON_groupPersist and INIDBI2 loaded on server)
