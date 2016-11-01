@@ -142,6 +142,7 @@ switch (_operation) do {
 
 						_unit addItemToBackpack _wpn;
 						_mag = currentMagazine _unit;
+						_unit removeWeaponGlobal _wpn;
 
 					};
 				};
@@ -168,14 +169,16 @@ switch (_operation) do {
 
 				_weaponArray = (_unit getVariable ["INC_weaponStore",[]]);
 
-				if ((_weaponArray != []) && {((_weaponArray select 0) in weapons _unit)}) then {
+				if (!(_weaponArray isEqualTo []) && {((_weaponArray select 0) in weapons _unit)}) then {
 					_wpn = _weaponArray select 0;
 					_ammoCount = _weaponArray select 1;
 					_mag = _weaponArray select 2;
+					_unit removeItem _wpn;
 				} else {
 					_wpn = selectRandom (weapons _unit);
 					_ammoCount = 500;
 					_mag = selectRandom ([_wpn,"getCompatMags"] call INCON_fnc_civHandler);
+					_unit removeItem _wpn;
 				};
 
 				_unit addMagazine _mag;
@@ -183,7 +186,7 @@ switch (_operation) do {
 				_unit setAmmo [_wpn,_ammoCount];
 				_unit setVariable ["INC_weaponStoreActive",false];
 
-			},[],6,false,true,"","((_this == _target) && {((currentWeapon _this == 'Throw') || (currentWeapon _this == ''))} && {(weapons _unit != [])})"
+			},[],6,false,true,"","((_this == _target) && {((currentWeapon _this == 'Throw') || (currentWeapon _this == ''))} && {!((weapons _this) isEqualTo [])})"
 
 		]] remoteExec ["addAction", _undercoverUnit];
 
