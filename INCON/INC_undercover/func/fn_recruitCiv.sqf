@@ -30,9 +30,9 @@ if (_unit getVariable ["isPrisonGuard",false]) exitWith {};
 
 if (_armedCivPercentage > (random 100)) exitWith {
 
-	if (30 > (random 100)) then {
-		[_wpn,"addBackpack"] call INCON_fnc_civHandler;
+	if (70 > (random 100)) then {
+		[_unit,"addBackpack"] call INCON_fnc_civHandler;
 	};
 
-	[_wpn,"addWeapon"] call INCON_fnc_civHandler;
+	[_unit,"addWeapon"] call INCON_fnc_civHandler;
 };
