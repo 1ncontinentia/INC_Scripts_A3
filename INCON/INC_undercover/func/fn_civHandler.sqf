@@ -61,10 +61,9 @@ switch (_operation) do {
 		_return = true;
 
 		if (_unit canAddItemToUniform _wpn) then {
-
-			_unit addMagazine (selectRandom _magsArray);
 			_unit addItemToUniform _wpn;
-			for "_i" from 1 to (ceil random 8) do {
+			_unit addMagazine (selectRandom _magsArray);
+			for "_i" from 1 to (ceil random 5) do {
 				_unit addMagazine (selectRandom _magsArray);
 			};
 
