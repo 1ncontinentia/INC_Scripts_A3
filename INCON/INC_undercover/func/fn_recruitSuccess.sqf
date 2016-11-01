@@ -23,16 +23,14 @@ _recruitedCiv setVariable ["isUndercover", true, true];
 _recruitedCiv setPosWorld _civPos;
 _recruitedCiv setUnitAbility _skill;
 
+_recruitedCiv setUnitLoadout _civLoadout;
+
 if ((count units _prevGroup) == 0) then {
 	deleteGroup _prevGroup;
 };
 
 [_recruitedCiv,_civLoadout,_civHeadgear,_civFace,_civName,_civSpeaker,_undercoverUnit] spawn {
 	params ["_recruitedCiv","_civLoadout","_civHeadgear","_civFace","_civName","_civSpeaker","_undercoverUnit"];
-
-	sleep 0.1;
-
-	_recruitedCiv setUnitLoadout _civLoadout;
 
 	sleep 0.1;
 
