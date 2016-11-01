@@ -108,15 +108,22 @@ sleep 2;
 
 //Run a low-impact version of the undercover script on group members (no proximity check)
 if (_undercoverUnit isEqualTo (leader group _undercoverUnit)) then {
-	{
-		if !(_x getVariable ["isSneaky",false]) then {
-			[_x] remoteExecCall ["INCON_fnc_simpleArmedTracker",_undercoverUnit];
-			[_x,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverDetect",_undercoverUnit];
-			_x setVariable ["noChanges",true,true];
-			_x setVariable ["isUndercover", true, true];
-			[[_x,_undercoverUnit],"addConcealActions"] call INCON_fnc_civHandler;
-		};
-	} forEach units group _undercoverUnit;
+	[_undercoverUnit,_regEnySide,_asymEnySide] spawn {
+		params ["_undercoverUnit","_regEnySide","_asymEnySide"];
+		{
+			if !(_x getVariable ["isSneaky",false]) then {
+				sleep 0.2;
+				[_x] remoteExecCall ["INCON_fnc_simpleArmedTracker",_undercoverUnit];
+				sleep 0.2;
+				[_x,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverDetect",_undercoverUnit];
+				sleep 0.2;
+				_x setVariable ["noChanges",true,true];
+				_x setVariable ["isUndercover", true, true];
+				sleep 0.2;
+				[[_x,_undercoverUnit],"addConcealActions"] call INCON_fnc_civHandler;
+			};
+		} forEach units group _undercoverUnit;
+	};
 };
 
 //Main loop
