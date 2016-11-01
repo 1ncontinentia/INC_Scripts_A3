@@ -14,7 +14,7 @@ switch (_mode) do {
 
 	case "copy": {
 
-		private ["_unit"];
+		private ["_unit","_unitType","_unitName","_unitFace","_unitSpeaker","_unitLoadout","_unitDamage","_skillArray"];
 
 		_unit = _input;
 
@@ -24,9 +24,7 @@ switch (_mode) do {
 		_unitFace = face _unit;
 		_unitSpeaker = speaker _unit;
 
-		_unitLoadout = [_unit,"script",false] call INCON_fnc_exportLoadout;
-
-		_unitLoadout = [_unitLoadout, """", "'"] call CBA_fnc_replace;
+		_unitLoadout = getUnitLoadout _unit;
 
 		_unitDamage = damage _unit;
 
@@ -46,7 +44,7 @@ switch (_mode) do {
 
 		_input params ["_unitType","_unitName","_unitFace","_unitSpeaker","_unitLoadout","_unitDamage","_skillArray"];
 
-		private ["_pos","_newPos"];
+		private ["_pos","_newPos","_spawnedUnit"];
 
 		_pos = getPosWorld _leader;
 		_newPos = ([_pos, 4] call CBA_fnc_randPos);
@@ -55,29 +53,9 @@ switch (_mode) do {
 		_spawnedUnit setVariable ["noChanges",true,true];
 		_spawnedUnit setPosWorld _newPos;
 
-		_skillArray params ["_overallSkill","_unitAccuracy","_unitAimshake","_unitAimingSpeed","_unitSpotDistance","_unitSpotTime","_unitCourage"];
-		_spawnedUnit setSkill _overallSkill;
-		_spawnedUnit setSkill ["aimingAccuracy",_unitAccuracy];
-		_spawnedUnit setSkill ["aimingShake",_unitAimshake];
-		_spawnedUnit setSkill ["aimingSpeed",_unitAimingSpeed];
-		_spawnedUnit setSkill ["spotDistance",_unitSpotDistance];
-		_spawnedUnit setSkill ["spotTime",_unitSpotTime];
-		_spawnedUnit setSkill ["courage",_unitCourage];
-
-		removeAllWeapons _spawnedUnit;
-		removeAllItems _spawnedUnit;
-		removeAllAssignedItems _spawnedUnit;
-		removeUniform _spawnedUnit;
-		removeVest _spawnedUnit;
-		removeBackpack _spawnedUnit;
-		removeHeadgear _spawnedUnit;
-		removeGoggles _spawnedUnit;
-
 		[_spawnedUnit, _unitName] remoteExec ["setName", 0];
 		[_spawnedUnit, _unitFace] remoteExec ["setFace", 0];
 		[_spawnedUnit, _unitSpeaker] remoteExec ["setSpeaker", 0];
-
-		[_spawnedUnit] call compile _unitLoadout;
 
 		_spawnedUnit allowDamage false;
 
@@ -86,7 +64,7 @@ switch (_mode) do {
 
 			sleep 0.1;
 
-			[_unit] call compile _unitLoadout;
+			_unit setUnitLoadout _unitLoadout;
 
 			sleep 0.1;
 
@@ -101,6 +79,17 @@ switch (_mode) do {
 			sleep 0.1;
 
 			_unit setDamage _unitDamage;
+
+			sleep 0.1;
+
+			_skillArray params ["_overallSkill","_unitAccuracy","_unitAimshake","_unitAimingSpeed","_unitSpotDistance","_unitSpotTime","_unitCourage"];
+			_unit setSkill _overallSkill;
+			_unit setSkill ["aimingAccuracy",_unitAccuracy];
+			_unit setSkill ["aimingShake",_unitAimshake];
+			_unit setSkill ["aimingSpeed",_unitAimingSpeed];
+			_unit setSkill ["spotDistance",_unitSpotDistance];
+			_unit setSkill ["spotTime",_unitSpotTime];
+			_unit setSkill ["courage",_unitCourage];
 
 		};
 

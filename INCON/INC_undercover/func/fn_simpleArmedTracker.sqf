@@ -43,12 +43,12 @@ _safeUniforms append (["uniforms",_safeFactionUniforms] call INCON_fnc_getFactio
 
 		waitUntil {
 			sleep 5;
-			!(!(uniform _civ in _safeUniforms) || {!(vest _civ in _safeVests)} || {!((currentWeapon _civ == "") || {currentWeapon _civ == "Throw"})} || {hmd _civ != ""}); //Fires if unit gets out weapon or wears suspicious uniform.
+			!(!(uniform _civ in _safeUniforms) || {!(vest _civ in _safeVests)} || {!((currentWeapon _civ == "") || {currentWeapon _civ == "Throw"})} || {hmd _civ != ""} || {(_civ getVariable ["INC_AnyKnowsSO",false])}); //Fires if unit gets out weapon or wears suspicious uniform.
 		};
 
 		[_civ, true] remoteExec ["setCaptive", _civ];
 
-		(!(_civ getVariable ["isUndercover",false]) || !(alive _civ))
+		(!(_civ getVariable ["isUndercover",false]) || {!(alive _civ)})
 	};
 
 	_civ setVariable ["INC_civArmedLoopRunning", false, true]; // Stops the script running twice on the same unit

@@ -13,6 +13,6 @@ switch (side _unit) do {
 
 if (_civRecruitEnabled) then {
 	if (((side _unit) == CIVILIAN) && {!(_unit getVariable ["isUndercover",false])}) then {
-		[_unit,_armedCivPercentage] remoteExecCall ["INCON_fnc_recruitCiv",0,true];
+		[_unit,_armedCivPercentage,_civRifleArray,_civPistolArray,_civPackArray] remoteExecCall ["INCON_fnc_recruitCiv",0,true];
 	};
 };

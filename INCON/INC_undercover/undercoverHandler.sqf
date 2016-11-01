@@ -108,80 +108,22 @@ sleep 2;
 
 //Run a low-impact version of the undercover script on group members (no proximity check)
 if (_undercoverUnit isEqualTo (leader group _undercoverUnit)) then {
-	{
-		if !(_x getVariable ["isSneaky",false]) then {
-			[_x] remoteExecCall ["INCON_fnc_simpleArmedTracker",_undercoverUnit];
-			[_x,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverDetect",_undercoverUnit];
-			_x setVariable ["noChanges",true,true];
-			_x setVariable ["isUndercover", true, true];
-
-			[_x,_undercoverUnit] spawn {
-
-				params ["_unit","_undercoverUnit"];
-
-				[_unit, [
-					"<t color='#9933FF'>Dismiss</t>", {
-
-						private _unit = _this select 0;
-
-						[_unit] join grpNull;
-						_unit remoteExec ["removeAllActions",0];
-						_unit setVariable ["isUndercover", false, true];
-
-						_wp1 = (group _unit) addWaypoint [(getPosWorld _unit), 3];
-						(group _unit) setBehaviour "SAFE";
-						_wp1 setWaypointType "DISMISS";
-
-					},[],5.9,false,true,"","((_this == _target) && (_this getVariable ['isUndercover',false]))"
-				]] remoteExec ["addAction", _undercoverUnit];
-
-				[_unit, [
-
-					"<t color='#334FFF'>Conceal weapon</t>", {
-
-						params ["_unit"];
-						private ["_weaponType","_ammoCount","_mag","_magazineCount","_weaponArray"];
-
-						_weaponType = currentWeapon _unit;
-
-						_ammoCount = _unit ammo (currentWeapon _unit);
-						_mag = currentMagazine _unit;
-						_weaponArray = [_weaponType,_ammoCount,_mag];
-
-						_unit setVariable ["weaponStore",_weaponArray,true];
-						_unit setVariable ["weaponStoreActive",true,true];
-						_unit removeWeaponGlobal _weaponType;
-						if (isClass(configFile >> "CfgPatches" >> "ace_main")) then {
-							_unit call ace_weaponselect_fnc_putWeaponAway;
-						};
-
-					},[],6,false,true,"","((_this == _target) && !((currentWeapon _this == 'Throw') || (currentWeapon _this == '')))"
-
-				]] remoteExec ["addAction", _undercoverUnit];
-
-				[_unit, [
-
-					"<t color='#FF33BB'>Get concealed weapon out</t>", {
-
-						params ["_unit"];
-						private ["_weaponType","_ammoCount","_mag","_magazineCount","_weaponArray"];
-
-						_weaponArray = _unit getVariable ["weaponStore",[]];
-						_weaponType = _weaponArray select 0;
-						_ammoCount = _weaponArray select 1;
-						_mag = _weaponArray select 2;
-						_unit addMagazine _mag;
-						_unit addWeapon _weaponType;
-						_unit setAmmo [_weaponType,_ammoCount];
-						_unit setVariable ["weaponStoreActive",false,true];
-
-					},[],6,false,true,"","((_this == _target) && ((currentWeapon _this == 'Throw') || (currentWeapon _this == '')) && (_this getVariable ['weaponStoreActive',false]))"
-
-				]] remoteExec ["addAction", _undercoverUnit];
+	[_undercoverUnit,_regEnySide,_asymEnySide] spawn {
+		params ["_undercoverUnit","_regEnySide","_asymEnySide"];
+		{
+			if !(_x getVariable ["isSneaky",false]) then {
+				sleep 0.2;
+				[_x] remoteExecCall ["INCON_fnc_simpleArmedTracker",_undercoverUnit];
+				sleep 0.2;
+				[_x,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverDetect",_undercoverUnit];
+				sleep 0.2;
+				_x setVariable ["noChanges",true,true];
+				_x setVariable ["isUndercover", true, true];
+				sleep 0.2;
+				[[_x,_undercoverUnit],"addConcealActions"] call INCON_fnc_civHandler;
 			};
-
-		};
-	} forEach units group _undercoverUnit;
+		} forEach units group _undercoverUnit;
+	};
 };
 
 //Main loop
