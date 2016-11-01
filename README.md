@@ -36,10 +36,12 @@ Status: Initial (early Alpha) release.
 Provides persistent AI Teammates (in player group) between play sessions when ALiVE data is present using iniDBI2. Saves full unit information for up to 11 AI teammates and loads it when there is ALiVE persistent player information. 
  
 To have full persistent AI teammates you need to: 
-(a) have mission time persistence to be set to on (so iniDBI2 can tally it's information with ALiVE's persistent data).
-(b) save and exit the server at the end of each session 
-(c) when loading the mission again, make sure the mission time is the same as it was when you last saved and exited (if not, your persistent group won't load)
-(d)  don't play the same mission in multiplayer in the meantime if persistent data hasn't loaded (this will also overwrite your saved group data)
+(a) have mission time persistence to be set to on (so iniDBI2 can tally it's information with ALiVE's persistent data), 
+
+(b) save and exit the server at the end of each session,  
+
+(c) when loading the mission again, make sure the mission time is the same as it was when you last saved and exited (if not, your persistent group won't load), 
+(d)  don't play the same mission in multiplayer in the meantime if persistent data hasn't loaded (this will also overwrite your saved group data). 
 
 No further configuration required, just load the iniDBI2 mod on server and client and it will save your group state periodically (including health, loadout, skill etc.) until you save and exit the server. 
 
