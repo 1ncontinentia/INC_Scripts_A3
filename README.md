@@ -41,6 +41,7 @@ To have full persistent AI teammates you need to:
 (b) save and exit the server at the end of each session,  
 
 (c) when loading the mission again, make sure the mission time is the same as it was when you last saved and exited (if not, your persistent group won't load), 
+
 (d)  don't play the same mission in multiplayer in the meantime if persistent data hasn't loaded (this will also overwrite your saved group data). 
 
 No further configuration required, just load the iniDBI2 mod on server and client and it will save your group state periodically (including health, loadout, skill etc.) until you save and exit the server. 
