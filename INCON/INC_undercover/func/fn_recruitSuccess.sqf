@@ -1,6 +1,6 @@
 params ["_civ","_undercoverUnit"];
 
-private ["_civPos","_prevGroup","_civUnitorm","_civFace","_civSpeaker","_civHeadgear","_civRifle","_civBackpack","_civName","_civType"];
+private ["_civPos","_prevGroup","_civFace","_civSpeaker","_civHeadgear","_civName"];
 
 _civPos = getPosWorld _civ;
 _prevGroup = group _civ;
@@ -8,7 +8,6 @@ _civFace = face _civ;
 _civSpeaker = speaker _civ;
 _civHeadgear = selectRandom ["H_Shemag_olive","H_ShemagOpen_tan","H_ShemagOpen_khk"];
 _civName = name _civ;
-_civType = typeOf _civ;
 deleteVehicle _civ;
 
 _skill = (0.7 + (random 0.25));
