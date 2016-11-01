@@ -5,7 +5,9 @@ This script sets a variable on the unit showing whether there are any Reg or Asy
 */
 
 private ["_detectedGroup","_getAlertedReg","_getAlertedAsym","_alertedUnitsReg","_alertedRegCount","_alertedUnitsAsym","_alertedAsymCount","_RegKnowAboutUnit","_AsymKnowAboutUnit"];
-params [["_underCoverUnit",player],["_regEnySide",sideEmpty],["_asymEnySide",sideEmpty]];
+params [["_underCoverUnit",player]];
+
+#include "..\UCR_setup.sqf"
 
 if (_underCoverUnit getVariable ["undercoverDetectionRunning",false]) exitWith {};
 
