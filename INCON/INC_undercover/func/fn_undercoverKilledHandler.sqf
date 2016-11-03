@@ -21,9 +21,7 @@ params [["_unit",objNull],["_barbaric",false],["_undercoverUnitSide",west]];
 
 if ((_unit getVariable ["INC_undercoverSide",sideEmpty]) isEqualTo _undercoverUnitSide) exitWith {};
 
-_unit setVariable ["INC_undercoverSide",_undercoverUnitSide,true];
-
-_unit setVariable ["INC_unitSide",(side _unit),true];
+_unit setVariable ["INC_unitSide",(side _unit)];
 
 //Non-barbaric response to getting killed
 if !(_barbaric) then {
@@ -40,8 +38,6 @@ if !(_barbaric) then {
 			params["_unit","_killer"];
 
 			private _side = (_unit getVariable ["INC_unitSide",west]);
-
-			_INC_undercoverSide = toUpper (str (_unit getVariable ["INC_undercoverSide",west]));
 
 			if (30 > (random 100)) then {
 
@@ -95,8 +91,6 @@ if (_barbaric) then {
 			};
 
 			private _side = (_unit getVariable ["INC_unitSide",west]);
-
-			_INC_undercoverSide = toUpper (str (_unit getVariable ["INC_undercoverSide",west]));
 
 			if (30 > (random 100)) then {
 
