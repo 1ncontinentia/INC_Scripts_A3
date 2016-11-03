@@ -22,7 +22,7 @@ if (_unit getVariable ["isPrisonGuard",false]) exitWith {};
 
 		[_civ, _undercoverUnit] remoteExecCall ["INCON_fnc_recruitAttempt",_civ];
 
-		_civ setVariable ["INC_alreadyTried",true,true];
+		_civ setVariable ["INC_alreadyTried",true];
 
 	},[],6,true,true,"","((alive _target) && {(_this getVariable ['isUndercover',false])} && {!(_target getVariable ['INC_alreadyTried',false])})",4
 ]] remoteExec ["addAction", 0];
