@@ -39,7 +39,7 @@ switch (_database) do {
 
 					if (count _groupData != 0) then {
 
-						{if (_x != leader group _x) then {deleteVehicle _x}} forEach units group _unit;
+						{if ((_x != leader group _x) || {_x in playableUnits}) then {deleteVehicle _x}} forEach units group _unit;
 
 						[_groupData,"loadGroup",_unit] call INCON_fnc_persHandler;
 

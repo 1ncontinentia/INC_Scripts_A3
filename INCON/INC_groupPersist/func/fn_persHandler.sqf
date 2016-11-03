@@ -152,9 +152,11 @@ switch (_mode) do {
 					if (count _result <= 4) then {
 
 						_groupMember = (units group _unit) select _i;
-						_unitInfo = [_groupMember] call INCON_fnc_persHandler;
-						_encodedData = ["encodeBase64", (str _unitInfo)] call _database;
-						_result pushBack _encodedData;
+						if !((_groupMember getVariable ["isSneaky",false]) || {isPlayer _groupMember}) then {
+							_unitInfo = [_groupMember] call INCON_fnc_persHandler;
+							_encodedData = ["encodeBase64", (str _unitInfo)] call _database;
+							_result pushBack _encodedData;
+						};
 					};
 				};
 			};
@@ -170,9 +172,11 @@ switch (_mode) do {
 					if (count _result <= 3) then {
 
 						_groupMember = (units group _unit) select _i;
-						_unitInfo = [_groupMember] call INCON_fnc_persHandler;
-						_encodedData = ["encodeBase64", (str _unitInfo)] call _database;
-						_result pushBack _encodedData;
+						if !((_groupMember getVariable ["isSneaky",false]) || {isPlayer _groupMember}) then {
+							_unitInfo = [_groupMember] call INCON_fnc_persHandler;
+							_encodedData = ["encodeBase64", (str _unitInfo)] call _database;
+							_result pushBack _encodedData;
+						};
 					};
 				};
 			};
@@ -188,9 +192,11 @@ switch (_mode) do {
 					if (count _result <= 3) then {
 
 						_groupMember = (units group _unit) select _i;
-						_unitInfo = [_groupMember] call INCON_fnc_persHandler;
-						_encodedData = ["encodeBase64", (str _unitInfo)] call _database;
-						_result pushBack _encodedData;
+						if !((_groupMember getVariable ["isSneaky",false]) || {isPlayer _groupMember}) then {
+							_unitInfo = [_groupMember] call INCON_fnc_persHandler;
+							_encodedData = ["encodeBase64", (str _unitInfo)] call _database;
+							_result pushBack _encodedData;
+						};
 					};
 				};
 			};
