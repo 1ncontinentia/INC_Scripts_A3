@@ -19,22 +19,22 @@ _undercoverUnit setVariable ["INC_undercoverHandlerRunning", true, true];
 
 //Group persistence
 if ((_persistentGroup) && {!(isNil "INCON_fnc_groupPersist")}) then {
-	["loadGroup",_undercoverUnit] remoteExecCall ["INCON_fnc_groupPersist",2];
-	["saveGroup",_undercoverUnit] remoteExecCall ["INCON_fnc_groupPersist",2];
+	["loadGroup",_undercoverUnit] call INCON_fnc_groupPersist;
+	["saveGroup",_undercoverUnit] call INCON_fnc_groupPersist;
 };
 
 //Add respawn eventhandler so all scripts work properly on respawn
 _undercoverUnit addMPEventHandler ["MPRespawn",{
 	_this spawn {
         params ["_undercoverUnit"];
-		_undercoverUnit setVariable ["INC_undercoverHandlerRunning", false, true];
-		_underCoverUnit setVariable ["INC_armedLoopRunning", false, true];
-		_underCoverUnit setVariable ["INC_trespassLoopRunning", false, true];
-		_underCoverUnit setVariable ["INC_compromisedLoopRunning", false, true];
-		_underCoverUnit setVariable ["INC_undercoverCompromised", false, true];
-		_underCoverUnit setVariable ["INC_armed", false, true];
-		_underCoverUnit setVariable ["INC_suspicious", false, true];
-		_underCoverUnit setVariable ["INC_cooldown", false, true];
+		_undercoverUnit setVariable ["INC_undercoverHandlerRunning", false];
+		_underCoverUnit setVariable ["INC_armedLoopRunning", false];
+		_underCoverUnit setVariable ["INC_trespassLoopRunning", false];
+		_underCoverUnit setVariable ["INC_compromisedLoopRunning", false];
+		_underCoverUnit setVariable ["INC_undercoverCompromised", false];
+		_underCoverUnit setVariable ["INC_armed", false];
+		_underCoverUnit setVariable ["INC_suspicious", false];
+		_underCoverUnit setVariable ["INC_cooldown", false];
 		sleep 1;
 		[[_undercoverUnit], "INCON\INC_undercover\undercoverHandler.sqf"] remoteExec ["execVM",_undercoverUnit];
 	};
@@ -44,7 +44,7 @@ _undercoverUnit setVariable ["isUndercover", true, true]; //Allow scripts to pic
 
 missionNamespace setVariable ["INC_civilianRecruitEnabled",_civRecruitEnabled,true];
 
-_undercoverUnit setCaptive false;
+_undercoverUnit setCaptive true;
 private _side = side _undercoverUnit;
 
 //Spawn the rebel commader
@@ -144,7 +144,7 @@ waitUntil {
 	};
 
 	//Once the player is doing naughty stuff, make them vulnerable to being compromised
-	_undercoverUnit setVariable ["INC_suspicious", true, true]; //Hold the cooldown script until the unit is no longer doing naughty things
+	_undercoverUnit setVariable ["INC_suspicious", true]; //Hold the cooldown script until the unit is no longer doing naughty things
 	[_undercoverUnit, false] remoteExec ["setCaptive", _undercoverUnit]; //Makes enemies hostile to the unit
 
 	[_undercoverUnit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCooldown",_undercoverUnit]; //Gets the cooldown script going
@@ -199,21 +199,23 @@ waitUntil {
 
 	//Wait until he is no longer armed or trespassing...
 	waitUntil {
-		sleep 4;
-		!((_undercoverUnit getVariable ["INC_trespassing",false]) && {(_undercoverUnit getVariable ["INC_armed",false])});
+		sleep 2;
+		(!(_undercoverUnit getVariable ["INC_trespassing",false]) && {!(_undercoverUnit getVariable ["INC_armed",false])});
 	};
 
 	//Then stop the holding variable and allow cooldown to commence
-	_undercoverUnit setVariable ["INC_suspicious", false, true];
+	_undercoverUnit setVariable ["INC_suspicious", false];
 
 	sleep 5;
 
 	//Wait until cooldown loop has finished
 	waitUntil {
-		sleep 4;
+		sleep 2;
 		!(_undercoverUnit getVariable ["INC_cooldown",false]);
 	};
 
-	false
+	(!(_undercoverUnit getVariable ["isUndercover",false]) || {!(alive _undercoverUnit)})
 
 };
+
+_undercoverUnit setVariable ["INC_undercoverHandlerRunning", false, true];
