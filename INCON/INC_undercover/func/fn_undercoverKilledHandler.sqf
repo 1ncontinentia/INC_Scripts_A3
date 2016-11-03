@@ -63,8 +63,10 @@ if !(_barbaric) then {
 				if !(_nearbyUndercoverUnits isEqualTo []) then {
 
 					_suspect = selectRandom _nearbyUndercoverUnits;
+
 					[_suspect] remoteExecCall ["INCON_fnc_undercoverCompromised",_suspect];
-					_suspect addRating 5000;
+
+					[_suspect, 5000] remoteExec ["addRating", _suspect];
 
 				};
 
@@ -79,6 +81,7 @@ if !(_barbaric) then {
 
 //Barbaric response to getting killed
 if (_barbaric) then {
+
 	_unit addEventHandler["Killed", {
 
 		params["_unit","_killer"];
@@ -124,8 +127,14 @@ if (_barbaric) then {
 					//makes this side consider civilians a threat if they start to die and know about the underCoverUnit, also make civilians hostile to this side
 					[[80,20], "INCON\INC_undercover\Scripts\civChaosHandler.sqf"] remoteExec ["execVM",2];
 
-					private _sideText = [[_side] call ALIVE_fnc_sideObjectToNumber] call ALIVE_fnc_sideNumberToText;
-					[ALIVE_civilianHostility, _sideText,-100] call ALIVE_fnc_hashSet;
+					if (isClass(configFile >> "CfgPatches" >> "ALiVE_main")) then {
+
+						private _sideText = [[_side] call ALIVE_fnc_sideObjectToNumber] call ALIVE_fnc_sideNumberToText;
+
+						[ALIVE_civilianHostility, _sideText,-100] call ALIVE_fnc_hashSet;
+
+					};
+
 				};
 
 			};
