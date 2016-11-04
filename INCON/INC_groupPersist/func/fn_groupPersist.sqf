@@ -136,7 +136,7 @@ switch (_database) do {
 
                     if (_read isEqualTo []) exitWith {};
 
-					sleep 2;
+					sleep 1;
 
 					_index = (_read select 0);
 

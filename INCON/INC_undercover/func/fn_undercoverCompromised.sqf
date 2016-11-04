@@ -136,8 +136,9 @@ if (_undercoverUnit getVariable ["INC_compromisedLoopRunning",false]) exitWith {
 		// Publicize undercoverCompromised to false.
 		_undercoverUnit setVariable ["INC_undercoverCompromised", false, true];
 
-		// SetCaptive back to true.
-		[_undercoverUnit, true] remoteExec ["setCaptive", _undercoverUnit];
+
+		// Cooldown
+		[_undercoverUnit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCooldown",_undercoverUnit];
 
 		private ["_disguiseValue","_newDisguiseValue"];
 
@@ -156,8 +157,8 @@ if (_undercoverUnit getVariable ["INC_compromisedLoopRunning",false]) exitWith {
 		_undercoverUnit setVariable ["INC_undercoverCompromised", false, true];
 
 
-		// SetCaptive back to true.
-		[_undercoverUnit, true] remoteExec ["setCaptive", _undercoverUnit];
+		// Cooldown
+		[_undercoverUnit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCooldown",_undercoverUnit];
 
 	};
 

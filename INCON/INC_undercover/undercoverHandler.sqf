@@ -169,13 +169,7 @@ waitUntil {
 			};
 		};
 	};
-
-	//Wait until he is no longer armed or trespassing...
-	waitUntil {
-		sleep 2;
-		(!(_undercoverUnit getVariable ["INC_trespassing",false]) && {!(_undercoverUnit getVariable ["INC_armed",false])});
-	};
-
+	
 	//Then stop the holding variable and allow cooldown to commence
 	_undercoverUnit setVariable ["INC_suspicious", false];
 
