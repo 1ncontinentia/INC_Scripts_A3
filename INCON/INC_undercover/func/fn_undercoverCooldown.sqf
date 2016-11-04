@@ -29,19 +29,20 @@ _underCoverUnit setVariable ["INC_cooldown", true, true];
 
 	private ["_asymKnowsAboutUnit","_regKnowsAboutUnit","_regAlerted","_asymAlerted"];
 
+	//Holding variable while unit is armed / trespassing
+	waitUntil {
+		sleep 2;
+		!(_underCoverUnit getVariable ["INC_suspicious",false])
+	};
+
 	//Stop the script running while the unit is compromised
 	waitUntil {
 		sleep 3;
 		!(_underCoverUnit getVariable ["INC_undercoverCompromised",false]);
 	};
 
-	waitUntil {
-		sleep 2;
-		!(_underCoverUnit getVariable ["INC_suspicious",false])
-	};
-
 	//Checks if _regEnySide has seen him recently and sets variables accordingly
-	_regAlerted = [_regEnySide,_underCoverUnit,200] call INCON_fnc_countAlerted;
+	_regAlerted = [_regEnySide,_underCoverUnit,50] call INCON_fnc_countAlerted;
 	if (_regAlerted != 0) then {
 		_regKnowsAboutUnit = true;
 	} else {
@@ -50,7 +51,7 @@ _underCoverUnit setVariable ["INC_cooldown", true, true];
 
 
 	//Checks if _asymEnySide has seen him recently
-	_asymAlerted = [_asymEnySide,_underCoverUnit,200] call INCON_fnc_countAlerted;
+	_asymAlerted = [_asymEnySide,_underCoverUnit,50] call INCON_fnc_countAlerted;
 	if (_asymAlerted != 0) then {
 		_asymKnowsAboutUnit = true;
 	} else {
@@ -101,7 +102,7 @@ _underCoverUnit setVariable ["INC_cooldown", true, true];
 		};
 
 		//Percentage chance that unit will become compromised anyway
-		if (27 > (random 100)) then {
+		if ((35 > (random 100)) && {((_regEnySide knowsAbout _undercoverUnit) > 3})) then {
 
 			[_undercoverUnit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCompromised",_undercoverUnit];
 
