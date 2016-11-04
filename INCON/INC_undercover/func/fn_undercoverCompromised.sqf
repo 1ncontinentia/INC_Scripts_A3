@@ -116,7 +116,7 @@ if (_undercoverUnit getVariable ["INC_compromisedLoopRunning",false]) exitWith {
 
 				_disguiseValue = (_undercoverUnit getVariable ["INC_compromisedValue",1]);
 
-				_newDisguiseValue = _disguiseValue + (random 2);
+				_newDisguiseValue = _disguiseValue + (random 1);
 
 				_undercoverUnit setVariable ["INC_compromisedValue",_newDisguiseValue,true];
 
@@ -138,6 +138,16 @@ if (_undercoverUnit getVariable ["INC_compromisedLoopRunning",false]) exitWith {
 
 		// SetCaptive back to true.
 		[_undercoverUnit, true] remoteExec ["setCaptive", _undercoverUnit];
+
+		private ["_disguiseValue","_newDisguiseValue"];
+
+		_disguiseValue = (_undercoverUnit getVariable ["INC_compromisedValue",1]);
+
+		_newDisguiseValue = _disguiseValue + (random 1);
+
+		_undercoverUnit setVariable ["INC_compromisedValue",_newDisguiseValue,true];
+
+		_undercoverUnit setVariable ["INC_disguiseChanged",false,true];
 
 	//Otherwise he is no longer compromised
 	} else {
