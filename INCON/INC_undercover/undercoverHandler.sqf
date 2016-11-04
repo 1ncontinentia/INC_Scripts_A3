@@ -149,50 +149,23 @@ waitUntil {
 
 	[_undercoverUnit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCooldown",_undercoverUnit]; //Gets the cooldown script going
 
-	//If a unit is spotted while both armed and trespassing, he will become compromised
-	if (_undercoverUnit getVariable ["INC_armed",false]) then {
 
-		//While he's armed and not compromised, run these checks
-		while { sleep 2; ((_undercoverUnit getVariable ["INC_armed",false]) && {!(_undercoverUnit getVariable ["INC_undercoverCompromised",false])})} do {
+	while {
+		sleep 2;
+		(((_undercoverUnit getVariable ["INC_armed",false]) || {(_undercoverUnit getVariable ["INC_trespassing",false])}) && {!(_undercoverUnit getVariable ["INC_undercoverCompromised",false])})
+	} do {
+		if (
+			(_undercoverUnit getVariable ["INC_armed",false]) &&
+			{(_undercoverUnit getVariable ["INC_trespassing",false])} &&
+			{(_undercoverUnit getVariable ["INC_AnyKnowsSO",false])}
+		) then {
+			private _regAlerted = [_regEnySide,_undercoverUnit,50] call INCON_fnc_countAlerted;
+			private _asymAlerted = [_asymEnySide,_undercoverUnit,50] call INCON_fnc_countAlerted;
 
-			//Do nothing until he's also trespassing
-			if (_undercoverUnit getVariable ["INC_trespassing",false]) then {
+			//Once people know exactly where he is, who he is, and that he is both armed and trespassing, make him compromised
+			if ((_regAlerted != 0) || {(_asymAlerted != 0)}) exitWith {
 
-				//Wait until people know about him
-				if (_undercoverUnit getVariable ["INC_AnyKnowsSO",false]) then {
-
-					private _regAlerted = [_regEnySide,_undercoverUnit,50] call INCON_fnc_countAlerted;
-					private _asymAlerted = [_asymEnySide,_undercoverUnit,50] call INCON_fnc_countAlerted;
-
-					//Once people know exactly where he is, who he is, and that he is both armed and trespassing, make him compromised
-					if ((_regAlerted != 0) || {(_asymAlerted != 0)}) exitWith {
-
-						[_undercoverUnit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCompromised",_undercoverUnit];
-					};
-				};
-			};
-		};
-
-	} else {
-
-		//While he's trespassing and not compromised, run these checks
-		while {sleep 2; ((_undercoverUnit getVariable ["INC_trespassing",false]) && {!(_undercoverUnit getVariable ["INC_undercoverCompromised",false])})} do {
-
-			//Do nothing until he is armed
-			if (_undercoverUnit getVariable ["INC_armed",false]) then {
-
-				//Do nothing until people know where he is
-				if (_undercoverUnit getVariable ["INC_AnyKnowsSO",false]) then {
-
-					private _regAlerted = [_regEnySide,_undercoverUnit,50] call INCON_fnc_countAlerted;
-					private _asymAlerted = [_asymEnySide,_undercoverUnit,50] call INCON_fnc_countAlerted;
-
-					//Once people know exactly where he is, who he is, and that he is both armed and trespassing, make him compromised
-					if ((_regAlerted != 0) || {(_asymAlerted != 0)}) exitWith {
-
-						[_undercoverUnit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCompromised",_undercoverUnit];
-					};
-				};
+				[_undercoverUnit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCompromised",_undercoverUnit];
 			};
 		};
 	};
@@ -206,7 +179,7 @@ waitUntil {
 	//Then stop the holding variable and allow cooldown to commence
 	_undercoverUnit setVariable ["INC_suspicious", false];
 
-	sleep 5;
+	sleep 2;
 
 	//Wait until cooldown loop has finished
 	waitUntil {
