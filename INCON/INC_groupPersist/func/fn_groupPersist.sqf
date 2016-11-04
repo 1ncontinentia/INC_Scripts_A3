@@ -146,7 +146,7 @@ switch (_database) do {
 
                     if ((typeName _float == "SCALAR") && {_float > (_floatCompare - 0.000022)} && {_float < (_floatCompare + 0.000022)}) then {
 
-                        {if (_x != leader group _x) then {deleteVehicle _x}} forEach units group _unit;
+                        {if ((_x != leader group _x) && {!(_x in playableUnits)}) then {deleteVehicle _x}} forEach units group _unit;
 
                         _unit addRating (0 - (rating _unit));
 
