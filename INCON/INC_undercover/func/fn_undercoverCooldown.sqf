@@ -102,7 +102,7 @@ _underCoverUnit setVariable ["INC_cooldown", true, true];
 		};
 
 		//Percentage chance that unit will become compromised anyway
-		if ((35 > (random 100)) && {((_regEnySide knowsAbout _undercoverUnit) > 3})) then {
+		if ((35 > (random 100)) && {((_regEnySide knowsAbout _undercoverUnit) > 3)}) then {
 
 			[_undercoverUnit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCompromised",_undercoverUnit];
 
