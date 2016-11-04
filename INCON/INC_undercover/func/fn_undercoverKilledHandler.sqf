@@ -25,11 +25,13 @@ _unit setVariable ["INC_unitSide",(side _unit)];
 
 //Non-barbaric response to getting killed
 if !(_barbaric) then {
+
 	_unit addEventHandler["Killed", {
 
 		params["_unit","_killer"];
 
 		if (_killer getVariable ["isSneaky",true]) then {
+
 			[_killer, 1000] remoteExec ["addRating", _killer];
 		};
 
@@ -87,7 +89,9 @@ if (_barbaric) then {
 			params["_unit","_killer"];
 
 			if (_killer getVariable ["isSneaky",true]) then {
+
 				[_killer, 1500] remoteExec ["addRating", _killer];
+				
 			};
 
 			private _side = (_unit getVariable ["INC_unitSide",west]);
