@@ -7,10 +7,17 @@ Setup options for INC_undercover undercover / civilian recruitment script by Inc
 _undercoverUnitSide = west;             //What side is the undercover unit on? (Can be east, west or independent)
 
 //Enemy Settings
+
+/*
+Also not the difference between regular and asymmetric enemies; either will work similarly but regular enemies will share your identity between all units of that side after a short while once you become compromised, making it more important to have quick, clean kills.
+Asymmetric enemies on the other hand will be able to detect your true identity from further away due to their local knowledge, but won't necessarily share your identity with other cells.
+In essence, you can get closer to regular enemies without blowing your cover but once blown, it will stay blown for longer.
+*/
+
 _regEnySide = east;                     //Side of regular enemies (Can be east, west or independent) - if there are none, use sideEmpty
 _regBarbaric = false;                   //Will this side lash out on civilians if it takes casualties and doesn't know the attacker?
 _asymEnySide = independent;             //Side of asymetric enemies (Can be east, west or independent) - if there are none, use sideEmpty
-_asymBarbaric = true;                    //Will this side lash out on civilians if it takes casualties and doesn't know the attacker?
+_asymBarbaric = true;                   //Will this side lash out on civilians if it takes casualties and doesn't know the attacker?
 
 _safeFactionVests = ["CIV_F","CIV_F_TANOA"]; //Array of factions whose vests are safe for undercover units to wear (must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])
 _safeFactionUniforms = ["CIV_F","CIV_F_TANOA"]; //Array of factions whose uniforms are safe for undercover units to wear (must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])
@@ -33,6 +40,6 @@ _civWpnArray = ["arifle_AKS_F","hgun_Rook40_F"];
 _civPackArray = ["B_FieldPack_blk","B_FieldPack_cbr","B_FieldPack_khk","B_FieldPack_oucamo","B_Carryall_cbr"];
 
 //Persistent player group settings (EXPERIMENTAL)
-_persistentGroup = true;        //Persist player group between ALiVE persistent sessions (requires INCON_groupPersist and INIDBI2 loaded on server)
+_persistentGroup = true;        //Persist AI in player group between ALiVE persistent sessions (requires INCON_groupPersist and INIDBI2 loaded on server)
 
 _debug = false; //Set to true for debug hints
