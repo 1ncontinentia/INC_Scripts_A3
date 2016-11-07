@@ -144,7 +144,7 @@ switch (_database) do {
 
 					_floatCompare = dateToNumber date;
 
-                    if ((typeName _float == "SCALAR") && {_float > (_floatCompare - 0.000022)} && {_float < (_floatCompare + 0.000022)}) then {
+                    if ((typeName _float == "SCALAR") && {_float > (_floatCompare - 0.000032)} && {_float < (_floatCompare + 0.000032)}) then {
 
                         {if ((_x != leader group _x) && {!(_x in playableUnits)}) then {deleteVehicle _x}} forEach units group _unit;
 
