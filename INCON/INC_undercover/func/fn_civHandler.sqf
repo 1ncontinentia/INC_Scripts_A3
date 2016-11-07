@@ -83,6 +83,13 @@ switch (_operation) do {
 		};
 	};
 
+	case "addItems": {
+		for "_i" from 0 to (round (random 3)) do {
+			private _itemToAdd = selectRandom _civItemArray;
+			_unit addItem _itemToAdd;
+		};
+	};
+
 	case "runAway": {
 
 		_input params ["_unit"];

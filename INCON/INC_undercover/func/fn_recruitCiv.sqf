@@ -27,12 +27,15 @@ if (_unit getVariable ["isPrisonGuard",false]) exitWith {};
 	},[],6,true,true,"","((alive _target) && {(_this getVariable ['isUndercover',false])} && {!(_target getVariable ['INC_alreadyTried',false])})",4
 ]] remoteExec ["addAction", 0];
 
+if (30 > (random 100)) then {
+	[_unit,"addBackpack"] call INCON_fnc_civHandler;
+};
 
-if (_armedCivPercentage > (random 100)) exitWith {
-
-	if (70 > (random 100)) then {
-		[_unit,"addBackpack"] call INCON_fnc_civHandler;
-	};
+if (_armedCivPercentage > (random 100)) then {
 
 	[_unit,"addWeapon"] call INCON_fnc_civHandler;
+};
+
+if (50 > (random 100)) then {
+	[_unit,"addItems"] call INCON_fnc_civHandler;
 };
