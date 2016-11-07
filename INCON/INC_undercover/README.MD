@@ -20,7 +20,7 @@ I cannot vouch for server performance above 10 players.
 * Order recruited civilians to hide their weapons if they have inventory space
 * Order them to get concealed weapons out without faffing about with their inventories
 * Define a side as asymmetric or regular for different detection systems
-* (EXPERIMENTAL) Persistence for AI teammates (requires INC_groupPersist - included - and iniDBI2).
+* (EXPERIMENTAL) Persistence for non-playable AI teammates (requires INC_groupPersist - included - and iniDBI2).
 
 
 Undercover units remain incognito unless they
@@ -76,7 +76,7 @@ For each playable undercover unit, put this in their unit init in the editor:
 this setVariable ["isSneaky",true,true];
 ```
 
-Non-playable AI units in the undercover unit's group do not need anything; the script will run on them automatically.
+Non-playable AI units in the undercover unit's group do not need anything; the script will run on them automatically as long as the group leader is a playable undercover unit.
 
 
 For each out of bounds area, place a marker over the area with "INC_tre" somewhere in the marker name (e.g. "MyMarkerINC_tre" or "INC_tre_sillyMarkerName_15"). The script will handle the rest.
