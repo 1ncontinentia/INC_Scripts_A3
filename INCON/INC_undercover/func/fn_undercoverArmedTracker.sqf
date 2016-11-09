@@ -15,20 +15,19 @@ _safeVests append [""];
 
 _safeUniforms append [""];
 
+_safeBackpacks append [""];
+
 _safeVests append (["vests",_safeFactionVests] call INCON_fnc_getFactionGear);
 _safeUniforms append (["uniforms",_safeFactionUniforms] call INCON_fnc_getFactionGear);
-
-
-//Will only run locally on player's machine
-//if (!local _underCoverUnit) exitWith {};
+_safeBackpacks append _civPackArray;
 
 if (_underCoverUnit getVariable ["INC_armedLoopRunning",false]) exitWith {};
 
 _underCoverUnit setVariable ["INC_armedLoopRunning", true, true]; // Stops the script running twice on the same unit
 
-[_underCoverUnit,_safeUniforms,_safeVests,_HMDallowed] spawn {
+[_underCoverUnit,_safeUniforms,_safeVests,_safeBackpacks,_HMDallowed] spawn {
 
-	params ["_underCoverUnit","_safeUniforms","_safeVests","_HMDallowed"];
+	params ["_underCoverUnit","_safeUniforms","_safeVests","_safeBackpacks","_HMDallowed"];
 
 	sleep 5;
 
@@ -40,7 +39,7 @@ _underCoverUnit setVariable ["INC_armedLoopRunning", true, true]; // Stops the s
 
 		waitUntil {
 			sleep 3;
-			(!(uniform _underCoverUnit in _safeUniforms) || {!((vest _underCoverUnit in _safeVests) || {vest _underCoverUnit == ""})} || {!((currentWeapon _underCoverUnit == "") || {currentWeapon _underCoverUnit == "Throw"})} || {(hmd _underCoverUnit != "") && !(_HMDallowed)}); //Fires if unit gets out weapon or wears suspicious uniform.
+			(!(uniform _underCoverUnit in _safeUniforms) || {!(vest _underCoverUnit in _safeVests)} || {!(backpack _underCoverUnit in _safeBackpacks)} || {!((currentWeapon _underCoverUnit == "") || {currentWeapon _underCoverUnit == "Throw"})} || {(hmd _underCoverUnit != "") && !(_HMDallowed)}); //Fires if unit gets out weapon or wears suspicious uniform.
 		};
 
 		_underCoverUnit setVariable ["INC_armed", true, true]; // Sets variable "INC_armed" as true.
@@ -49,7 +48,7 @@ _underCoverUnit setVariable ["INC_armedLoopRunning", true, true]; // Stops the s
 
 		waitUntil {
 			sleep 3;
-			!(!(uniform _underCoverUnit in _safeUniforms) || {!((vest _underCoverUnit in _safeVests) || {vest _underCoverUnit == ""})} || {!((currentWeapon _underCoverUnit == "") || {currentWeapon _underCoverUnit == "Throw"})} || {(hmd _underCoverUnit != "") && !(_HMDallowed)}); //Fires if unit gets out weapon or wears suspicious uniform.
+			!(!(uniform _underCoverUnit in _safeUniforms) || {!(vest _underCoverUnit in _safeVests)} || {!(backpack _underCoverUnit in _safeBackpacks)} || {!((currentWeapon _underCoverUnit == "") || {currentWeapon _underCoverUnit == "Throw"})} || {(hmd _underCoverUnit != "") && !(_HMDallowed)}); //Fires if unit gets out weapon or wears suspicious uniform.
 		};
 
 		(!(_undercoverUnit getVariable ["isUndercover",false]) || {!(alive _undercoverUnit)})
