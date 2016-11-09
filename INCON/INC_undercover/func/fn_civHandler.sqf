@@ -216,8 +216,8 @@ switch (_operation) do {
 
 		{
 			if ((_x != leader group _x) && {!(_x in playableUnits)}) then {
-				_x join grpNull;
-				_x join _newGroup;
+				[_x] join grpNull;
+				[_x] join _newGroup;
 			};
 		} forEach units _originalGroup;
 
