@@ -49,6 +49,8 @@ switch (_operation) do {
 				}
 			];
 		}] remoteExec ["call", 0,true];
+
+		_return = unitBackpack _unit;
 	};
 
 	case "addWeapon": {
@@ -84,10 +86,13 @@ switch (_operation) do {
 	};
 
 	case "addItems": {
+
 		for "_i" from 0 to (round (random 3)) do {
 			private _itemToAdd = selectRandom _civItemArray;
 			_unit addItem _itemToAdd;
 		};
+
+		_return = true;
 	};
 
 	case "runAway": {
@@ -197,6 +202,28 @@ switch (_operation) do {
 		]] remoteExec ["addAction", _undercoverUnit];
 
 		_return = true;
+	};
+
+	case "createProfileFromGroup": {
+
+		_input params ["_originalGroup"];
+
+		private ["_newGroup"];
+
+		if (!(isClass(configFile >> "CfgPatches" >> "ALiVE_main")) || {!isServer}) exitWith {_return = false};
+
+		_newGroup = createGroup _undercoverUnitSide;
+
+		{
+			if ((_x != leader group _x) && {!(_x in playableUnits)}) then {
+				_x join grpNull;
+				_x join _newGroup;
+			};
+		} forEach units _originalGroup;
+
+		[false,[_newGroup]] call ALiVE_fnc_CreateProfilesFromUnitsRuntime;
+
+		_return = _newGroup;
 	};
 };
 
