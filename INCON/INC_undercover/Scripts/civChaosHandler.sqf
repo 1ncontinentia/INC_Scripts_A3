@@ -9,7 +9,7 @@ if (missionNamespace getVariable ["civiliansTargeted",false]) exitWith {};
 	_cooldownTimer = (30 + (random 300));
 	sleep _cooldownTimer;
 
-	if (isNil "rebelCommander") then {
+	if (isNil "INC_rebelCommander") then {
 		[] remoteExec ["INCON\INC_undercover\Scripts\spawnRebelCommander.sqf"];
 	};
 
@@ -23,7 +23,7 @@ if (missionNamespace getVariable ["civiliansTargeted",false]) exitWith {};
 					private _prevGroup = group _x;
 
 					[_x] joinSilent grpNull;
-					[_x] joinSilent (group rebelCommander);
+					[_x] joinSilent (group INC_rebelCommander);
 
 					if ((count units _prevGroup) == 0) then {
 						deleteGroup _prevGroup; // clean up empty groups
@@ -48,7 +48,7 @@ if (missionNamespace getVariable ["civiliansTargeted",false]) exitWith {};
 				private _prevGroup = group _x;
 
 				[_x] joinSilent grpNull;
-				[_x] joinSilent (group rebelCommander);
+				[_x] joinSilent (group INC_rebelCommander);
 
 				if ((count units _prevGroup) == 0) then {
 					deleteGroup _prevGroup;
@@ -57,7 +57,7 @@ if (missionNamespace getVariable ["civiliansTargeted",false]) exitWith {};
 				private _wpn = selectRandom (weapons _x);
 				_x removeWeapon _wpn;
 				private _mag = selectRandom ([_wpn,"getCompatMags"] call INCON_fnc_civHandler);
-				_x addMagazine _mag; 
+				_x addMagazine _mag;
 				_x addWeapon _wpn;
 
 				_x setUnitAbility (0.7 + (random 0.25));
