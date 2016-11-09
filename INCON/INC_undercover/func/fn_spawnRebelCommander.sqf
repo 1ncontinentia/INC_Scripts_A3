@@ -1,10 +1,8 @@
 params [["_side",west]];
 
+//private _rebelCommander = format ["INC_rebelCommander"];
 
-private _rebelCommander = format ["INC_rebelCommander"];
-
-if (missionNamespace getVariable [_rebelCommander,false]) exitWith {};
-
+if (missionNamespace getVariable ["INC_rebelCommander",false]) exitWith {};
 
 private _rebelGroup = [[(random 40),(random 40),10], _side, 1] call BIS_fnc_spawnGroup;
 _commander = leader _rebelGroup;
