@@ -111,7 +111,7 @@ switch (_operation) do {
 
 		_input params ["_recruitedCiv","_undercoverUnit",["_dismiss",true]];
 
-		if (_dismiss) then {
+		if ((_dismiss) || {(_recruitedCiv getVariable ["INC_notDismissable",false])}) then {
 
 			[_recruitedCiv, [
 				"<t color='#9933FF'>Dismiss</t>", {

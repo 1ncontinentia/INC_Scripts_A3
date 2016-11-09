@@ -12,6 +12,8 @@ waitUntil {!(isNull player)};
 
 #include "UCR_setup.sqf"
 
+{_x setVariable ["INC_notDismissable",true];} forEach (units group _undercoverUnit);
+
 //Can only be run once per unit.
 if (_undercoverUnit getVariable ["INC_undercoverHandlerRunning",false]) exitWith {};
 
@@ -120,7 +122,7 @@ if (_undercoverUnit isEqualTo (leader group _undercoverUnit)) then {
 				_x setVariable ["noChanges",true,true];
 				_x setVariable ["isUndercover", true, true];
 				sleep 0.2;
-				[[_x,_undercoverUnit,false],"addConcealActions"] call INCON_fnc_civHandler;
+				[[_x,_undercoverUnit],"addConcealActions"] call INCON_fnc_civHandler;
 			};
 		} forEach units group _undercoverUnit;
 	};
