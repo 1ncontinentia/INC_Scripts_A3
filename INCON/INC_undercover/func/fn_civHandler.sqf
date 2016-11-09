@@ -109,26 +109,28 @@ switch (_operation) do {
 
 	case "addConcealActions": {
 
-		_input params ["_recruitedCiv","_undercoverUnit"];
+		_input params ["_recruitedCiv","_undercoverUnit",["_dismiss",true]];
 
-		[_recruitedCiv, [
-			"<t color='#9933FF'>Dismiss</t>", {
+		if (_dismiss) then {
 
-				private _recruitedCiv = _this select 0;
-				private _civComment = selectRandom ["I'll just hang around here then I suppose.","My back is killing me anyway.","It's been a pleasure.","I'm just not cut out for this.","I'll continue our good work.","See you later.","I don't need you to have a good time.","I'm my own woman.","What time is it? I need to get high.","I've got some paperwork to do anyway.","Well thank God for that."];
-				[[_recruitedCiv, _civComment] remoteExec ["globalChat",0]];
+			[_recruitedCiv, [
+				"<t color='#9933FF'>Dismiss</t>", {
 
-				[_recruitedCiv] join grpNull;
-				_recruitedCiv remoteExec ["removeAllActions",0];
-				_recruitedCiv setVariable ["isUndercover", false, true];
+					private _recruitedCiv = _this select 0;
+					private _civComment = selectRandom ["I'll just hang around here then I suppose.","My back is killing me anyway.","It's been a pleasure.","I'm just not cut out for this.","I'll continue our good work.","See you later.","I don't need you to have a good time.","I'm my own woman.","What time is it? I need to get high.","I've got some paperwork to do anyway.","Well thank God for that."];
+					[[_recruitedCiv, _civComment] remoteExec ["globalChat",0]];
 
-				_wp1 = (group _recruitedCiv) addWaypoint [(getPosWorld _recruitedCiv), 3];
-				(group _recruitedCiv) setBehaviour "SAFE";
-				_wp1 setWaypointType "DISMISS";
+					[_recruitedCiv] join grpNull;
+					_recruitedCiv remoteExec ["removeAllActions",0];
+					_recruitedCiv setVariable ["isUndercover", false, true];
 
-			},[],5.9,false,true,"","((_this == _target) && (_this getVariable ['isUndercover',false]))"
-		]] remoteExec ["addAction", _undercoverUnit];
+					_wp1 = (group _recruitedCiv) addWaypoint [(getPosWorld _recruitedCiv), 3];
+					(group _recruitedCiv) setBehaviour "SAFE";
+					_wp1 setWaypointType "DISMISS";
 
+				},[],5.9,false,true,"","((_this == _target) && (_this getVariable ['isUndercover',false]))"
+			]] remoteExec ["addAction", _undercoverUnit];
+		};
 
 		[_recruitedCiv, [
 
@@ -204,7 +206,7 @@ switch (_operation) do {
 		_return = true;
 	};
 
-	case "createProfileFromGroup": {
+	case "profileGroup": {
 
 		_input params ["_originalGroup"];
 
