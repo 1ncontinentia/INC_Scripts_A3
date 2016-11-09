@@ -14,6 +14,8 @@ _undercoverUnit setVariable ["INC_trespassMarkerLoopRunning",true,true];
 
 {_x setMarkerAlpha 0} forEach _trespassMarkers;
 
+missionNamespace setVariable ["INC_trespassMarkers",_trespassMarkers,true];
+
 
 
 [_undercoverUnit,_trespassMarkers] spawn {
