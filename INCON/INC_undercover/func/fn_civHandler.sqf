@@ -130,6 +130,8 @@ switch (_operation) do {
 
 				},[],5.9,false,true,"","((_this == _target) && (_this getVariable ['isUndercover',false]))"
 			]] remoteExec ["addAction", _undercoverUnit];
+		} else {
+			_recruitedCiv setVariable ["INC_notDismissable",true];
 		};
 
 		[_recruitedCiv, [
@@ -208,24 +210,40 @@ switch (_operation) do {
 
 	case "profileGroup": {
 
-		_input params ["_originalGroup"];
+		if (!(isClass(configFile >> "CfgPatches" >> "ALiVE_main")) || {!isServer}) exitWith {_return = grpNull};
 
-		private ["_newGroup"];
+		_input params ["_undercoverUnit"];
 
-		if (!(isClass(configFile >> "CfgPatches" >> "ALiVE_main")) || {!isServer}) exitWith {_return = false};
+		private ["_originalGroup","_newGroup","_nonPlayableArray","_playableArray"];
+
+		_originalGroup = group _undercoverUnit;
 
 		_newGroup = createGroup _undercoverUnitSide;
 
+		_nonPlayableArray = [];
+
+		_playableArray = [];
+
 		{
-			if ((_x != leader group _x) && {!(_x in playableUnits)}) then {
-				[_x] join grpNull;
-				[_x] join _newGroup;
+			if ((_x != leader group _x) && {!(_x in playableUnits)} && {!(_x getVariable ["INC_notDismissable",false])} && {count _nonPlayableArray <= 4}) then {
+				_nonPlayableArray pushback _x;
+				_x setCaptive false;
 			};
 		} forEach units _originalGroup;
 
-		[false,[_newGroup]] call ALiVE_fnc_CreateProfilesFromUnitsRuntime;
+		_return = [_newGroup,_playableArray,_nonPlayableArray];
 
-		_return = _newGroup;
+		_nonPlayableArray join _newGroup;
+
+		[_newGroup] spawn {
+			params ["_newGroup"];
+
+			sleep 10;
+
+			//[false,[(group (_nonPlayableArray select 0))]] call ALiVE_fnc_CreateProfilesFromUnitsRuntime;
+			["",[],false,[_newGroup]] call ALiVE_fnc_CreateProfilesFromUnits;
+
+		};
 	};
 };
 

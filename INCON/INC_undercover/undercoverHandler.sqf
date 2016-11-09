@@ -120,7 +120,7 @@ if (_undercoverUnit isEqualTo (leader group _undercoverUnit)) then {
 				_x setVariable ["noChanges",true,true];
 				_x setVariable ["isUndercover", true, true];
 				sleep 0.2;
-				[[_x,_undercoverUnit],"addConcealActions"] call INCON_fnc_civHandler;
+				[[_x,_undercoverUnit,false],"addConcealActions"] call INCON_fnc_civHandler;
 			};
 		} forEach units group _undercoverUnit;
 	};
@@ -169,7 +169,7 @@ waitUntil {
 			};
 		};
 	};
-	
+
 	//Then stop the holding variable and allow cooldown to commence
 	_undercoverUnit setVariable ["INC_suspicious", false];
 
