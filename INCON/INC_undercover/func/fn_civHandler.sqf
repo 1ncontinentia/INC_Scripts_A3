@@ -239,8 +239,7 @@ switch (_operation) do {
 			params ["_newGroup"];
 
 			sleep 10;
-
-			//[false,[(group (_nonPlayableArray select 0))]] call ALiVE_fnc_CreateProfilesFromUnitsRuntime;
+			
 			["",[],false,[_newGroup]] call ALiVE_fnc_CreateProfilesFromUnits;
 
 		};
