@@ -11,7 +11,7 @@ Requires CBA.
 
 Place all files in your mission root folder. If you already have a description.ext or init.sqf, add the lines from these files into your pre-existing ones.
 
-Inside the INCON\INC_undercover and INCON\INC_intel folders, you will find the UCR_setup.sqf and INT_setup.sqf files. Edit these to your preference. Also read the readme in the respective folders to find out how to set up the scripts fully for your mission.
+Inside the INCON\INC_undercover and INCON\INC_intel folders, you will find the XXX_setup.sqf files. Edit these to your preference. Also read the readme in the respective folders to find out how to set up the scripts fully for your mission.
 
 ## Overview
 
