@@ -9,10 +9,6 @@ if (missionNamespace getVariable ["civiliansTargeted",false]) exitWith {};
 	_cooldownTimer = (30 + (random 300));
 	sleep _cooldownTimer;
 
-	if (isNil "INC_rebelCommander") then {
-		[] remoteExec ["INCON\INC_undercover\Scripts\spawnRebelCommander.sqf"];
-	};
-
 	if (_targetChance > (random 100)) then {
 
 		missionNameSpace setVariable ["civiliansTargeted", true, true];
