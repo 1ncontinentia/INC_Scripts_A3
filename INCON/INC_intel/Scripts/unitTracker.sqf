@@ -1,7 +1,9 @@
 /* ----------------------------------------------------------------------------
-Function: INCON_fn_unitTracker
+Unit tracker
 
 Author: Incontinenetia
+
+Based on ALiVE_fnc_markUnits by ARJay
 
 This script will simulate hacking a phone and then tracking signals connected to the same network (group leaders).
 It takes weather and object occlusion into account to determine the accuracy, reliability and range of tracking.

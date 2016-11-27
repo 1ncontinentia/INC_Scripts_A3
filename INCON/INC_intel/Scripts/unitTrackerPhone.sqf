@@ -3,6 +3,8 @@ Function: INCON_fn_unitTracker
 
 Author: Incontinenetia
 
+Based on ALiVE_fnc_markUnits by ARJay
+
 This script will simulate hacking a phone and then tracking signals connected to the same network (random units of a certain side).
 It takes weather and object occlusion into account to determine the accuracy, reliability and range of tracking.
 Signals will be displayed on the map as coloured circles.
