@@ -76,6 +76,15 @@ switch (_gearType) do {
             _result pushbackunique _uniform;
         } forEach _units;
     };
+
+    case "units": {
+        {
+            _unit = configName _x;
+            if ((_unit isKindOf "Man") && {(((str _x) find "Pilot") == -1)} && {(((str _x) find "pilot") == -1)}) then {
+                _result pushbackunique _unit
+            };
+        } forEach _units;
+    };
 };
 
 _result

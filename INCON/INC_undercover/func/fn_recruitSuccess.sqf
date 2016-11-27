@@ -12,7 +12,7 @@ deleteVehicle _civ;
 
 _skill = (0.7 + (random 0.25));
 
-_unitType = typeOf _undercoverUnit;
+_unitType =  (selectRandom (["units",[(faction _undercoverUnit)]] call INCON_fnc_getFactionGear));
 _civLoadout = getUnitLoadout _civ;
 
 _recruitedCiv = (group _undercoverUnit) createUnit [_unitType,[0,0,0],[],0,""];
