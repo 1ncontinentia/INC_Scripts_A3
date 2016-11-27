@@ -63,3 +63,11 @@ Keep an eye on surrendered units, you never know what they might try.
 Requires: CBA, ACE.
 
 Status: Unreleased.
+
+
+
+### Credits
+
+Spyderblack723 - contributed several useful functions and a massive amount of help over the past year
+Dixon13 - wrote the original intel spawning script
+ARJay - wrote the original unit tracking script
