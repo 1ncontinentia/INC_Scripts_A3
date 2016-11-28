@@ -238,8 +238,12 @@ switch (_operation) do {
 		[_newGroup] spawn {
 			params ["_newGroup"];
 
-			sleep 10;
-			
+			sleep 5;
+
+			{_x setCaptive false} forEach (units _newGroup);
+
+			sleep 2; 
+
 			["",[],false,[_newGroup]] call ALiVE_fnc_CreateProfilesFromUnits;
 
 		};
