@@ -1,4 +1,4 @@
-# INCONTINENTIA'S UNDERCOVER / CIVILIAN RECRUITMENT (super turbo alpha WIP)
+# INCONTINENTIA'S UNDERCOVER / CIVILIAN RECRUITMENT
 
 This script allows a player and his subordinate teammates to dress as civilians and go incognito, recruit actual civilians, and cause mayhem.
 It should work well for SP / small COOP missions (up to 10 players) and has been tested on a dedicated server.
@@ -103,7 +103,7 @@ class Extended_InitPost_EventHandlers {
 
 class CfgFunctions
 {
-	#include "INCON\INC_undercover\cfgFunctions.hpp"
+	#include "INCON\cfgFunctions.hpp"
 };
 
 class CfgRemoteExec
@@ -112,7 +112,7 @@ class CfgRemoteExec
    {
        mode = 2;
        jip = 1;
-       #include "INCON\INC_undercover\functionsWhitelist.hpp"
+       #include "INCON\functionsWhitelist.hpp"
    };
 };
 
