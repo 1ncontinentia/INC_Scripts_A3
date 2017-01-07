@@ -19,6 +19,8 @@ if (_undercoverUnit getVariable ["INC_undercoverHandlerRunning",false]) exitWith
 
 _undercoverUnit setVariable ["INC_undercoverHandlerRunning", true, true];
 
+if (_debug) then {hint "Undercover Initialising"}; 
+
 //Group persistence
 if ((_persistentGroup) && {!(isNil "INCON_fnc_groupPersist")}) then {
 	["loadGroup",_undercoverUnit] call INCON_fnc_groupPersist;
