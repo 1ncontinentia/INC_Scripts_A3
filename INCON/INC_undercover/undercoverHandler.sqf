@@ -19,7 +19,7 @@ if (_undercoverUnit getVariable ["INC_undercoverHandlerRunning",false]) exitWith
 
 _undercoverUnit setVariable ["INC_undercoverHandlerRunning", true, true];
 
-if (_debug) then {hint "Undercover Initialising"}; 
+if ((_debug) || {_hints}) then {hint "Undercover initialising..."};
 
 //Group persistence
 if ((_persistentGroup) && {!(isNil "INCON_fnc_groupPersist")}) then {
@@ -48,11 +48,12 @@ _undercoverUnit setVariable ["isUndercover", true, true]; //Allow scripts to pic
 
 missionNamespace setVariable ["INC_civilianRecruitEnabled",_civRecruitEnabled,true];
 
-_undercoverUnit setCaptive true;
 private _side = side _undercoverUnit;
 
 //Spawn the rebel commader
 [_side] remoteExecCall ["INCON_fnc_spawnRebelCommander",2];
+
+_undercoverUnit setCaptive true;
 
 sleep 2;
 
@@ -108,7 +109,7 @@ if (_debug) then {
 	};
 };
 
-sleep 2;
+sleep 1;
 
 //Run a low-impact version of the undercover script on group members (no proximity check)
 if (_undercoverUnit isEqualTo (leader group _undercoverUnit)) then {
@@ -137,14 +138,29 @@ waitUntil {
 
 	//Pause while the unit is compromised
 	waitUntil {
-		sleep 3;
+		sleep 1;
 		!(_undercoverUnit getVariable ["INC_undercoverCompromised",false]);
 	};
 
 	//wait until the unit is armed or trespassing
 	waitUntil {
-		sleep 3;
+		sleep 1;
 		((_undercoverUnit getVariable ["INC_armed",false]) || {_undercoverUnit getVariable ["INC_trespassing",false]});
+	};
+
+	if ((_debug) || {_hints}) then {
+		if (_undercoverUnit getVariable ["INC_trespassing",false]) then {hint "You are in a sensitive area."};
+
+		[_undercoverUnit] spawn {
+			params ["_undercoverUnit"];
+
+			waitUntil {
+				sleep 1;
+				!(_undercoverUnit getVariable ["INC_cooldown",false])
+			};
+
+			hint "Disguise intact.";
+		};
 	};
 
 	//Once the player is doing naughty stuff, make them vulnerable to being compromised
@@ -155,8 +171,8 @@ waitUntil {
 
 
 	while {
-		sleep 2;
-		(((_undercoverUnit getVariable ["INC_armed",false]) || {(_undercoverUnit getVariable ["INC_trespassing",false])}) && {!(_undercoverUnit getVariable ["INC_undercoverCompromised",false])})
+		sleep 1;
+		(((_undercoverUnit getVariable ["INC_armed",false]) || {(_undercoverUnit getVariable ["INC_trespassing",false])}) && {!(_undercoverUnit getVariable ["INC_undercoverCompromised",false])}) //While not compromised and either armed or trespassing
 	} do {
 		if (
 			(_undercoverUnit getVariable ["INC_armed",false]) &&

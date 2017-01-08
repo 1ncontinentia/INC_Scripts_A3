@@ -25,9 +25,9 @@ if (_underCoverUnit getVariable ["INC_armedLoopRunning",false]) exitWith {};
 
 _underCoverUnit setVariable ["INC_armedLoopRunning", true, true]; // Stops the script running twice on the same unit
 
-[_underCoverUnit,_safeUniforms,_safeVests,_safeBackpacks,_HMDallowed] spawn {
+[_underCoverUnit,_safeUniforms,_safeVests,_safeBackpacks,_HMDallowed,_safeVehicleArray,_noOffRoad,_debug,_hints] spawn {
 
-	params ["_underCoverUnit","_safeUniforms","_safeVests","_safeBackpacks","_HMDallowed"];
+	params ["_underCoverUnit","_safeUniforms","_safeVests","_safeBackpacks","_HMDallowed","_safeVehicleArray","_noOffRoad","_debug","_hints"];
 
 	sleep 5;
 
@@ -38,8 +38,40 @@ _underCoverUnit setVariable ["INC_armedLoopRunning", true, true]; // Stops the s
 		_underCoverUnit setVariable ["INC_armed", false, true]; // Sets variable "INC_armed" as false.
 
 		waitUntil {
-			sleep 3;
-			(!(uniform _underCoverUnit in _safeUniforms) || {!(vest _underCoverUnit in _safeVests)} || {!(backpack _underCoverUnit in _safeBackpacks)} || {!((currentWeapon _underCoverUnit == "") || {currentWeapon _underCoverUnit == "Throw"})} || {(hmd _underCoverUnit != "") && !(_HMDallowed)}); //Fires if unit gets out weapon or wears suspicious uniform.
+
+			sleep 2;
+
+			if (
+
+				(isNull objectParent _undercoverUnit) &&
+				{(!(uniform _underCoverUnit in _safeUniforms) || {!(vest _underCoverUnit in _safeVests)} || {!(backpack _underCoverUnit in _safeBackpacks)} || {!((currentWeapon _underCoverUnit == "") || {currentWeapon _underCoverUnit == "Throw"})} || {(hmd _underCoverUnit != "") && !(_HMDallowed)})}
+
+			) exitWith {
+
+				if ((_debug) || {_hints}) then {
+					hint "You have a suspicious item on show."
+				};
+
+				true
+			}; //Fires if unit gets out weapon or wears suspicious uniform.
+
+			sleep 0.5;
+
+			if (
+
+				!(isNull objectParent _undercoverUnit) &&
+				{(!((typeof vehicle _undercoverUnit) in _safeVehicleArray)) || {(_noOffRoad) && {((count (_undercoverUnit nearRoads 50)) == 0)}}} //Hostile vehicle or safe vehicle offroad considered suspicious
+
+			) exitWith {
+
+				if ((_debug) || {_hints}) then {
+					hint "You are in a suspicious vehicle."
+				};
+
+				true
+			}; //Fires if unit gets out weapon or wears suspicious uniform while on foot.
+
+			false
 		};
 
 		_underCoverUnit setVariable ["INC_armed", true, true]; // Sets variable "INC_armed" as true.
@@ -48,7 +80,19 @@ _underCoverUnit setVariable ["INC_armedLoopRunning", true, true]; // Stops the s
 
 		waitUntil {
 			sleep 3;
-			!(!(uniform _underCoverUnit in _safeUniforms) || {!(vest _underCoverUnit in _safeVests)} || {!(backpack _underCoverUnit in _safeBackpacks)} || {!((currentWeapon _underCoverUnit == "") || {currentWeapon _underCoverUnit == "Throw"})} || {(hmd _underCoverUnit != "") && !(_HMDallowed)}); //Fires if unit gets out weapon or wears suspicious uniform.
+			if (
+				(isNull objectParent _undercoverUnit) &&
+				{!(!(uniform _underCoverUnit in _safeUniforms) || {!(vest _underCoverUnit in _safeVests)} || {!(backpack _underCoverUnit in _safeBackpacks)} || {!((currentWeapon _underCoverUnit == "") || {currentWeapon _underCoverUnit == "Throw"})} || {(hmd _underCoverUnit != "") && !(_HMDallowed)})}
+			) exitWith {true}; //Fires if unit doesn't have suspicious items while on foot.
+
+			sleep 0.5;
+
+			if (
+				!(isNull objectParent _undercoverUnit) &&
+				{(((typeof vehicle _undercoverUnit) in _safeVehicleArray)) && {!(_noOffRoad) || {((count (_undercoverUnit nearRoads 50)) != 0)}}}
+			) exitWith {true}; //Fires if unit isn't in suspicious vehicle.
+
+			false
 		};
 
 		(!(_undercoverUnit getVariable ["isUndercover",false]) || {!(alive _undercoverUnit)})

@@ -31,13 +31,13 @@ _underCoverUnit setVariable ["INC_cooldown", true, true];
 
 	//Holding variable while unit is armed / trespassing
 	waitUntil {
-		sleep 2;
+		sleep 1;
 		!(_underCoverUnit getVariable ["INC_suspicious",false])
 	};
 
 	//Stop the script running while the unit is compromised
 	waitUntil {
-		sleep 3;
+		sleep 2;
 		!(_underCoverUnit getVariable ["INC_undercoverCompromised",false]);
 	};
 
