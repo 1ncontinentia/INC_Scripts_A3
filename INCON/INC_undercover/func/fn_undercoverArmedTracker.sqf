@@ -79,7 +79,7 @@ _underCoverUnit setVariable ["INC_armedLoopRunning", true, true]; // Stops the s
 		sleep 2;
 
 		waitUntil {
-			sleep 3;
+			sleep 2;
 			if (
 				(isNull objectParent _undercoverUnit) &&
 				{!(!(uniform _underCoverUnit in _safeUniforms) || {!(vest _underCoverUnit in _safeVests)} || {!(backpack _underCoverUnit in _safeBackpacks)} || {!((currentWeapon _underCoverUnit == "") || {currentWeapon _underCoverUnit == "Throw"})} || {(hmd _underCoverUnit != "") && !(_HMDallowed)})}
