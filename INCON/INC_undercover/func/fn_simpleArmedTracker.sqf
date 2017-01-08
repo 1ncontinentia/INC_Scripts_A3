@@ -24,9 +24,9 @@ _safeVests append (["vests",_safeFactionVests] call INCON_fnc_getFactionGear);
 _safeUniforms append (["uniforms",_safeFactionUniforms] call INCON_fnc_getFactionGear);
 _safeBackpacks append _civPackArray;
 
-[_civ,_safeUniforms,_safeVests,_safeBackpacks,_HMDallowed] spawn {
+[_civ,_safeUniforms,_safeVests,_safeBackpacks,_HMDallowed,_safeVehicleArray,_noOffRoad] spawn {
 
-	params ["_civ","_safeUniforms","_safeVests","_safeBackpacks","_HMDallowed"];
+	params ["_civ","_safeUniforms","_safeVests","_safeBackpacks","_HMDallowed","_safeVehicleArray","_noOffRoad"];
 
 	_civ setVariable ["INC_civArmedLoopRunning", true, true]; // Stops the script running twice on the same unit
 
@@ -39,15 +39,48 @@ _safeBackpacks append _civPackArray;
 		sleep 3;
 
 		waitUntil {
-			sleep 4;
-			(!(uniform _civ in _safeUniforms) || {!(vest _civ in _safeVests)} || {!(backpack _civ in _safeBackpacks)} || {!((currentWeapon _civ == "") || {currentWeapon _civ == "Throw"})} || {(hmd _civ != "") && !(_HMDallowed)} || {(_civ getVariable ["INC_trespassType2",false])}); //Fires if unit gets out weapon or wears suspicious uniform.
+
+			sleep 3;
+
+			if (
+
+				!(isNull objectParent _civ) &&
+				{(!((typeof vehicle _civ) in _safeVehicleArray))  || {(_civ getVariable ["INC_trespassType2",false])} || {(_noOffRoad) && {((vehicle _civ) isKindOf "Land")} && {((count (_civ nearRoads 50)) == 0)}}} //Hostile vehicle or safe land-based vehicle offroad considered suspicious
+
+			) exitWith {true}; //Fires if civ is doing naughty vehicular shizzle
+
+			sleep 2;
+
+			if (
+				(isNull objectParent _civ) &&
+				{!(uniform _civ in _safeUniforms) || {!(vest _civ in _safeVests)} || {!(backpack _civ in _safeBackpacks)} || {!((currentWeapon _civ == "") || {currentWeapon _civ == "Throw"})} || {!(hmd _civ == "") && !(_HMDallowed)} || {(_civ getVariable ["INC_trespassType2",false])}}
+			) exitWith {true}; //Fires if unit gets out weapon or wears suspicious uniform.
+
+			false
 		};
 
 		[_civ, false] remoteExec ["setCaptive", _civ];
 
 		waitUntil {
-			sleep 4;
-			!(!(uniform _civ in _safeUniforms) || {!(vest _civ in _safeVests)} || {!(backpack _civ in _safeBackpacks)} || {!((currentWeapon _civ == "") || {currentWeapon _civ == "Throw"})} || {(hmd _civ != "") && !(_HMDallowed)} || {(_civ getVariable ["INC_trespassType2",false])} || {(_civ getVariable ["INC_AnyKnowsSO",false])}); //Fires if unit gets out weapon or wears suspicious uniform.
+
+			sleep 3;
+
+			if (
+
+				!(isNull objectParent _civ) &&
+				{!((!((typeof vehicle _civ) in _safeVehicleArray))  || {(_civ getVariable ["INC_trespassType2",false])} || {(_noOffRoad) && {((vehicle _civ) isKindOf "Land")} && {((count (_civ nearRoads 50)) == 0)}})} //Hostile vehicle or safe land-based vehicle offroad considered suspicious
+
+			) exitWith {true}; //Fires if civ is doing naughty vehicular shizzle
+
+			sleep 2;
+
+			if (
+				(isNull objectParent _civ) &&
+				{!(!(uniform _civ in _safeUniforms) || {!(vest _civ in _safeVests)} || {!(backpack _civ in _safeBackpacks)} || {!((currentWeapon _civ == "") || {currentWeapon _civ == "Throw"})} || {!(hmd _civ == "") && !(_HMDallowed)} || {(_civ getVariable ["INC_trespassType2",false])} || {(_civ getVariable ["INC_AnyKnowsSO",false])})}
+			) exitWith {true}; //Fires if unit gets out weapon or wears suspicious uniform.
+
+			false
+
 		};
 
 		[_civ, true] remoteExec ["setCaptive", _civ];
