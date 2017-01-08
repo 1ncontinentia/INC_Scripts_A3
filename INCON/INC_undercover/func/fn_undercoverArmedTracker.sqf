@@ -60,7 +60,7 @@ _underCoverUnit setVariable ["INC_armedLoopRunning", true, true]; // Stops the s
 			if (
 
 				!(isNull objectParent _undercoverUnit) &&
-				{(!((typeof vehicle _undercoverUnit) in _safeVehicleArray)) || {(_noOffRoad) && {((count (_undercoverUnit nearRoads 50)) == 0)}}} //Hostile vehicle or safe vehicle offroad considered suspicious
+				{(!((typeof vehicle _undercoverUnit) in _safeVehicleArray)) || {(_noOffRoad) && {((vehicle _undercoverUnit) isKindOf "Land")} && {((count (_undercoverUnit nearRoads 50)) == 0)}}} //Hostile vehicle or safe land-based vehicle offroad considered suspicious
 
 			) exitWith {
 
@@ -89,7 +89,7 @@ _underCoverUnit setVariable ["INC_armedLoopRunning", true, true]; // Stops the s
 
 			if (
 				!(isNull objectParent _undercoverUnit) &&
-				{(((typeof vehicle _undercoverUnit) in _safeVehicleArray)) && {!(_noOffRoad) || {((count (_undercoverUnit nearRoads 50)) != 0)}}}
+				{(((typeof vehicle _undercoverUnit) in _safeVehicleArray)) && {!(_noOffRoad) || {!((vehicle _undercoverUnit) isKindOf "Land") || {((count (_undercoverUnit nearRoads 50)) != 0)}}}}
 			) exitWith {true}; //Fires if unit isn't in suspicious vehicle.
 
 			false
