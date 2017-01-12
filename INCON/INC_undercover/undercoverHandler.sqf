@@ -66,7 +66,7 @@ sleep 2;
 sleep 2;
 
 //Get the trespass handler running on the unit
-[_unit,_regEnySide,_asymEnySide] call INCON_fnc_undercoverTrespassHandler;
+[_unit,_regEnySide,_asymEnySide] call INCON_fnc_trespassHandler;
 
 sleep 2;
 
