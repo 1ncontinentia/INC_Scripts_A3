@@ -82,23 +82,29 @@ missionNamespace setVariable ["INC_trespassMarkers",_trespassMarkers,true];
 
 	waitUntil {
 
+        //Pause checks while compromised
+        waitUntil {
+            sleep 0.2;
+            !(_unit getVariable ["INC_undercoverCompromised",false])
+        };
+
 		private _disguiseValue = ((_unit getVariable ["INC_compromisedValue",1]) * (_unit getVariable ["INC_suspiciousValue",1]));
 
 		_nearReg = count ((_unit nearEntities (_radius1 * _disguiseValue)) select {((side _x == _regEnySide) && {(_x knowsAbout _unit) > 3})});
 
-		sleep 0.5;
+		sleep 0.2;
 
 		_nearAsym = count ((_unit nearEntities _radius2) select {((side _x == _asymEnySide) && {(_x knowsAbout _unit) > 3})});
 
-		sleep 0.5;
+		sleep 0.2;
 
 		_nearHVT = count ((_unit nearEntities _radius3) select {_x getVariable ["isHVT",false]});
 
-		sleep 0.5;
+		sleep 0.2;
 
 		_nearSuperHVT = count ((_unit nearEntities (_radius4 * _disguiseValue)) select {_x getVariable ["isSuperHVT",false]});
 
-		sleep 0.5;
+		sleep 0.2;
 
 		_nearMines = {_x isKindOf "timeBombCore"} count (nearestObjects [_unit,[],4]);
 
@@ -108,7 +114,10 @@ missionNamespace setVariable ["INC_trespassMarkers",_trespassMarkers,true];
 			_unit setVariable ["INC_trespassType1",false];
 		};
 
-		sleep 0.2;
+        sleep 0.1;
+
+
+		sleep 0.1;
 
 		(!(_unit getVariable ["isUndercover",false]) || {!(alive _unit)})
 
