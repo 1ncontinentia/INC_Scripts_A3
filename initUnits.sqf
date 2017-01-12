@@ -1,24 +1,12 @@
 /*
-
-This script contains the eventhandlers for intel and undercover operations contained in the /intel folder.
-
-
-Author: Incontinentia (copy and paste skills) with enormous help from SpyderBlack723 and Dixon13.
-
-
 Must be defined in description.ext with
 
 //----------------------INIT EVENTHANDLERS--------------------------
 class Extended_Init_EventHandlers {
-class CAManBase {
-init = "_this call (compile preprocessFileLineNumbers 'unitInits.sqf')";
+    class CAManBase {
+        init = "_this call (compile preprocessFileLineNumbers 'unitInits.sqf')";
+    };
 };
-};
-
-Requires fnc_spawnIntelObjects.
-
-
-
 ---------------------------------------------------------------------------- */
 
 
@@ -38,6 +26,6 @@ _unit setVariable ["initLoopRunning", true, true];
 
 
 //Intel script
-if (side _unit in [EAST,WEST,INDEPENDANT]) then {
+if (side _unit in [EAST,WEST,INDEPENDENT]) then {
     [_unit] call INCON_fnc_spawnIntelObjects;
 };
