@@ -2,11 +2,13 @@
 
 Setup options for INC_undercover undercover / civilian recruitment script by Incontinentia.
 
+Please check each setting carefully otherwise the script may not function properly in your scenario.
+
 */
 
 //-------------------------Player settings-------------------------
 
-_undercoverUnitSide = west;             //What side is/are the undercover unit(s) on? (Can be east, west or independent - only one side supported at present)
+_undercoverUnitSide = west;             //What side is/are the undercover unit(s) on? (Can be east, west or independent - only one side supported)
 
 //-------------------------Enemy Settings-------------------------
 /*
@@ -18,9 +20,11 @@ In essence, you can get closer to regular enemies without blowing your cover but
 
 _regEnySide = east;                     //Units of this side will be classed as regular enemies (Side: can be east, west, independent, or sideEmpty) - if you don't need this, type 'sideEmpty' (without quotation marks) into this field or comment the line out (i.e. put // before _regEnySide, as in //_regEnySide = east;).
 _regBarbaric = false;                   //(Bool - true or false) Will this side lash out on civilians if it takes casualties and doesn't know the attacker?
+_regDetectRadius = 15;                  //Minimum detection radius for regular troops (if they see you in this area and get a good look at you, your cover will be blown - this will increase the weirder you act and the more you are compromised)
+
 _asymEnySide = independent;             //Units of this side will be classed as asymetric enemies (Side: can be east, west, independent, or sideEmpty) - if you don't need this, type 'sideEmpty' (without quotation marks) into this field or comment the line out (i.e. put // before _asymEnySide, as in //_asymEnySide = sideEmpty;).
 _asymBarbaric = true;                   //(Bool - true or false) Will this side lash out on civilians if it takes casualties and doesn't know the attacker?
-
+_asymDetectRadius = 25;                 //Minimum detection radius for asym troops (if they see you in this area and get a good look at you, your cover will be blown - this will increase the weirder you act and the more you are compromised)
 
 //-------------------------Disguise settings-------------------------
 /*
