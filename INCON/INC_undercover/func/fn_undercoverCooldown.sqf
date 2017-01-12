@@ -23,9 +23,9 @@ if (_underCoverUnit getVariable ["INC_cooldown",false]) exitWith {};
 
 _underCoverUnit setVariable ["INC_cooldown", true, true];
 
-[_underCoverUnit,_regEnySide,_asymEnySide] spawn {
+[_underCoverUnit,_regEnySide,_asymEnySide,_debug] spawn {
 
-	params ["_underCoverUnit",["_regEnySide",sideEmpty],["_asymEnySide",sideEmpty]];
+	params ["_underCoverUnit",["_regEnySide",sideEmpty],["_asymEnySide",sideEmpty],["_debug",false]];
 
 	private ["_asymKnowsAboutUnit","_regKnowsAboutUnit","_regAlerted","_asymAlerted"];
 
@@ -58,6 +58,7 @@ _underCoverUnit setVariable ["INC_cooldown", true, true];
 		_asymKnowsAboutUnit = false;
 	};
 
+	if (_debug) then {hint "Cooldown active."};
 
 	//SetsCaptive back to true if nobody has seen him, unless he is already compromised
 	if !((_asymKnowsAboutUnit) || {_regKnowsAboutUnit}) exitWith {
@@ -65,6 +66,8 @@ _underCoverUnit setVariable ["INC_cooldown", true, true];
 		if !(_underCoverUnit getVariable ["INC_undercoverCompromised",false]) then {
 			[_underCoverUnit, true] remoteExec ["setCaptive", _underCoverUnit];
 		};
+
+		if (_debug) then {hint "Cooldown complete."};
 
 		_underCoverUnit setVariable ["INC_cooldown", false, true];
 	};
@@ -114,6 +117,8 @@ _underCoverUnit setVariable ["INC_cooldown", true, true];
 	if !(_underCoverUnit getVariable ["INC_undercoverCompromised",false]) then {
 		[_underCoverUnit, true] remoteExec ["setCaptive", _underCoverUnit];
 	};
+
+	if (_debug) then {hint "Cooldown complete."};
 
 	//Allow the loop to be run again on the unit
 	_underCoverUnit setVariable ["INC_cooldown", false, true];

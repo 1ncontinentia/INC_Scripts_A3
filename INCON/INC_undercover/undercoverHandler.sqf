@@ -66,7 +66,7 @@ sleep 2;
 sleep 2;
 
 //Get the trespass handler running on the unit
-[_unit,_regEnySide,_asymEnySide] call INCON_fnc_trespassHandler;
+[_unit] call INCON_fnc_trespassHandler;
 
 sleep 2;
 
@@ -74,12 +74,10 @@ sleep 2;
 if (_debug) then {
 	[_unit] spawn {
 		params ["_unit"];
-		waitUntil {
 
-			waitUntil {
-				sleep 1;
-				(_unit getVariable ["INC_trespassLoopRunning",false])
-			};
+		sleep 5;
+
+		waitUntil {
 
 			sleep 1;
 
@@ -93,7 +91,7 @@ if (_debug) then {
 
 			_unit globalChat (format ["Enemy know about %1: %2",_unit,(_unit getVariable ["INC_AnyKnowsSO",false])]);
 
-			_unit globalChat (format ["Compromised radius multiplier: %1",(_unit getVariable ["INC_compromisedValue",1])]);
+			_unit globalChat (format ["Compromised radius multiplier: %1",((_unit getVariable ["INC_compromisedValue",1]) * (_unit getVariable ["INC_suspiciousValue",1]))]);
 
 			!(_unit getVariable ["isUndercover",false])
 		};
