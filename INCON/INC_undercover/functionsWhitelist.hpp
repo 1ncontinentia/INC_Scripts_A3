@@ -5,7 +5,6 @@ class countAlerted {allowedTargets=0;};
 class getFactionGear {allowedTargets=0;};
 class recruitAttempt {allowedTargets=0;};
 class recruitCiv {allowedTargets=0;};
-class recruitSuccess {allowedTargets=0;};
 class trespassHandler {allowedTargets=0;};
 class undercoverCompromised {allowedTargets=0;};
 class undercoverCooldown {allowedTargets=0;};

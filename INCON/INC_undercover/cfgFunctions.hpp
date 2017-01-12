@@ -7,7 +7,6 @@ class undercoverRecruit
 	class getFactionGear {description = "Gets a faction's gear.";};
 	class recruitAttempt {description = "Attempt to recruit - requires ALiVE.";};
 	class recruitCiv {description = "Allows civilians to be recruited. Also gives them either a rifle or pistol.";};
-	class recruitSuccess {description = "Unit join's initiator's group and adds dismiss, conceal weapon and show weapon actions.";};
 	class spawnRebelCommander {description = "Spawns a commander for civilian units to join in an uprising.";};
 	class trespassHandler {description = "Handles unit trespassing in different situations, returning the 'trespassing' variable on the unit for the undercover handler.";};
 	class undercoverCompromised {description = "Sets the unit as compromised while it is know to enemy units and is doing something naughty.";};

@@ -14,7 +14,7 @@ if (_percentage > 30) then {
             _civComment = selectRandom ["I've heard about you.","You can count on me.","I admire what you're doing.","You have my support.","Thank you for helping rid us of this scourge.","Thank you for helping our people.","I don't want them to see my face."];
             [[_civ, _civComment] remoteExec ["globalChat",0]];
             (group _civ) setGroupOwner (owner _undercoverUnit);
-            [_civ,_undercoverUnit] remoteExecCall ["INCON_fnc_recruitSuccess",_undercoverUnit];
+            [[_civ,_undercoverUnit],"recruitSuccess"] remoteExecCall ["INCON_fnc_civHandler",_undercoverUnit];
 
         } else {
             _civComment = selectRandom ["Keep up the good work guys.","You all just keep doing what you're doing.","You don't need me, I'll just hold you guys back.","You'll all be fine without me."];
@@ -37,7 +37,7 @@ if (_percentage > 30) then {
             _civComment = selectRandom ["This is for Cyril.","I'll get my fighting hat on.","I'm bored, why not.","I'll join you, but only because they ran over my rabbit.","I should really know better.","I'm going to regret this.","Fuck it, let's go.","My wife is going to kill me for this.","Well it's better than gardening."];
             [[_civ, _civComment] remoteExec ["globalChat",0]];
             (group _civ) setGroupOwner (owner _undercoverUnit);
-            [_civ,_undercoverUnit] remoteExecCall ["INCON_fnc_recruitSuccess",_undercoverUnit];
+            [[_civ,_undercoverUnit],"recruitSuccess"] remoteExecCall ["INCON_fnc_civHandler",_undercoverUnit];
 
         } else {
 
