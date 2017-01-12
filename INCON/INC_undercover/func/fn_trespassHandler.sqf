@@ -116,6 +116,7 @@ missionNamespace setVariable ["INC_trespassMarkers",_trespassMarkers,true];
 
         sleep 0.1;
 
+        if (((stance _unit == "CROUCH") && {speed _unit > 5}) || {(stance _unit == "PRONE")} || {(speed _unit > 17) && {isNull objectParent _unit}}) then {_unit setVariable ["INC_suspiciousValue",(2 + (random 2))]} else {_unit setVariable ["INC_suspiciousValue",1]};
 
 		sleep 0.1;
 
