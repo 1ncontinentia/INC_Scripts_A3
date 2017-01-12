@@ -11,7 +11,7 @@ _this spawn {
 
 	_unitType =  (selectRandom (["units",[(faction _undercoverUnit)]] call INCON_fnc_getFactionGear));
 
-	sleep 0.2; 
+	sleep 0.2;
 
 	_civPos = getPosWorld _civ;
 	_prevGroup = group _civ;
@@ -64,7 +64,7 @@ _this spawn {
 
 		[[_recruitedCiv,_undercoverUnit],"addConcealActions"] call INCON_fnc_civHandler;
 
-		[_recruitedCiv] remoteExecCall ["INCON_fnc_simpleArmedTracker",_undercoverUnit];
+		[_recruitedCiv,"simpleArmedLoop"] remoteExecCall ["INCON_fnc_armedHandler",_undercoverUnit];
 
 		[_recruitedCiv] remoteExecCall ["INCON_fnc_undercoverDetect",_undercoverUnit];
 
