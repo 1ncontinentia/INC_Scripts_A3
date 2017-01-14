@@ -3,7 +3,7 @@ Changes the _percentage number of units of a given side to side enemy. Useful fo
 
 Arguments
 
-_undercoverUnit: The compromised unit
+_unit: The compromised unit
 _regEnySide: Regular / conventional enemy side
 _asymEnySide: Asymmetric enemy side (doesn't remember as long due to lack of information sharing between cells)
 
@@ -31,26 +31,33 @@ Wanted level will only descrease when nobody knows about the unit anymore (alert
 */
 
 
-params ["_undercoverUnit",["_regEnySide",sideEmpty],["_asymEnySide",sideEmpty]];
+params ["_unit",["_regEnySide",sideEmpty],["_asymEnySide",sideEmpty]];
 
 #include "..\UCR_setup.sqf"
 
-if (_debug) then {hint "You've been compromised."};
+if ((_debug) && {isPlayer _unit}) then {hint "You've been compromised."};
 
-if (_undercoverUnit getVariable ["INC_compromisedLoopRunning",false]) exitWith {}; //Stops multiple instances of the code being ran on the unit
+if (_unit getVariable ["INC_compromisedLoopRunning",false]) exitWith {}; //Stops multiple instances of the code being ran on the unit
 
 //Compromised loop
-[_undercoverUnit,_regEnySide,_asymEnySide,_debug] spawn {
+[_unit,_regEnySide,_asymEnySide,_debug] spawn {
 
-	params ["_undercoverUnit",["_regEnySide",sideEmpty],["_asymEnySide",sideEmpty],["_debug",false]];
+	params ["_unit",["_regEnySide",sideEmpty],["_asymEnySide",sideEmpty],["_debug",false]];
 
-	_undercoverUnit setVariable ["INC_compromisedLoopRunning", true, true];
+	private ["_activeVeh"];
+
+	_unit setVariable ["INC_compromisedLoopRunning", true];
 
 	// Publicize undercoverCompromised variable to true. This prevents other scripts from setting captive while unit is still compromised.
-	_undercoverUnit setVariable ["INC_undercoverCompromised", true, true];
+	_unit setVariable ["INC_undercoverCompromised", true];
 
 	// SetCaptive after suspicious act has been committed
-	[_undercoverUnit, false] remoteExec ["setCaptive", _undercoverUnit];
+	[_unit, false] remoteExec ["setCaptive", _unit];
+
+	if (!isNull objectParent _unit) then {
+		_activeVeh = (vehicle _unit);
+		_activeVeh setVariable ["INC_naughtyVehicle",true];
+	};
 
 	// Cooldown Timer to simulate how long it would take for word to get out
 	_cooldownTimer = (30 + (random 240));
@@ -58,55 +65,69 @@ if (_undercoverUnit getVariable ["INC_compromisedLoopRunning",false]) exitWith {
 
 
 	//If there are still alerted units alive...
-	if (_undercoverUnit getVariable ["INC_AnyKnowsSO",false]) then {
+	if (_unit getVariable ["INC_AnyKnowsSO",false]) then {
 
-		private ["_unitUniform","_unitGoggles","_unitHeadgear","_compUniform","_compHeadGear"];
+		private ["_unitUniform","_unitGoggles","_unitHeadgear","_compUniform","_compHeadGear","_compVeh"];
 
-		if (_debug) then {hint "Your description has been transmitted to others."};
+		if (_debug) then {hint "Your description has been shared."};
 
-		_compUniform = (_undercoverUnit getVariable ["INC_compUniforms",[]]);
-		_compUniform pushBackUnique (uniform _undercoverUnit);
-		_undercoverUnit setVariable ["INC_compUniforms",_compUniform];
+		if (!isNull objectParent _unit) then {
+			_activeVeh = (vehicle _unit);
+			_activeVeh setVariable ["INC_naughtyVehicle",true];
+		};
 
-		_compHeadGear = (_undercoverUnit getVariable ["INC_compHeadGear",[]]);
-		_compHeadGear pushBackUnique (goggles _undercoverUnit);
-		_compHeadGear pushBackUnique (headgear _undercoverUnit);
-		_undercoverUnit setVariable ["INC_compHeadGear",_compHeadGear];
+		_compVeh = (_unit getVariable ["INC_compVehs",[]]);
+		_compVeh pushBackUnique (vehicle _unit);
+		_unit setVariable ["INC_compVehs",_compVeh];
+
+		_compUniform = (_unit getVariable ["INC_compUniforms",[]]);
+		_compUniform pushBackUnique (uniform _unit);
+		_unit setVariable ["INC_compUniforms",_compUniform];
+		_unit setVariable ["INC_compUniform",(uniform _unit)];
+
+		_compHeadGear = (_unit getVariable ["INC_compHeadGear",[]]);
+		_compHeadGear pushBackUnique (goggles _unit);
+		_compHeadGear pushBackUnique (headgear _unit);
+		_unit setVariable ["INC_compHeadGear",_compHeadGear];
 
 		// Wait until nobody knows nuffing and the unit isn't being naughty (or has changed disguise)
 		waituntil {
 
-			_compUniform = (_undercoverUnit getVariable ["INC_compUniforms",[]]);
-			_compHeadGear = (_undercoverUnit getVariable ["INC_compHeadGear",[]]);
+			_compUniform = (_unit getVariable ["INC_compUniforms",[]]);
+			_compHeadGear = (_unit getVariable ["INC_compHeadGear",[]]);
+			_compVeh = (_unit getVariable ["INC_compVehs",[]]);
 
 			sleep 5;
 
 			if (
-				!(uniform _undercoverUnit in _compUniform) &&
-				{!(goggles _undercoverUnit in _compHeadGear) || {!(headgear _undercoverUnit in _compHeadGear)}}
+				!(uniform _unit in _compUniform) &&
+				{!(goggles _unit in _compHeadGear) || {!(headgear _unit in _compHeadGear)} ||  {!(vehicle _unit in _compVeh)}}
 
 			) then {
 
 				if (
 
-					(([_regEnySide,_undercoverUnit,50] call INCON_fnc_countAlerted) == 0) &&
-					{(([_asymEnySide,_undercoverUnit,50] call INCON_fnc_countAlerted) == 0)}
+					(([_regEnySide,_unit,50] call INCON_fnc_countAlerted) == 0) &&
+					{(([_asymEnySide,_unit,50] call INCON_fnc_countAlerted) == 0)}
 
 				) then {
 
-					_undercoverUnit setVariable ["INC_disguiseChanged",true];
+					_unit setVariable ["INC_disguiseChanged",true];
 
 				} else {
 
-					_compUniform pushBackUnique (uniform _undercoverUnit);
-					_undercoverUnit setVariable ["INC_compUniforms",_compUniform];
+					_compUniform pushBackUnique (uniform _unit);
+					_unit setVariable ["INC_compUniforms",_compUniform];
 
-					_compHeadGear pushBackUnique (goggles _undercoverUnit);
-					_compHeadGear pushBackUnique (headgear _undercoverUnit);
-					_undercoverUnit setVariable ["INC_compHeadGear",_compHeadGear];
+					_compHeadGear pushBackUnique (goggles _unit);
+					_compHeadGear pushBackUnique (headgear _unit);
+					_unit setVariable ["INC_compHeadGear",_compHeadGear];
 
+					if (!isNull objectParent _unit) then {
+						_activeVeh = (vehicle _unit);
+						_activeVeh setVariable ["INC_naughtyVehicle",true];
+					};
 				};
-
 			};
 
 
@@ -114,7 +135,7 @@ if (_undercoverUnit getVariable ["INC_compromisedLoopRunning",false]) exitWith {
 
 			if (
 
-				((_undercoverUnit getVariable ["INC_disguiseChanged",false]) && {(80 > (random 100))})
+				((_unit getVariable ["INC_disguiseChanged",false]) && {(80 > (random 100))})
 
 			) exitWith {
 
@@ -122,13 +143,13 @@ if (_undercoverUnit getVariable ["INC_compromisedLoopRunning",false]) exitWith {
 
 				if (_debug) then {hint "Disguise changed."};
 
-				_disguiseValue = (_undercoverUnit getVariable ["INC_compromisedValue",1]);
+				_disguiseValue = (_unit getVariable ["INC_compromisedValue",1]);
 
 				_newDisguiseValue = _disguiseValue + (random 1);
 
-				_undercoverUnit setVariable ["INC_compromisedValue",_newDisguiseValue,true];
+				_unit setVariable ["INC_compromisedValue",_newDisguiseValue,true];
 
-				_undercoverUnit setVariable ["INC_disguiseChanged",false,true];
+				_unit setVariable ["INC_disguiseChanged",false,true];
 
 				true
 			};
@@ -136,43 +157,45 @@ if (_undercoverUnit getVariable ["INC_compromisedLoopRunning",false]) exitWith {
 			sleep 1;
 
 			(
-				(!(_undercoverUnit getVariable ["INC_AnyKnowsSO",false]) && {(1.8 > (_regEnySide knowsAbout _undercoverUnit))}) ||
-				{!alive _undercoverUnit}
+				(!(_unit getVariable ["INC_AnyKnowsSO",false]) && {(1.8 > (_regEnySide knowsAbout _unit))}) ||
+				{!alive _unit}
 			);
 		};
 
 		// Publicize undercoverCompromised to false.
-		_undercoverUnit setVariable ["INC_undercoverCompromised", false, true];
+		_unit setVariable ["INC_undercoverCompromised", false];
 
 		if (_debug) then {hint "Disguise intact."};
 
 		// Cooldown
-		[_undercoverUnit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCooldown",_undercoverUnit];
+		[_unit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCooldown",_unit];
 
 		private ["_disguiseValue","_newDisguiseValue"];
 
-		_disguiseValue = (_undercoverUnit getVariable ["INC_compromisedValue",1]);
+		_disguiseValue = (_unit getVariable ["INC_compromisedValue",1]);
 
 		_newDisguiseValue = _disguiseValue + (random 1.5);
 
-		_undercoverUnit setVariable ["INC_compromisedValue",_newDisguiseValue,true];
+		_unit setVariable ["INC_compromisedValue",_newDisguiseValue,true];
 
-		_undercoverUnit setVariable ["INC_disguiseChanged",false,true];
+		_unit setVariable ["INC_disguiseChanged",false,true];
 
 	//Otherwise he is no longer compromised
 	} else {
 
+		_activeVeh setVariable ["INC_naughtyVehicle",false];
+
 		// Publicize undercoverCompromised to false.
-		_undercoverUnit setVariable ["INC_undercoverCompromised", false, true];
+		_unit setVariable ["INC_undercoverCompromised", false];
 
 		if (_debug) then {hint "Disguise intact."};
 
 		// Cooldown
-		[_undercoverUnit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCooldown",_undercoverUnit];
+		[_unit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCooldown",_unit];
 
 	};
 
 	//Allow the loop to run again
-	_undercoverUnit setVariable ["INC_compromisedLoopRunning", false, true];
+	_unit setVariable ["INC_compromisedLoopRunning", false];
 
 };

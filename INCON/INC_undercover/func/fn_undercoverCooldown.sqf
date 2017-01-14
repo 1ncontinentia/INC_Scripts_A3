@@ -1,4 +1,4 @@
-	/*
+/*
 undercoverCooldown
 
 Author: Incontinentia
@@ -7,42 +7,40 @@ Executes a cooldown after a unit has started doing something suspicious.
 Returns unit to setcaptive once the detecting side/s (if any) have lost track of the unit, providing the unit isn't compromised by then.
 
 Arguments
-_underCoverUnit
-
+_unit
 
 */
 
-
-params ["_underCoverUnit",["_regEnySide",sideEmpty],["_asymEnySide",sideEmpty]];
+params ["_unit",["_regEnySide",sideEmpty],["_asymEnySide",sideEmpty]];
 
 //Run the script locally on unit's machine
-//if (!local _undercoverUnit) exitWith {};
+//if (!local _unit) exitWith {};
 
 //Code can't be run on a unit that it's already running on
-if (_underCoverUnit getVariable ["INC_cooldown",false]) exitWith {};
+if ((_unit getVariable ["INC_cooldown",false]) || {!local _unit}) exitWith {};
 
-_underCoverUnit setVariable ["INC_cooldown", true, true];
+_unit setVariable ["INC_cooldown", true];
 
-[_underCoverUnit,_regEnySide,_asymEnySide,_debug] spawn {
+[_unit,_regEnySide,_asymEnySide,_debug] spawn {
 
-	params ["_underCoverUnit",["_regEnySide",sideEmpty],["_asymEnySide",sideEmpty],["_debug",false]];
+	params ["_unit",["_regEnySide",sideEmpty],["_asymEnySide",sideEmpty],["_debug",false]];
 
 	private ["_asymKnowsAboutUnit","_regKnowsAboutUnit","_regAlerted","_asymAlerted"];
 
 	//Holding variable while unit is armed / trespassing
 	waitUntil {
 		sleep 1;
-		!(_underCoverUnit getVariable ["INC_suspicious",false])
+		!(_unit getVariable ["INC_suspicious",false])
 	};
 
 	//Stop the script running while the unit is compromised
 	waitUntil {
 		sleep 2;
-		!(_underCoverUnit getVariable ["INC_undercoverCompromised",false]);
+		!(_unit getVariable ["INC_undercoverCompromised",false]);
 	};
 
 	//Checks if _regEnySide has seen him recently and sets variables accordingly
-	_regAlerted = [_regEnySide,_underCoverUnit,50] call INCON_fnc_countAlerted;
+	_regAlerted = [_regEnySide,_unit,50] call INCON_fnc_countAlerted;
 	if (_regAlerted != 0) then {
 		_regKnowsAboutUnit = true;
 	} else {
@@ -51,7 +49,7 @@ _underCoverUnit setVariable ["INC_cooldown", true, true];
 
 
 	//Checks if _asymEnySide has seen him recently
-	_asymAlerted = [_asymEnySide,_underCoverUnit,50] call INCON_fnc_countAlerted;
+	_asymAlerted = [_asymEnySide,_unit,50] call INCON_fnc_countAlerted;
 	if (_asymAlerted != 0) then {
 		_asymKnowsAboutUnit = true;
 	} else {
@@ -63,13 +61,13 @@ _underCoverUnit setVariable ["INC_cooldown", true, true];
 	//SetsCaptive back to true if nobody has seen him, unless he is already compromised
 	if !((_asymKnowsAboutUnit) || {_regKnowsAboutUnit}) exitWith {
 
-		if !(_underCoverUnit getVariable ["INC_undercoverCompromised",false]) then {
-			[_underCoverUnit, true] remoteExec ["setCaptive", _underCoverUnit];
+		if !(_unit getVariable ["INC_undercoverCompromised",false]) then {
+			[_unit, true] remoteExec ["setCaptive", _unit];
 		};
 
 		if (_debug) then {hint "Cooldown complete."};
 
-		_underCoverUnit setVariable ["INC_cooldown", false, true];
+		_unit setVariable ["INC_cooldown", false, true];
 	};
 
 	//If both _regEnySide and _asymEnySide know about the unit, wait until neither does.
@@ -77,14 +75,14 @@ _underCoverUnit setVariable ["INC_cooldown", true, true];
 
 		waitUntil {
 			sleep 2;
-			(!(_underCoverUnit getVariable ["INC_AnyKnowsSO",false]) && {!(_underCoverUnit getVariable ["INC_armed",false])} && {!(_underCoverUnit getVariable ["INC_trespassing",false])})
+			(!(_unit getVariable ["INC_AnyKnowsSO",false]) && {!((_unit getVariable ["INC_suspiciousValue",1]) >= 2)})
 		};
 
-		if !(_underCoverUnit getVariable ["INC_undercoverCompromised",false]) then {
-			[_underCoverUnit, true] remoteExec ["setCaptive", _underCoverUnit];
+		if !(_unit getVariable ["INC_undercoverCompromised",false]) then {
+			[_unit, true] remoteExec ["setCaptive", _unit];
 		};
 
-		_underCoverUnit setVariable ["INC_cooldown", false, true];
+		_unit setVariable ["INC_cooldown", false, true];
 
 	};
 
@@ -93,7 +91,7 @@ _underCoverUnit setVariable ["INC_cooldown", true, true];
 
 		waitUntil {
 			sleep 10;
-			(!(_underCoverUnit getVariable ["INC_AsymKnowsSO",false]) && {!(_underCoverUnit getVariable ["INC_armed",false])} && {!(_underCoverUnit getVariable ["INC_trespassing",false])})
+			(!(_unit getVariable ["INC_AsymKnowsSO",false]) && {!((_unit getVariable ["INC_suspiciousValue",1]) >= 2)})
 		};
 
 	//Otherwise, only _regEnySide knows about the unit so wait until they no longer do.
@@ -101,25 +99,23 @@ _underCoverUnit setVariable ["INC_cooldown", true, true];
 
 		waitUntil {
 			sleep 10;
-			(!(_underCoverUnit getVariable ["INC_RegKnowsSO",false]) && {!(_underCoverUnit getVariable ["INC_armed",false])} && {!(_underCoverUnit getVariable ["INC_trespassing",false])})
+			(!(_unit getVariable ["INC_RegKnowsSO",false]) && {!((_unit getVariable ["INC_suspiciousValue",1]) >= 2)})
 		};
 
 		//Percentage chance that unit will become compromised anyway
-		if ((45 > (random 100)) && {((_regEnySide knowsAbout _undercoverUnit) > 3)}) then {
+		if ((45 > (random 100)) && {((_regEnySide knowsAbout _unit) > 3)}) then {
 
-			[_undercoverUnit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCompromised",_undercoverUnit];
-
+			[_unit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCompromised",_unit];
 		};
-
 	};
 
 	//Then set captive back to true as long as the undercoverCompromised loop isn't running
-	if !(_underCoverUnit getVariable ["INC_undercoverCompromised",false]) then {
-		[_underCoverUnit, true] remoteExec ["setCaptive", _underCoverUnit];
+	if !(_unit getVariable ["INC_undercoverCompromised",false]) then {
+		[_unit, true] remoteExec ["setCaptive", _unit];
 	};
 
 	if (_debug) then {hint "Cooldown complete."};
 
 	//Allow the loop to be run again on the unit
-	_underCoverUnit setVariable ["INC_cooldown", false, true];
+	_unit setVariable ["INC_cooldown", false, true];
 };

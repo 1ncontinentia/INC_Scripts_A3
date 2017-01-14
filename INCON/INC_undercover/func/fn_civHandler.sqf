@@ -15,6 +15,34 @@ private ["_return"];
 
 switch (_operation) do {
 
+	case "spawnRebelCommander": {
+		
+		private ["_commander","_rebelGroup"];
+
+		//private _rebelCommander = format ["INC_rebelCommander"];
+
+		if (missionNamespace getVariable ["INC_rebelCommanderSpawned",false]) exitWith {};
+
+		private _rebelGroup = [[(random 40),(random 40),10], _undercoverUnitSide, 1] call BIS_fnc_spawnGroup;
+		_commander = leader _rebelGroup;
+		_commander setRank "COLONEL";
+		_commander disableAI "ALL";
+		_commander enableAI "TARGET";
+		_commander enableAI "FSM";
+		_commander allowDamage false;
+		_commander enableSimulation false;
+		_commander hideObjectGlobal true;
+		_commander hideObject true;
+		_commander setUnitAbility 1;
+
+		missionNamespace setVariable ["INC_rebelCommanderSpawned",true,true];
+
+		missionNamespace setVariable ["INC_rebelCommander",_commander,true];
+
+		_return = _commander;
+
+	};
+
 	case "getCompatMags": {
 
 		_input params ["_weapon"];
@@ -80,6 +108,7 @@ switch (_operation) do {
 				};
 
 			} else {
+
 				_return = false;
 			};
 		};
@@ -245,7 +274,6 @@ switch (_operation) do {
 			sleep 2;
 
 			["",[],false,[_newGroup]] call ALiVE_fnc_CreateProfilesFromUnits;
-
 		};
 	};
 
@@ -315,21 +343,13 @@ switch (_operation) do {
 				sleep 1;
 
 				[[_recruitedCiv,_undercoverUnit],"addConcealActions"] call INCON_fnc_civHandler;
-
-				[_recruitedCiv,"simpleArmedLoop"] remoteExecCall ["INCON_fnc_armedHandler",_undercoverUnit];
-
-				[_recruitedCiv] remoteExecCall ["INCON_fnc_undercoverDetect",_undercoverUnit];
+				[_recruitedCiv] remoteExecCall ["INCON_fnc_undercoverInit",_undercoverUnit];
 
 				_recruitedCiv setCombatMode "GREEN";
-
 			};
-
 		};
-
 		_return = true;
-
 	};
-	
 };
 
 _return

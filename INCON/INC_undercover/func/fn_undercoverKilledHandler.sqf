@@ -64,16 +64,11 @@ if !(_barbaric) then {
 
 					[_suspect] remoteExecCall ["INCON_fnc_undercoverCompromised",_suspect];
 
-					[_suspect, 5000] remoteExec ["addRating", _suspect];
-
+					[_suspect, 2000] remoteExec ["addRating", _suspect];
 				};
-
 			};
-
 		};
-
 	}];
-
 };
 
 
@@ -90,8 +85,8 @@ if (_barbaric) then {
 
 			if (_killer getVariable ["isSneaky",true]) then {
 
-				[_killer, 1500] remoteExec ["addRating", _killer];
-				
+				[_killer, 1000] remoteExec ["addRating", _killer];
+
 			};
 
 			private _side = (_unit getVariable ["INC_unitSide",west]);
@@ -130,15 +125,9 @@ if (_barbaric) then {
 						private _sideText = [[_side] call ALIVE_fnc_sideObjectToNumber] call ALIVE_fnc_sideNumberToText;
 
 						[ALIVE_civilianHostility, _sideText,-100] call ALIVE_fnc_hashSet;
-
 					};
-
 				};
-
 			};
-
 		};
-
 	}];
-
 };

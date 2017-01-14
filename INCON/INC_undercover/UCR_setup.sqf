@@ -26,6 +26,8 @@ _asymEnySide = independent;             //Units of this side will be classed as 
 _asymBarbaric = true;                   //(Bool - true or false) Will this side lash out on civilians if it takes casualties and doesn't know the attacker?
 _asymDetectRadius = 25;                 //Minimum detection radius for asym troops (if they see you in this area and get a good look at you, your cover will be blown - this will increase the weirder you act and the more you are compromised)
 
+_trespassMarkers = [];                  //Names of additional markers (any with "INC_tre" somewhere in the marker name will automatically be included) for areas that would be considered trespassing
+
 //-------------------------Disguise settings-------------------------
 /*
 Disguises allow the player and his subordinates to pose as non-hostiles as long as they don't act suspiciously.
@@ -37,7 +39,10 @@ Having night vision goggles strapped to your head will blow your disguise too, e
 _safeFactionVests = ["CIV_F","CIV_F_TANOA"]; //Array of factions whose vests are safe for undercover units to wear (must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])
 _safeFactionUniforms = ["CIV_F","CIV_F_TANOA"]; //Array of factions whose clothes are safe for undercover units to wear (must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])
 
-//(array of classnames) Safe vests (on top of the specific factions above - must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])
+_incognitoFactions = []; //Array of enemy factions whose items can be worn as a disguise
+_incognitoVehArray = []; //(Array of classnames) Array of enemy vehicles which will disguise the player (wearing the wrong uniform will increase the range you'll be detected by if it's a truck or car)
+
+//(Array of classnames) Safe vests (on top of the specific factions above - must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])
 _safeVests = [];
 
 //(Array of classnames) Safe uniforms (on top of the specific factions above - must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])

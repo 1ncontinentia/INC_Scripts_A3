@@ -10,8 +10,8 @@ if (_detectingSide isEqualTo sideEmpty) exitWith {false};
 
 _alertedGroups = allGroups select {
 	(side _x isEqualTo _detectingSide) &&
-	{alive leader _x} &&
 	{(leader _x targetKnowledge _unit) select 0} &&
+	{alive leader _x} &&
 	{!captive leader _x}
 };
 
