@@ -419,6 +419,8 @@ switch (_operation) do {
 			[_unit,_activeContainer,_origUnifItems,_origUnif,_newUnif] spawn {
 				params ["_unit","_activeContainer","_origUnifItems","_origUnif","_newUnif"];
 
+				if (_activeContainer isKindOf "GroundWeaponHolder") then {_oldGwh = _activeContainer; _activeContainer = createVehicle ["GroundWeaponHolder", getPosATL _unit, [], 0, "CAN_COLLIDE"]};
+
 				_activeContainer addItemCargoGlobal [(_origUnif), 1];
 
 				//Need to stop groundWeaponHolder from being deleted
