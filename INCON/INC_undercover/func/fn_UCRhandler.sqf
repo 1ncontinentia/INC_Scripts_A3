@@ -20,6 +20,10 @@ _unit setVariable ["INC_trespassAlert",false]; //Trespassing
 _unit setVariable ["INC_suspiciousValue", 1]; //How suspicious is the unit
 _unit setVariable ["INC_weirdoLevel",1]; //How weird is the unit acting
 
+if (isPlayer _unit) then {
+	[[_unit,_unit,false],"addConcealActions"] call INCON_fnc_civHandler;
+};
+
 
 //Proximity / Trespass Stuff - sets variables to be picked up by armed/suspicious loop
 //=======================================================================//

@@ -140,29 +140,6 @@ switch (_operation) do {
 
 		_input params ["_recruitedCiv","_undercoverUnit",["_dismiss",true]];
 
-		if ((_dismiss) || {(_recruitedCiv getVariable ["INC_notDismissable",false])}) then {
-
-			[_recruitedCiv, [
-				"<t color='#9933FF'>Dismiss</t>", {
-
-					private _recruitedCiv = _this select 0;
-					private _civComment = selectRandom ["I'll just hang around here then I suppose.","My back is killing me anyway.","It's been a pleasure.","I'm just not cut out for this.","I'll continue our good work.","See you later.","I don't need you to have a good time.","I'm my own woman.","What time is it? I need to get high.","I've got some paperwork to do anyway.","Well thank God for that."];
-					[[_recruitedCiv, _civComment] remoteExec ["globalChat",0]];
-
-					[_recruitedCiv] join grpNull;
-					_recruitedCiv remoteExec ["removeAllActions",0];
-					_recruitedCiv setVariable ["isUndercover", false, true];
-
-					_wp1 = (group _recruitedCiv) addWaypoint [(getPosWorld _recruitedCiv), 3];
-					(group _recruitedCiv) setBehaviour "SAFE";
-					_wp1 setWaypointType "DISMISS";
-
-				},[],5.9,false,true,"","((_this == _target) && (_this getVariable ['isUndercover',false]))"
-			]] remoteExec ["addAction", _undercoverUnit];
-		} else {
-			_recruitedCiv setVariable ["INC_notDismissable",true];
-		};
-
 		[_recruitedCiv, [
 
 			"<t color='#334FFF'>Hide current weapon</t>", {
@@ -233,6 +210,49 @@ switch (_operation) do {
 			},[],6,false,true,"","((_this == _target) && {((currentWeapon _this == 'Throw') || (currentWeapon _this == ''))} && {!((weapons _this) isEqualTo [])})"
 
 		]] remoteExec ["addAction", _undercoverUnit];
+
+		[_recruitedCiv, [
+
+			"<t color='#33FF42'>Take nearby uniform</t>", {
+
+				params ["_unit"];
+
+				private ["_success"];
+
+				_success = [[_unit,true],"switchUniforms"] call INCON_fnc_civHandler;
+
+				/*if (!(_success) && !{isPlayer _unit}) then {
+						private _civComment = selectRandom ["I can't find a uniform in that pile.","You're going to have to point it out to me, sorry.","I can't see any uniforms nearby, are you sure there's one here?","Can't see one nearby.","Point me in the right direction will you?"];
+						[[_recruitedCiv, _civComment] remoteExec ["globalChat",0]];
+					};
+				};*/
+
+			},[],5.9,false,true,"","((_this == _target) && (_this getVariable ['isUndercover',false]))"
+
+		]] remoteExec ["addAction", _undercoverUnit];
+
+		if ((_dismiss) || {!(_recruitedCiv getVariable ["INC_notDismissable",false])}) then {
+
+			[_recruitedCiv, [
+				"<t color='#9933FF'>Dismiss</t>", {
+
+					private _recruitedCiv = _this select 0;
+					private _civComment = selectRandom ["I'll just hang around here then I suppose.","My back is killing me anyway.","It's been a pleasure.","I'm just not cut out for this.","I'll continue our good work.","See you later.","I don't need you to have a good time.","I'm my own woman.","What time is it? I need to get high.","I've got some paperwork to do anyway.","Well thank God for that."];
+					[[_recruitedCiv, _civComment] remoteExec ["globalChat",0]];
+
+					[_recruitedCiv] join grpNull;
+					_recruitedCiv remoteExec ["removeAllActions",0];
+					_recruitedCiv setVariable ["isUndercover", false, true];
+
+					_wp1 = (group _recruitedCiv) addWaypoint [(getPosWorld _recruitedCiv), 3];
+					(group _recruitedCiv) setBehaviour "SAFE";
+					_wp1 setWaypointType "DISMISS";
+
+				},[],5.8,false,true,"","((_this == _target) && (_this getVariable ['isUndercover',false]))"
+			]] remoteExec ["addAction", _undercoverUnit];
+		} else {
+			_recruitedCiv setVariable ["INC_notDismissable",true];
+		};
 
 		_return = true;
 	};
@@ -354,38 +374,85 @@ switch (_operation) do {
 
 	case "switchUniforms": {
 
-		_input params ["_unit"];
+		_input params ["_unit",["_switchUniform",true],["_attempt",1],["_autoReAttempt",true]];
 
-		private ["_oldGwh","_uc","_newGwh","_gwItems","_droppedUniform"];
+		private ["_activeContainer","_newUnif","_origUnif","_newUnifItems","_droppedUniform","_containerArray"];
 
-		_return = false;
+		_containerArray = [];
 
-		_oldGwh = ((nearestObjects [_unit, ["GroundWeaponHolder"],5])select 0);
+		if (_attempt <= 1) then {_containerArray = (nearestObjects [_unit, ["GroundWeaponHolder"],5])};
 
-		if (typeName _oldGwh isEqualTo "OBJECT") then {
+		if ((count _containerArray == 0) && {_attempt <= 2}) then {_attempt = 2; _containerArray = (_unit nearEntities [["Car","Truck","Motorcycle","Tank"],5])};
 
-			_uc = (((everyContainer _oldGwh) select {
-			    (((_x select 0) find "U_") == 0)
-			}) select 0);
+		if ((count _containerArray == 0) && {_attempt <= 3}) then {_attempt = 3; _containerArray =  (nearestObjects [_unit, ["ReammoBox_F"],5])};
 
-			if ((typeName _uc isEqualTo "ARRAY") && {count _uc != 0}) then {
+		if (count _containerArray == 0) exitWith {_return = false};
 
-				_newGwh = createVehicle ["GroundWeaponHolder", getPosATL _unit, [], 0, "CAN_COLLIDE"];
-				_newGwh addItemCargoGlobal [(uniform _unit), 1];
-				_gwItems = (itemcargo (((everyContainer _oldGwh)select 0) select 1)) + (magazinecargo (((everyContainer _oldGwh)select 0) select 1)) + (weaponcargo (((everyContainer _oldGwh)select 0) select 1));
-				_droppedUniform = (((everyContainer _newGwh) select 0) select 1);
-				{_droppedUniform addItemCargoGlobal [_x, 1];} forEach (uniformItems _unit);
-				{_newGwh addItemCargoGlobal [_x, 1];} forEach (_gwItems);
-				deleteVehicle _oldGwh;
+		_activeContainer = (_containerArray select 0);
 
-				_return = true;
+		_origUnif = uniform _unit;
+		_origUnifItems = uniformItems _unit;
 
-				_unit forceAddUniform (_uc select 0);
+		_newUnif = (((everyContainer _activeContainer) select {
+		    (
+				(
+					(((_x select 0) find "U_") >= 0) ||
+					{(((_x select 0) find "uniform") >= 0)} ||
+					{(((_x select 0) find "Uniform") >= 0)}
+				) &&
+				{
+					!(((_x select 0) find _origUnif) == 0) ||
+					{_origUnif == ""}
+				} &&
+				{(_x select 0) in (INC_safeUniforms + INC_incognitoUniforms)}
+			)
+		}) select 0);
+
+		if (isNil "_newUnif") exitWith {
+			_return = false;
+			if (_autoReAttempt && {_attempt <= 2}) then {
+				_return = [[_unit,_switchUniform,(_attempt + 1)],"switchUniforms"] call INCON_fnc_civHandler;
 			};
 		};
+
+		if (_switchUniform) then {
+			[_unit,_activeContainer,_origUnifItems,_origUnif,_newUnif] spawn {
+				params ["_unit","_activeContainer","_origUnifItems","_origUnif","_newUnif"];
+
+				_activeContainer addItemCargoGlobal [(_origUnif), 1];
+
+				//Need to stop groundWeaponHolder from being deleted
+
+				_newUnifItems = (itemcargo (_newUnif select 1)) + (magazinecargo (_newUnif select 1)) + (weaponcargo (_newUnif select 1));
+
+				sleep 0.2;
+
+				{_activeContainer addItemCargoGlobal [_x, 1];} forEach (_newUnifItems);
+
+				sleep 0.1;
+
+				_unit forceAddUniform (_newUnif select 0);
+
+				sleep 0.2;
+
+				{(uniformContainer _unit) addItemCargoGlobal  [_x, 1]} forEach (_origUnifItems);
+
+				sleep 0.1;
+
+				_crateCargo = itemCargo _activeContainer;
+				_newCrateCargo = (itemCargo _activeContainer);
+				_newCrateCargo set [(_newCrateCargo find (_newUnif select 0)),-1];
+				_newCrateCargo = _newCrateCargo - [-1];
+
+				sleep 0.2;
+				clearItemCargoGlobal _activeContainer;
+				{_activeContainer addItemCargoGlobal [_x,1]} forEach (_newCrateCargo);
+
+			};
+		};
+
+		_return = true;
 	};
 };
 
 _return
-
-//TO DO: Add addaction for switching uniforms

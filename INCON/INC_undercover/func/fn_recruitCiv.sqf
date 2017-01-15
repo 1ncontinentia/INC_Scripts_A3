@@ -46,21 +46,21 @@ if (_unit getVariable ["isPrisonGuard",false]) exitWith {};
 				_reciever forceAddUniform _giverUniform;
 				if (rating _reciever > 1000) then {_reciever addrating -1000};
 
-				private _civComment = selectRandom ["That's a real dick move.","Fuck you.","I hope you get caught!","You're a horrible human!","What are you playing at?","You've lost my support."];
+				private _civComment = selectRandom ["That's a real dick move.","Fuck you.","I hope you get caught!","You're a horrible human!","What are you playing at?","You've lost my support.","I'll take one for the cause now but not again."];
 				[[_giver, _civComment] remoteExec ["globalChat",0]];
 			};
 
 			case false: {
 				[[_giver,"runAway"] remoteExecCall ["INCON_fnc_civHandler",_giver]];
 				if (rating _reciever > 800) then {_reciever addrating -800};
-				private _civComment = selectRandom ["You can fuck off.","What am I going to wear?","Creep!","Go away!","Is this how you treat your women?","Sounds like a dirty ruse.","Pervert."];
+				private _civComment = selectRandom ["You can fuck off.","What am I going to wear?","Creep!","Go away!","Is this how you treat your women?","Sounds like a dirty ruse.","So now the truth comes out.","This is my favourite shirt.","You'd like that wouldn't you?"];
 				[[_giver, _civComment] remoteExec ["globalChat",0]];
 			};
 		};
 
 		_giver setVariable ["INC_alreadyTried",true];
 
-		},[],6,true,true,"","((_this getVariable ['isUndercover',false]) && {!(_target getVariable ['INC_alreadyTried',false])} && {uniform _target != ''} && {(currentWeapon _this == primaryWeapon _this) || {currentWeapon _this == handgunWeapon _this}})",4
+		},[],6,true,true,"","((_this getVariable ['isUndercover',false]) && {!(_target getVariable ['INC_alreadyTried',false])} && {alive _target} && {uniform _target != ''} && {(currentWeapon _this != '') && {(currentWeapon _this == primaryWeapon _this) || {currentWeapon _this == handgunWeapon _this}}})",4
 ]] remoteExec ["addAction", 0,true];
 
 if (30 > (random 100)) then {
