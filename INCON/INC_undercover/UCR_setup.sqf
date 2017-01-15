@@ -39,7 +39,7 @@ Having night vision goggles strapped to your head will blow your disguise too, e
 _safeFactionVests = ["CIV_F","CIV_F_TANOA"]; //Array of factions whose vests are safe for undercover units to wear (must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])
 _safeFactionUniforms = ["CIV_F","CIV_F_TANOA"]; //Array of factions whose clothes are safe for undercover units to wear (must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])
 
-_incognitoFactions = []; //Array of enemy factions whose items can be worn as a disguise
+_incognitoFactions = ["OPF_F"]; //Array of enemy factions whose items can be worn as a disguise
 _incognitoVehArray = []; //(Array of classnames) Array of enemy vehicles which will disguise the player (wearing the wrong uniform will increase the range you'll be detected by if it's a truck or car)
 
 //(Array of classnames) Safe vests (on top of the specific factions above - must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])

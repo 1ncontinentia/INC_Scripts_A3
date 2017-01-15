@@ -65,7 +65,7 @@ _unit setVariable ["INC_cooldown", true];
 			[_unit, true] remoteExec ["setCaptive", _unit];
 		};
 
-		if (_debug) then {hint "Cooldown complete."};
+		if (_debug && (isPlayer _unit)) then {hint "Cooldown complete."};
 
 		_unit setVariable ["INC_cooldown", false, true];
 	};
@@ -114,7 +114,7 @@ _unit setVariable ["INC_cooldown", true];
 		[_unit, true] remoteExec ["setCaptive", _unit];
 	};
 
-	if (_debug) then {hint "Cooldown complete."};
+	if (_debug && (isPlayer _unit)) then {hint "Cooldown complete."};
 
 	//Allow the loop to be run again on the unit
 	_unit setVariable ["INC_cooldown", false, true];

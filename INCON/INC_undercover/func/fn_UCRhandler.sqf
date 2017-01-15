@@ -1,7 +1,7 @@
 /*
 Armed tracker - detects whethere a player is wearing a BLUFOR military uniform or a military vest, or is armed.
 
-Spawns a loop that checks if the unit is armed or if the unit is wearing a naughty uniform.
+Spawns a loop that checks if the unit is armed or if the unit is wearing a suspicious uniform.
 
 
 */
@@ -31,7 +31,7 @@ _unit setVariable ["INC_weirdoLevel",1]; //How weird is the unit acting
 	waitUntil {
 
 		//Proximity check for players (doesn't run if the unit is compromised)
-		if ((isPlayer _unit) && {!(_unit getVariable ["INC_undercoverCompromised",false])}) then {
+		if (isPlayer _unit) then {
 
 			private _disguiseValue = ((_unit getVariable ["INC_compromisedValue",1]) * (_unit getVariable ["INC_weirdoLevel",1]));
 
@@ -185,15 +185,17 @@ _unit setVariable ["INC_weirdoLevel",1]; //How weird is the unit acting
 
 					case false: {
 
-					    if ({speed _unit > 8}) then {
+					    if (speed _unit > 8) then {
 							_weirdoLevel = _weirdoLevel + (random 1);
 
-						    if ({speed _unit > 17}) then {
+						    if (speed _unit > 17) then {
 								_weirdoLevel = _weirdoLevel + (random 3);
 							};
 						};
 					};
 				};
+
+				if (uniform _unit isEqualTo (_unit getVariable ["INC_compUniform","NONEXISTANT"])) then {_weirdoLevel = _weirdoLevel + (random 3)};
 
 				_unit setVariable ["INC_weirdoLevel",_weirdoLevel];  //This variable acts as a detection radius multiplier
 			};
@@ -202,12 +204,12 @@ _unit setVariable ["INC_weirdoLevel",1]; //How weird is the unit acting
 
 			if !(_unit getVariable ["INC_goneIncognito",false]) then {
 
-				//Check if unit is wearing anything naughty
-				if (!(uniform _unit in INC_safeUniforms) || {!(vest _unit in INC_safeVests)} || {!(backpack _unit in INC_safeBackpacks)} || {(hmd _unit != "") && !(_HMDallowed)}  || {(uniform _unit isEqualTo (_unit getVariable ["INC_compUniform",""))}) then {
+				//Check if unit is wearing anything suspicious
+				if (!(uniform _unit in INC_safeUniforms) || {!(vest _unit in INC_safeVests)} || {!(backpack _unit in INC_safeBackpacks)} || {(hmd _unit != "") && !(_HMDallowed)}  || {(uniform _unit isEqualTo (_unit getVariable ["INC_compUniform","NONEXISTANT"]))}) then {
 
-					if ((isPlayer _unit) && {_debug}) then {
+					/*if ((isPlayer _unit) && {_debug}) then {
 						hint "You are wearing a suspicious item."
-					};
+					};*/
 
 					_suspiciousValue = _suspiciousValue + 1;
 				};
@@ -215,11 +217,11 @@ _unit setVariable ["INC_weirdoLevel",1]; //How weird is the unit acting
 				sleep _responseTime;
 
 				//Check if unit is armed
-				if !(((currentWeapon _unit == "") || {currentWeapon _unit == "Throw"}) && {primaryweapon player == ""} && {secondaryWeapon player == ""}) then {
+				if !(((currentWeapon _unit == "") || {currentWeapon _unit == "Throw"}) && {primaryweapon _unit == ""} && {secondaryWeapon _unit == ""}) then {
 
-					if ((isPlayer _unit) && {_debug}) then {
+					/*if ((isPlayer _unit) && {_debug}) then {
 						hint "You are visibly armed."
-					};
+					};*/
 
 					_suspiciousValue = _suspiciousValue + 1;
 				};
@@ -300,6 +302,8 @@ _unit setVariable ["INC_weirdoLevel",1]; //How weird is the unit acting
 					};
 				};
 
+				if (uniform _unit isEqualTo (_unit getVariable ["INC_compUniform","NONEXISTANT"])) then {_weirdoLevel = _weirdoLevel + (random 3)};
+
 				_unit setVariable ["INC_weirdoLevel",_weirdoLevel]; //This variable acts as a detection radius multiplier
 			};
 
@@ -307,8 +311,8 @@ _unit setVariable ["INC_weirdoLevel",1]; //How weird is the unit acting
 
 			if !(_unit getVariable ["INC_goneIncognito",false]) then {
 
-				//Naughty vehicle check
-				if !(((typeof vehicle _unit) in _safeVehicleArray) || {!((vehicle _unit) getVariable ["INC_naughtyVehicle",false])}) then {
+				//Suspicious vehicle check
+				if !(((typeof vehicle _unit) in INC_safeVehicleArray) && {!((vehicle _unit) getVariable ["INC_naughtyVehicle",false])}) then {
 
 					if ((isPlayer _unit) && {(_debug) || {_hints}}) then {
 						hint "You are in a suspicious vehicle.";

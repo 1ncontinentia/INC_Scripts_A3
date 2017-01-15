@@ -97,23 +97,36 @@ if (_unit getVariable ["INC_compromisedLoopRunning",false]) exitWith {}; //Stops
 			_compHeadGear = (_unit getVariable ["INC_compHeadGear",[]]);
 			_compVeh = (_unit getVariable ["INC_compVehs",[]]);
 
+
+			if (!isNull objectParent _unit) then {
+				_activeVeh = (vehicle _unit);
+				if !(
+
+					(([_regEnySide,_unit,10] call INCON_fnc_countAlerted) == 0) &&
+					{(([_asymEnySide,_unit,10] call INCON_fnc_countAlerted) == 0)}
+
+				) then {
+					_activeVeh setVariable ["INC_naughtyVehicle",true];
+				}
+			};
+
 			sleep 5;
 
 			if (
 				!(uniform _unit in _compUniform) &&
-				{!(goggles _unit in _compHeadGear) || {!(headgear _unit in _compHeadGear)} ||  {!(vehicle _unit in _compVeh)}}
+				{!(goggles _unit in _compHeadGear) || {!(headgear _unit in _compHeadGear)} ||  {!(vehicle _unit in _compVeh)}} &&
+				{((!isNull objectParent _unit) && {!((vehicle _unit) getVariable ["INC_naughtyVehicle",false])}) || {isNull objectParent _unit}}
 
 			) then {
 
 				if (
 
-					(([_regEnySide,_unit,50] call INCON_fnc_countAlerted) == 0) &&
-					{(([_asymEnySide,_unit,50] call INCON_fnc_countAlerted) == 0)}
+					(([_regEnySide,_unit,30] call INCON_fnc_countAlerted) == 0) &&
+					{(([_asymEnySide,_unit,30] call INCON_fnc_countAlerted) == 0)}
 
 				) then {
 
 					_unit setVariable ["INC_disguiseChanged",true];
-
 				} else {
 
 					_compUniform pushBackUnique (uniform _unit);
@@ -122,11 +135,6 @@ if (_unit getVariable ["INC_compromisedLoopRunning",false]) exitWith {}; //Stops
 					_compHeadGear pushBackUnique (goggles _unit);
 					_compHeadGear pushBackUnique (headgear _unit);
 					_unit setVariable ["INC_compHeadGear",_compHeadGear];
-
-					if (!isNull objectParent _unit) then {
-						_activeVeh = (vehicle _unit);
-						_activeVeh setVariable ["INC_naughtyVehicle",true];
-					};
 				};
 			};
 
@@ -183,7 +191,7 @@ if (_unit getVariable ["INC_compromisedLoopRunning",false]) exitWith {}; //Stops
 	//Otherwise he is no longer compromised
 	} else {
 
-		_activeVeh setVariable ["INC_naughtyVehicle",false];
+		if !(isNil "_activeVeh") then {_activeVeh setVariable ["INC_naughtyVehicle",false]};
 
 		// Publicize undercoverCompromised to false.
 		_unit setVariable ["INC_undercoverCompromised", false];

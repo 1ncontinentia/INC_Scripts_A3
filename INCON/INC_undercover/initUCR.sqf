@@ -45,7 +45,7 @@ if (isNil "INC_asymEnySide") then {
 	sleep 0.5;
 
 	_incognitoVests = [""];
-	_incognitoUniforms = [""];
+	_incognitoUniforms = [];
 
 	_incognitoVests append (["vests",_incognitoFactions] call INCON_fnc_getFactionGear);
 	_incognitoUniforms append (["uniforms",_incognitoFactions] call INCON_fnc_getFactionGear);
@@ -56,8 +56,9 @@ if (isNil "INC_asymEnySide") then {
 	missionNamespace setVariable ["INC_safeUniforms",_safeUniforms,true];
 	missionNamespace setVariable ["INC_safeBackpacks",_safeBackpacks,true];
 	missionNamespace setVariable ["INC_incognitoVests",_incognitoVests,true];
-	missionNamespace setVariable ["INC_incognitoUniforms",_incognitoUniforms,true];
+	missionNamespace setVariable ["INC_incognitoUniforms",(_incognitoUniforms - [""]),true];
 	missionNamespace setVariable ["INC_incognitoVehArray",_incognitoVehArray,true];
+	missionNamespace setVariable ["INC_safeVehicleArray",_safeVehicleArray,true];
 	missionNamespace setVariable ["INC_regEnySide",_regEnySide,true];
 	missionNamespace setVariable ["INC_asymEnySide",_asymEnySide,true];
 	missionNamespace setVariable ["INC_civilianRecruitEnabled",_civRecruitEnabled,true];
@@ -125,7 +126,7 @@ if (isPlayer _unit) then {
 				_unit globalChat (format ["%1 compromised: %2",_unit,(_unit getVariable ["INC_undercoverCompromised",false])]);
 				_unit globalChat (format ["%1 trespassing: %2",_unit,((_unit getVariable ["INC_proxAlert",false]) || {(_unit getVariable ["INC_trespassAlert",false])})]);
 				_unit globalChat (format ["%1 acting naughty: %2",_unit,(_unit getVariable ["INC_suspiciousValue",false])]);
-				_unit globalChat (format ["Proximity radius multiplier: %1",((_unit getVariable ["INC_compromisedValue",1]) * (_unit getVariable ["INC_suspiciousValue",1]))]);
+				_unit globalChat (format ["Proximity radius multiplier: %1",((_unit getVariable ["INC_compromisedValue",1]) * (_unit getVariable ["INC_weirdoLevel",1]))]);
 				_unit globalChat (format ["Enemy know about %1: %2",_unit,(_unit getVariable ["INC_AnyKnowsSO",false])]);
 				!(_unit getVariable ["isUndercover",false])
 			};
@@ -179,7 +180,7 @@ waitUntil {
 		((_unit getVariable ["INC_suspiciousValue",1]) >= 2);
 	};
 
-	//Tell them they are being naughty
+	//Tell them they are being suspicious
 	if (((_debug) || {_hints}) && {isPlayer _unit}) then {
 		[_unit] spawn {
 			params ["_unit"];
@@ -188,12 +189,12 @@ waitUntil {
 				sleep 1;
 				!((_unit getVariable ["INC_suspiciousValue",1]) >= 2)
 			};
-			hint "In disguise.";
+			hint "No longer acting suspiciously.";
 		};
 	};
 
-	//Once the player is doing naughty stuff, make them vulnerable to being compromised
-	_unit setVariable ["INC_suspicious", true]; //Hold the cooldown script until the unit is no longer doing naughty things
+	//Once the player is doing suspicious stuff, make them vulnerable to being compromised
+	_unit setVariable ["INC_suspicious", true]; //Hold the cooldown script until the unit is no longer doing suspicious things
 	[_unit, false] remoteExec ["setCaptive", _unit]; //Makes enemies hostile to the unit
 
 	[_unit,_regEnySide,_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCooldown",_unit]; //Gets the cooldown script going
