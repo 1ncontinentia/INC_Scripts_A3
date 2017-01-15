@@ -28,7 +28,7 @@ if (_unit getVariable ["isPrisonGuard",false]) exitWith {};
 ]] remoteExec ["addAction", 0];
 
 [_unit, [
-	"<t color='#33FF42'>Steal Uniform</t>", {
+	"<t color='#33FF42'>Steal Clothes</t>", {
 		params ["_giver","_reciever"];
 		private ["_gwh","_reciverUniform","_giverUniform","_droppedRecUni"];
 
