@@ -16,7 +16,7 @@ private ["_return"];
 switch (_operation) do {
 
 	case "spawnRebelCommander": {
-		
+
 		private ["_commander","_rebelGroup"];
 
 		//private _rebelCommander = format ["INC_rebelCommander"];
@@ -343,13 +343,49 @@ switch (_operation) do {
 				sleep 1;
 
 				[[_recruitedCiv,_undercoverUnit],"addConcealActions"] call INCON_fnc_civHandler;
-				[_recruitedCiv] remoteExecCall ["INCON_fnc_undercoverInit",_undercoverUnit];
+				[[_recruitedCiv],"INCON\INC_undercover\initUCR.sqf"] remoteExec ["execVM",_undercoverUnit];
+				//[_recruitedCiv] remoteExecCall ["INCON_fnc_undercoverInit",_undercoverUnit];
 
 				_recruitedCiv setCombatMode "GREEN";
 			};
 		};
 		_return = true;
 	};
+
+	case "switchUniforms": {
+
+		_input params ["_unit"];
+
+		private ["_oldGwh","_uc","_newGwh","_gwItems","_droppedUniform"];
+
+		_return = false;
+
+		_oldGwh = ((nearestObjects [_unit, ["GroundWeaponHolder"],5])select 0);
+
+		if (typeName _oldGwh isEqualTo "OBJECT") then {
+
+			_uc = (((everyContainer _oldGwh) select {
+			    (((_x select 0) find "U_") == 0)
+			}) select 0);
+
+			if ((typeName _uc isEqualTo "ARRAY") && {count _uc != 0}) then {
+
+				_newGwh = createVehicle ["GroundWeaponHolder", getPosATL _unit, [], 0, "CAN_COLLIDE"];
+				_newGwh addItemCargoGlobal [(uniform _unit), 1];
+				_gwItems = (itemcargo (((everyContainer _oldGwh)select 0) select 1)) + (magazinecargo (((everyContainer _oldGwh)select 0) select 1)) + (weaponcargo (((everyContainer _oldGwh)select 0) select 1));
+				_droppedUniform = (((everyContainer _newGwh) select 0) select 1);
+				{_droppedUniform addItemCargoGlobal [_x, 1];} forEach (uniformItems _unit);
+				{_newGwh addItemCargoGlobal [_x, 1];} forEach (_gwItems);
+				deleteVehicle _oldGwh;
+
+				_return = true;
+
+				_unit forceAddUniform (_uc select 0);
+			};
+		};
+	};
 };
 
 _return
+
+//TO DO: Add addaction for switching uniforms

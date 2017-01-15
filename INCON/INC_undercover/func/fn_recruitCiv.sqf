@@ -27,6 +27,42 @@ if (_unit getVariable ["isPrisonGuard",false]) exitWith {};
 	},[],6,true,true,"","((alive _target) && {(_this getVariable ['isUndercover',false])} && {!(_target getVariable ['INC_alreadyTried',false])})",4
 ]] remoteExec ["addAction", 0];
 
+[_unit, [
+	"<t color='#33FF42'>Steal Uniform</t>", {
+		params ["_giver","_reciever"];
+		private ["_gwh","_reciverUniform","_giverUniform","_droppedRecUni"];
+
+		switch (40 > random 100) do {
+			case true: {
+				_gwh = createVehicle ["GroundWeaponHolder", getPosATL _reciever, [], 0, "CAN_COLLIDE"];
+				_reciverUniform = uniform _reciever;
+				_giverUniform = uniform _giver;
+				_gwh addItemCargoGlobal [_reciverUniform, 1];
+				_droppedRecUni = (((everyContainer _gwh) select 0) select 1);
+				{_droppedRecUni addItemCargoGlobal [_x, 1];} forEach (uniformItems _reciever);
+				{_droppedRecUni addItemCargoGlobal [_x, 1];} forEach (uniformItems _giver);
+				removeUniform _reciever;
+				removeUniform _giver;
+				_reciever forceAddUniform _giverUniform;
+				if (rating _reciever > 1000) then {_reciever addrating -1000};
+
+				private _civComment = selectRandom ["That's a real dick move.","Fuck you.","I hope you get caught!","You're a horrible human!","What are you playing at?","You've lost my support."];
+				[[_giver, _civComment] remoteExec ["globalChat",0]];
+			};
+
+			case false: {
+				[[_giver,"runAway"] remoteExecCall ["INCON_fnc_civHandler",_giver]];
+				if (rating _reciever > 800) then {_reciever addrating -800};
+				private _civComment = selectRandom ["You can fuck off.","What am I going to wear?","Creep!","Go away!","Is this how you treat your women?","Sounds like a dirty ruse.","Pervert."];
+				[[_giver, _civComment] remoteExec ["globalChat",0]];
+			};
+		};
+
+		_giver setVariable ["INC_alreadyTried",true];
+
+		},[],6,true,true,"","((_this getVariable ['isUndercover',false]) && {!(_target getVariable ['INC_alreadyTried',false])} && {uniform _target != ''} && {(currentWeapon _this == primaryWeapon _this) || {currentWeapon _this == handgunWeapon _this}})",4
+]] remoteExec ["addAction", 0,true];
+
 if (30 > (random 100)) then {
 	[_unit,"addBackpack"] call INCON_fnc_civHandler;
 };
