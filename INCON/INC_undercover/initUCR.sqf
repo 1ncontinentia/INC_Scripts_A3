@@ -65,6 +65,12 @@ if (isNil "INC_asymEnySide") then {
 
 	sleep 0.5;
 
+	missionNamespace setVariable ["INC_sunrise",((date call BIS_fnc_sunriseSunsetTime) select 0),true];
+
+	missionNamespace setVariable ["INC_sunset",((date call BIS_fnc_sunriseSunsetTime) select 1),true];
+
+	sleep 0.2; 
+
 	if ((count (missionNamespace getVariable ["INC_trespassMarkers",[]])) == 0) then {
 		//Find trespass markers
 		{
