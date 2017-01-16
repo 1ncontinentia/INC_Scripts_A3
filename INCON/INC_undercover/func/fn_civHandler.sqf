@@ -144,25 +144,35 @@ switch (_operation) do {
 
 			"<t color='#334FFF'>Hide current weapon</t>", {
 
-				params ["_unit"];
-				private ["_visibleWeapons"];
+				_this spawn {
 
-				if !((currentWeapon _unit == primaryWeapon _unit) || {currentWeapon _unit == primaryWeapon _unit}) exitWith {};
+					params ["_unit"];
 
-				private ["_wpn","_ammoCount","_mag","_items","_weaponArray"];
+					private ["_wpn","_gwh"];
 
-				_wpn = currentWeapon _unit;
-				//if (currentWeapon _unit == primaryWeapon _unit) then {_items = primaryWeaponItems _unit} else {_items = handgunItems _unit};
+					_wpn = currentWeapon _unit;
 
-				sleep 0.5;
+					//Put the handgun away
+					if	(_wpn == handgunWeapon _unit) exitWith {
+						if ((currentWeapon _unit != "") && {weaponLowered _unit} && {stance _unit == "STAND"} && {vehicle _unit == _unit}) then {
+							[_unit,"amovpercmstpsraswrfldnon"] remoteExec ["playMove",0];
+						};
+						_unit action ["SwitchWeapon", _unit, _unit, 99];
+					};
 
-				if (_unit canAddItemToUniform _wpn) then {
-					_unit action ["DropWeapon", uniformContainer _unit, currentWeapon _unit];
+					//Only continue script if it's the primary weapon left and there's space in the unit's backpack for the weapon
+					if !((_wpn == primaryWeapon _unit) && {(_unit canAddItemToBackpack _wpn)}) exitWith {};
 
-				} else {
+					//if (currentWeapon _unit == primaryWeapon _unit) then {_items = primaryWeaponItems _unit} else {_items = handgunItems _unit};
 
-					if (_unit canAddItemToBackpack _wpn) then {
-						_unit action ["DropWeapon", unitBackpack _unit, currentWeapon _unit];
+					if (_unit canAddItemToUniform _wpn) then {
+						_unit action ["DropWeapon", uniformContainer _unit, currentWeapon _unit];
+
+					} else {
+
+						if (_unit canAddItemToBackpack _wpn) then {
+							_unit action ["DropWeapon", unitBackpack _unit, currentWeapon _unit];
+						};
 					};
 				};
 
@@ -441,7 +451,7 @@ switch (_operation) do {
 
 		if (_attempt <= 1) then {_containerArray = (nearestObjects [_unit, ["GroundWeaponHolder"],5])};
 
-		if ((count _containerArray == 0) && {_attempt <= 2}) then {_attempt = 2; _containerArray = (_unit nearEntities [["Car","Truck","Motorcycle","Tank"],5])};
+		if ((count _containerArray == 0) && {_attempt <= 2}) then {_attempt = 2; _containerArray = (_unit nearEntities [["LandVehicle","Ship","Air"],5])};
 
 		if ((count _containerArray == 0) && {_attempt <= 3}) then {_attempt = 3; _containerArray =  (nearestObjects [_unit, ["ReammoBox_F"],5])};
 
