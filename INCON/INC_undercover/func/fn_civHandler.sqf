@@ -136,47 +136,273 @@ switch (_operation) do {
 		_return = true;
 	};
 
+	case "getStoredWeaponItems": {
+
+		_input params ["_unit","_wpn"];
+
+		_return = [];
+
+		private ["_activeContainer","_weaponArray"];
+
+		//Determine the weapon location, exit if not found
+		_activeContainer = weaponsitemscargo uniformContainer _unit;
+
+		if !((uniformItems _unit) find _wpn >= 0) then {
+
+			if ((vestItems _unit) find _wpn >= 0) exitWith {
+				_activeContainer = weaponsitemscargo vestContainer _unit;
+			};
+
+			if ((backpackItems _unit) find _wpn >= 0) exitWith {
+				_activeContainer = weaponsitemscargo unitBackpack _unit;
+			};
+
+			_activeContainer = [];
+			};
+		};
+
+		if (_activeContainer == []) exitWith {};
+
+		_weaponArray = (_activeContainer select {(_x select 0) == _wpn}) select 0;
+
+		_return = _weaponArray select {(_x isEqualType "STRING") && {_x != _wpn} && {_x != ""}};
+	};
+
+	case "ableToConceal": {
+
+		_input params ["_unit"];
+
+		_return = (
+			(
+				(isNull objectParent _unit) ||
+				{((assignedVehicleRole _unit) select 0) == "Turret"}
+			) &&
+			{
+				((currentWeapon _unit) isKindOf ['Pistol', configFile >> 'CfgWeapons']) ||
+				{(currentWeapon _unit) isKindOf ['Rifle', configFile >> 'CfgWeapons']}
+			} && {
+				(_unit canAddItemToUniform (currentWeapon _unit)) ||
+				{_unit canAddItemToBackpack (currentWeapon _unit)}
+			};
+		);
+	};
+
+	case "ableToGoLoud": {
+
+		_input params ["_unit"];
+
+		_return = (
+			(
+				(isNull objectParent _unit) ||
+				{((assignedVehicleRole _unit) select 0) == "Turret"}
+			) &&
+			{
+				((currentWeapon _unit == 'Throw') || (currentWeapon _unit == ''))
+			} && {
+				!((weapons _unit) count {
+					(_x isKindOf ['Pistol', configFile >> 'CfgWeapons']) ||
+					{_x isKindOf ['Rifle', configFile >> 'CfgWeapons']}
+				} != 0)
+			}
+		);
+	};
+
+	case "getStoredWeaponAmmoArray": {
+
+		_input params ["_unit","_wpn"];
+
+		_return = [];
+
+		private ["_activeContainer","_weaponArray"];
+
+		//Determine the weapon location, exit if not found
+		_activeContainer = weaponsitemscargo uniformContainer _unit;
+
+		if !((uniformItems _unit) find _wpn >= 0) then {
+
+			if ((vestItems _unit) find _wpn >= 0) exitWith {
+				_activeContainer = weaponsitemscargo vestContainer _unit;
+			};
+
+			if ((backpackItems _unit) find _wpn >= 0) exitWith {
+				_activeContainer = weaponsitemscargo unitBackpack _unit;
+			};
+
+			_activeContainer = [];
+			};
+		};
+
+		if (_activeContainer == []) exitWith {};
+
+		_weaponArray = (_activeContainer select {(_x select 0) == _wpn}) select 0;
+
+		_return = _weaponArray select {_x isEqualType "ARRAY"};
+	};
+
+	case "concealWeapon": {
+
+		private ["_wpn","_id"];
+
+		_input params ["_unit"];
+
+		_return = true;
+
+		_wpn = currentWeapon _unit;
+
+		_id = -1;
+
+		if (_wpn isKindOf ["Rifle", configFile >> "CfgWeapons"]) then {_id = 0};
+		if (_wpn isKindOf ["Pistol", configFile >> "CfgWeapons"]) then {_id = 1};
+
+		if (_id == -1) exitWith {_return = false};
+
+		[_unit,_wpn,_id] spawn {
+			params ["_unit","_wpn","_id"];
+			private ["_mag","_ammoCount","_items","_itemsToAdd","_id","_weaponStore","_weaponArray"];
+
+			_wpn = currentWeapon _unit;
+			_mag = currentMagazine _unit;
+			_ammoCount = _unit ammo (currentWeapon _unit);
+			_items = weaponAccessories _wpn;
+
+			switch (_unit canAddItemToUniform _wpn) do {
+				case true: {
+					_unit addMagazine [_mag,_ammoCount];
+					_unit removeWeaponGlobal _wpn;
+					(uniformContainer _unit) addItemCargoGlobal [_wpn, 1];
+					_itemsToAdd = _items - ([[_unit,_wpn],"getStoredWeaponItems"] call INCON_fnc_civHandler);
+					{(uniformContainer _unit) addItemCargoGlobal [_x, 1]} forEach _itemsToAdd;
+				};
+				case false: {
+					_unit addMagazine [_mag,_ammoCount];
+					_unit removeWeaponGlobal _wpn;
+					(backpackContainer _unit) addItemCargoGlobal [_wpn, 1];
+					_itemsToAdd = _items - ([[_unit,_wpn],"getStoredWeaponItems"] call INCON_fnc_civHandler);
+					{(backpackContainer _unit) addItemCargoGlobal [_x, 1]} forEach _itemsToAdd;
+				};
+			};
+
+			_weaponArray = [_wpn,_itemsToAdd];
+			_weaponStore = _unit getVariable ["INC_weaponStore",[[],[]]];
+			_weaponStore set [_id,_weaponArray];
+
+			_unit setVariable ["INC_weaponStore",_weaponArray];
+			_unit setVariable ["INC_weaponStoreActive",true];
+
+			if (isClass(configFile >> "CfgPatches" >> "ace_main")) then {
+				_unit call ace_weaponselect_fnc_putWeaponAway;
+			};
+		};
+	};
+
+	case "unConcealWeapon": {
+
+		private ["_id","_autoStored","_wpn","_mag","_autoStored","_ammoCount","_items","_weaponArray","_weaponStore"];
+
+		_input params ["_unit"];
+
+		_return = true;
+		_weapons = [];
+		_id = -1;
+
+		//Prioritising primary weapons, return an array of either primary or handgun weapons
+		{
+			if (_x isKindOf ["Rifle", configFile >> "CfgWeapons"]) then {
+				_weapons pushBack _x;
+				_id = 0;
+			};
+		} forEach (weapons _unit);
+
+		if (_weapons isEqualTo []) then {
+			{
+				if (_x isKindOf ["Pistol", configFile >> "CfgWeapons"]) then {
+					_weapons pushBack _x;
+					_id = 1;
+				};
+			} forEach (weapons _unit);
+		};
+
+		//If there's no weapons of either type, exit
+		if (_id == -1) exitWith {_return = false};
+
+		[_unit,_weapons,_id] spawn {
+
+			params ["_unit","_weapons"];
+			private ["_weapons","_itemsToAdd","_id","_autoStored","_wpn","_mag","_autoStored","_ammoCount","_items","_weaponArray","_weaponStore","_unitItems"];
+
+			//Find out if the unit's prioritised weapon of the given id (0 being rifles, 1 being pistols) has been stored before
+			_weaponArray = (_unit getVariable ["INC_weaponStore",[[],[]]]) select _id;
+
+			switch (!(_weaponArray isEqualTo []) && {(_weaponArray select 0) in weapons _unit}) do {
+				case true: {
+					_autoStored = true;
+					_wpn = _weaponArray select 0;
+					_itemsToAdd = _weaponArray select 1;
+
+					_itemsToAdd = _itemsToAdd select {_x in ((uniformItems _unit) + (vestItems _unit) + (backPackItems _unit))};
+
+					_unit removeItem _wpn;
+
+					_unit addWeapon _wpn;
+
+					sleep 0.1;
+
+					switch (_id) do: {
+						case 0: {
+							{
+								_unit removeItem _x;
+								_unit addPrimaryWeaponItem _x;
+							} forEach _itemsToAdd;
+						};
+
+						case 1: {
+							{
+								_unit removeItem _x;
+								_unit addHandgunItem _x
+							} forEach _itemsToAdd;
+						};
+					};
+				};
+
+				case false {
+					_wpn = selectRandom _weapons;
+					_ammoArray = ([[_unit,_wpn] "getStoredWeaponAmmoArray"] call INCON_fnc_civHandler);
+					_ammoArray params ["_mag","_ammoCount"];
+					_itemsToAdd = ([[_unit,_wpn] "getStoredWeaponItems"] call INCON_fnc_civHandler);
+					_unit removeItem _wpn;
+
+					_unit addWeapon _wpn;
+					_unit setAmmo [_wpn,_ammoCount];
+
+					removeAllPrimaryWeaponItems _unit;
+
+					sleep 0.1;
+
+					switch (_id) do: {
+						case 0: {
+							{_unit addPrimaryWeaponItem _x} forEach _itemsToAdd;
+						};
+
+						case 1: {
+							{_unit addHandgunItem _x} forEach _itemsToAdd;
+						};
+					};
+				};
+			};
+		};
+	};
+
 	case "addConcealActions": {
 
 		_input params ["_recruitedCiv","_undercoverUnit",["_dismiss",true]];
 
 		[_recruitedCiv, [
 
-			"<t color='#334FFF'>Hide current weapon</t>", {
+			"<t color='#334FFF'>Conceal current weapon</t>", {
 
-				_this spawn {
+				[_this],"concealWeapon"] call INCON_fnc_civHandler;
 
-					params ["_unit"];
-
-					private ["_wpn","_gwh"];
-
-					_wpn = currentWeapon _unit;
-
-					//Put the handgun away
-					if	(_wpn == handgunWeapon _unit) exitWith {
-						if ((currentWeapon _unit != "") && {weaponLowered _unit} && {stance _unit == "STAND"} && {vehicle _unit == _unit}) then {
-							[_unit,"amovpercmstpsraswrfldnon"] remoteExec ["playMove",0];
-						};
-						_unit action ["SwitchWeapon", _unit, _unit, 99];
-					};
-
-					//Only continue script if it's the primary weapon left and there's space in the unit's backpack for the weapon
-					if !((_wpn == primaryWeapon _unit) && {(_unit canAddItemToBackpack _wpn)}) exitWith {};
-
-					//if (currentWeapon _unit == primaryWeapon _unit) then {_items = primaryWeaponItems _unit} else {_items = handgunItems _unit};
-
-					if (_unit canAddItemToUniform _wpn) then {
-						_unit action ["DropWeapon", uniformContainer _unit, currentWeapon _unit];
-
-					} else {
-
-						if (_unit canAddItemToBackpack _wpn) then {
-							_unit action ["DropWeapon", unitBackpack _unit, currentWeapon _unit];
-						};
-					};
-				};
-
-			},[],6,false,true,"","(_this == _target) && {!((currentWeapon _this == 'Throw') || (currentWeapon _this == ''))} && {(_this canAddItemToUniform (currentWeapon _this)) || (_this canAddItemToBackpack (currentWeapon _this))}"
+			},[],6,false,true,"","(_this == _target) && {_this getVariable ['INC_canConcealWeapon',false]}"
 
 		]] remoteExec ["addAction", _undercoverUnit];
 
@@ -184,60 +410,9 @@ switch (_operation) do {
 
 			"<t color='#FF33BB'>Get concealed weapon out</t>", {
 
-				params ["_unit"];
-				private ["_wpn","_weapons"];
+				[_this],"unConcealWeapon"] call INCON_fnc_civHandler;
 
-				_weapons = [];
-
-				{
-					if (_x isKindOf ["Rifle", configFile >> "CfgWeapons"]) then {
-						_weapons pushBack _x;
-					};
-				} forEach (weapons _unit);
-
-				if (_weapons isEqualTo []) then {
-					{
-						if (_x isKindOf ["Pistol", configFile >> "CfgWeapons"]) then {
-							_weapons pushBack _x;
-						};
-					} forEach (weapons _unit);
-				};
-
-				if (_weapons isEqualTo []) exitWith {};
-
-				_wpn = selectRandom _weapons;
-
-				_activeContainer = weaponsitemscargo unitBackpack _unit;
-
-				if ((uniformItems _unit) find _wpn >= 0) then {_activeContainer = weaponsitemscargo uniformContainer _unit};
-
-				_weapon = (_activeContainer select {(_x select 0) == _wpn}) select 0;
-
-				_unit removeItem (_weapon select 0);
-				_unit addWeapon (_weapon select 0);
-
-				if (primaryWeapon _unit == (_weapon select 0)) exitWith {
-					_unit addPrimaryWeaponItem (_weapon select 1);
-					_unit addPrimaryWeaponItem (_weapon select 2);
-					_unit addPrimaryWeaponItem (_weapon select 3);
-					_unit addPrimaryWeaponItem (_weapon select 5);
-					if ((_weapon select 4 select 0) != "") then {
-						_unit addMagazine (_weapon select 4 select 0);
-						_unit setAmmo [(primaryWeapon _unit), (_weapon select 4 select 1)];
-					};
-				};
-
-
-				_unit addHandgunItem (_weapon select 1);
-				_unit addHandgunItem (_weapon select 2);
-				_unit addHandgunItem (_weapon select 3);
-				_unit addHandgunItem (_weapon select 5);
-				if ((_weapon select 4 select 0) != "") then {
-					_unit addMagazine (_weapon select 4 select 0);
-					_unit setAmmo [(primaryWeapon _unit), (_weapon select 4 select 1)];
-				};
-
-			},[],6,false,true,"","((_this == _target) && {((currentWeapon _this == 'Throw') || (currentWeapon _this == ''))} && {!((weapons _this) isEqualTo [])})"
+			},[],6,false,true,"","(_this == _target) && {_this getVariable ['INC_canGoLoud',false]}"
 
 		]] remoteExec ["addAction", _undercoverUnit];
 
