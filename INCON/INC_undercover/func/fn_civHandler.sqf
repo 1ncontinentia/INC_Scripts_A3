@@ -145,36 +145,25 @@ switch (_operation) do {
 			"<t color='#334FFF'>Hide current weapon</t>", {
 
 				params ["_unit"];
-				private ["_wpn","_ammoCount","_mag","_magazineCount","_weaponArray"];
+				private ["_visibleWeapons"];
+
+				if !((currentWeapon _unit == primaryWeapon _unit) || {currentWeapon _unit == primaryWeapon _unit}) exitWith {};
+
+				private ["_wpn","_ammoCount","_mag","_items","_weaponArray"];
 
 				_wpn = currentWeapon _unit;
-				_mag = currentMagazine _unit;
-				_ammoCount = _unit ammo (currentWeapon _unit);
+				//if (currentWeapon _unit == primaryWeapon _unit) then {_items = primaryWeaponItems _unit} else {_items = handgunItems _unit};
+
+				sleep 0.5;
 
 				if (_unit canAddItemToUniform _wpn) then {
-
-					_unit addItemToUniform _wpn;
-					_unit addMagazine _mag;
-					_unit removeWeaponGlobal _wpn;
+					_unit action ["DropWeapon", uniformContainer _unit, currentWeapon _unit];
 
 				} else {
 
 					if (_unit canAddItemToBackpack _wpn) then {
-
-						_unit addItemToBackpack _wpn;
-						_mag = currentMagazine _unit;
-						_unit removeWeaponGlobal _wpn;
-
+						_unit action ["DropWeapon", unitBackpack _unit, currentWeapon _unit];
 					};
-				};
-
-				_weaponArray = [_wpn,_ammoCount,_mag];
-
-				_unit setVariable ["INC_weaponStore",_weaponArray];
-				_unit setVariable ["INC_weaponStoreActive",true];
-
-				if (isClass(configFile >> "CfgPatches" >> "ace_main")) then {
-					_unit call ace_weaponselect_fnc_putWeaponAway;
 				};
 
 			},[],6,false,true,"","(_this == _target) && {!((currentWeapon _this == 'Throw') || (currentWeapon _this == ''))} && {(_this canAddItemToUniform (currentWeapon _this)) || (_this canAddItemToBackpack (currentWeapon _this))}"
@@ -186,50 +175,73 @@ switch (_operation) do {
 			"<t color='#FF33BB'>Get concealed weapon out</t>", {
 
 				params ["_unit"];
-				private ["_wpn","_ammoCount","_mag","_magazineCount","_weaponArray"];
+				private ["_wpn","_weapons"];
 
-				_weaponArray = (_unit getVariable ["INC_weaponStore",[]]);
+				_weapons = [];
 
-				if (!(_weaponArray isEqualTo []) && {((_weaponArray select 0) in weapons _unit)}) then {
-					_wpn = _weaponArray select 0;
-					_ammoCount = _weaponArray select 1;
-					_mag = _weaponArray select 2;
-					_unit removeItem _wpn;
-				} else {
-					_wpn = selectRandom (weapons _unit);
-					_ammoCount = 500;
-					_mag = selectRandom ([_wpn,"getCompatMags"] call INCON_fnc_civHandler);
-					_unit removeItem _wpn;
+				{
+					if (_x isKindOf ["Rifle", configFile >> "CfgWeapons"]) then {
+						_weapons pushBack _x;
+					};
+				} forEach (weapons _unit);
+
+				if (_weapons isEqualTo []) then {
+					{
+						if (_x isKindOf ["Pistol", configFile >> "CfgWeapons"]) then {
+							_weapons pushBack _x;
+						};
+					} forEach (weapons _unit);
 				};
 
-				_unit addMagazine _mag;
-				_unit addWeapon _wpn;
-				_unit setAmmo [_wpn,_ammoCount];
-				_unit setVariable ["INC_weaponStoreActive",false];
+				if (_weapons isEqualTo []) exitWith {};
+
+				_wpn = selectRandom _weapons;
+
+				_activeContainer = weaponsitemscargo unitBackpack _unit;
+
+				if ((uniformItems _unit) find _wpn >= 0) then {_activeContainer = weaponsitemscargo uniformContainer _unit};
+
+				_weapon = (_activeContainer select {(_x select 0) == _wpn}) select 0;
+
+				_unit removeItem (_weapon select 0);
+				_unit addWeapon (_weapon select 0);
+
+				if (primaryWeapon _unit == (_weapon select 0)) exitWith {
+					_unit addPrimaryWeaponItem (_weapon select 1);
+					_unit addPrimaryWeaponItem (_weapon select 2);
+					_unit addPrimaryWeaponItem (_weapon select 3);
+					_unit addPrimaryWeaponItem (_weapon select 5);
+					if ((_weapon select 4 select 0) != "") then {
+						_unit addMagazine (_weapon select 4 select 0);
+						_unit setAmmo [(primaryWeapon _unit), (_weapon select 4 select 1)];
+					};
+				};
+
+
+				_unit addHandgunItem (_weapon select 1);
+				_unit addHandgunItem (_weapon select 2);
+				_unit addHandgunItem (_weapon select 3);
+				_unit addHandgunItem (_weapon select 5);
+				if ((_weapon select 4 select 0) != "") then {
+					_unit addMagazine (_weapon select 4 select 0);
+					_unit setAmmo [(primaryWeapon _unit), (_weapon select 4 select 1)];
+				};
 
 			},[],6,false,true,"","((_this == _target) && {((currentWeapon _this == 'Throw') || (currentWeapon _this == ''))} && {!((weapons _this) isEqualTo [])})"
 
 		]] remoteExec ["addAction", _undercoverUnit];
 
-		[_recruitedCiv, [
+		if (!isPlayer _recruitedCiv) then {
+			[[_recruitedCiv,false],"SwitchUniformAction"] call INCON_fnc_civHandler;
+		} else {
 
-			"<t color='#33FF42'>Take nearby uniform</t>", {
-
+			_recruitedCiv addEventHandler ["InventoryClosed", {
 				params ["_unit"];
-
-				private ["_success"];
-
-				_success = [[_unit,true],"switchUniforms"] call INCON_fnc_civHandler;
-
-				/*if (!(_success) && !{isPlayer _unit}) then {
-						private _civComment = selectRandom ["I can't find a uniform in that pile.","You're going to have to point it out to me, sorry.","I can't see any uniforms nearby, are you sure there's one here?","Can't see one nearby.","Point me in the right direction will you?"];
-						[[_recruitedCiv, _civComment] remoteExec ["globalChat",0]];
-					};
-				};*/
-
-			},[],5.9,false,true,"","((_this == _target) && (_this getVariable ['isUndercover',false]))"
-
-		]] remoteExec ["addAction", _undercoverUnit];
+				if ([[_unit,false],"switchUniforms"] call INCON_fnc_civHandler) then {
+					[[_unit,true,5],"SwitchUniformAction"] call INCON_fnc_civHandler;
+				};
+			}]
+		};
 
 		if ((_dismiss) || {!(_recruitedCiv getVariable ["INC_notDismissable",false])}) then {
 
@@ -372,6 +384,53 @@ switch (_operation) do {
 		_return = true;
 	};
 
+	case "SwitchUniformAction": {
+
+		_input params ["_unit",["_temporary",true],["_duration",10]];
+
+		if (_unit getVariable ["INC_switchUniformActionActive",false]) exitWith {_return = false};
+
+		_unit setVariable ["INC_switchUniformActionActive",true];
+
+		INC_switchUniformAction = _unit addAction [
+			"<t color='#33FF42'>Change uniform</t>", {
+				params ["_unit"];
+
+				private ["_success"];
+
+				_success = [[_unit,true],"switchUniforms"] call INCON_fnc_civHandler;
+
+				if (_success) then {
+					if (!isPlayer _unit) then {
+						private _comment = selectRandom ["Ah, yes.","Got something","This'll do","Found some new clothes.","Does my bum look big in this?","Fits nicely.","It's almost as if we're all the same dimensions.","Fits like a glove.","Beautiful.","I look like an idiot."];
+						_unit groupChat _comment;
+					} else {hint "Uniform changed."};
+				} else {
+					if (!isPlayer _unit) then {
+						private _comment = selectRandom ["Which one?","I'm not sure where you want me to look.","Can you point it out a bit better?"];
+						_unit groupChat _comment;
+					} else {hint "No safe uniforms found nearby."};
+				};
+
+			},[],5.9,false,true,"","((_this == _target) && (_this getVariable ['isUndercover',false]))"
+		];
+
+		if (_temporary) then {
+
+			[_unit,_duration] spawn {
+
+				params ["_unit",["_duration",10]];
+				sleep _duration;
+				_unit removeAction INC_switchUniformAction;
+
+				_unit setVariable ["INC_switchUniformActionActive",false];
+
+			};
+		};
+
+		_return = true;
+	};
+
 	case "switchUniforms": {
 
 		_input params ["_unit",["_switchUniform",true],["_attempt",1],["_autoReAttempt",true]];
@@ -423,9 +482,9 @@ switch (_operation) do {
 
 				_activeContainer addItemCargoGlobal [(_origUnif), 1];
 
-				//Need to stop groundWeaponHolder from being deleted
-
 				_newUnifItems = (itemcargo (_newUnif select 1)) + (magazinecargo (_newUnif select 1)) + (weaponcargo (_newUnif select 1));
+
+				[_unit,"AinvPercMstpSnonWnonDnon_Putdown_AmovPercMstpSnonWnonDnon"] remoteExec ["playMove",0];
 
 				sleep 0.2;
 
