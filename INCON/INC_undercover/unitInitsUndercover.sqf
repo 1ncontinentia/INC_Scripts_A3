@@ -22,21 +22,32 @@ _unit addEventHandler["Killed", {
 	params["_unit"];
 
 	[_unit, [
-		"<t color='#33FF42'>Take Uniform</t>", {
-			params ["_giver","_reciever"];
-			private ["_gwh","_reciverUniform","_giverUniform","_droppedRecUni"];
+		"<t color='#FFC300'>Take uniform from dead unit</t>", {
 
-			_gwh = createVehicle ["GroundWeaponHolder", getPosATL _reciever, [], 0, "CAN_COLLIDE"];
-			_reciverUniform = uniform _reciever;
-			_giverUniform = uniform _giver;
-			_gwh addItemCargoGlobal [_reciverUniform, 1];
-			_droppedRecUni = (((everyContainer _gwh) select 0) select 1);
-			{_droppedRecUni addItemCargoGlobal [_x, 1];} forEach (uniformItems _reciever);
-			{_droppedRecUni addItemCargoGlobal [_x, 1];} forEach (uniformItems _giver);
-			removeUniform _reciever;
-			removeUniform _giver;
-			_reciever forceAddUniform _giverUniform;
+			_this spawn {
+				params ["_deadGuy","_opportunist"];
+				private ["_gwh","_oldUniform","_deadUniform","_oldItems"];
 
-			},[],6,true,true,"","((_this getVariable ['isUndercover',false]) && {uniform _target != ''})",4
+				[_opportunist,"AinvPercMstpSnonWnonDnon_Putdown_AmovPercMstpSnonWnonDnon"] remoteExec ["playMove",0];
+
+				_oldUniform = uniform _opportunist;
+				_deadUniform = uniform _deadGuy;
+				_oldItems = uniformItems _opportunist;
+				_deadGuyItems = uniformItems _deadGuy;
+
+				sleep 0.2;
+
+				_gwh = createVehicle ["GroundWeaponHolder", getPosATL _opportunist, [], 0, "CAN_COLLIDE"];
+				_gwh addItemCargoGlobal [_oldUniform, 1];
+				{_gwh addItemCargoGlobal [_x, 1];} forEach (_deadGuyItems);
+
+				sleep 1;
+
+				removeUniform _deadGuy;
+				_opportunist forceAddUniform _deadUniform;
+				{(uniformContainer _opportunist) addItemCargoGlobal [_x, 1];} forEach (_oldItems);
+			};
+
+		},[],6,true,true,"","((_this getVariable ['isUndercover',false]) && {uniform _target != ''})",4
 	]] remoteExec ["addAction", 0,true];
 }];
