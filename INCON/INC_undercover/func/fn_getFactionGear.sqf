@@ -70,6 +70,26 @@ switch (_gearType) do {
         } forEach _units;
     };
 
+    case "backpacks": {
+        {
+            _unit = _x;
+            _linkedItems = getArray (_unit >> "linkedItems");
+            {
+                _item = _x;
+                _configPath = configFile >> "CfgWeapons" >> _item;
+                    if (isClass _configPath) then {
+                        _itemInfo = getNumber (_configPath >> "ItemInfo" >> "Type");
+
+                        switch (str _itemInfo) do {
+                            case "901": {
+                                _result pushbackunique _item;
+                            };
+                        };
+                    };
+            } forEach _linkedItems;
+        } forEach _units;
+    };
+
     case "uniforms": {
         {
             _uniform = getText (_x >> "uniformClass");
