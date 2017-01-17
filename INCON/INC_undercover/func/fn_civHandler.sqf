@@ -138,7 +138,7 @@ switch (_operation) do {
 
 	case "getStoredWeaponItems": {
 
-		_input params ["_unit","_wpn"];
+		_input params ["_unit","_wpn",["_comparison",false]];
 
 		_return = [];
 
@@ -158,53 +158,17 @@ switch (_operation) do {
 			};
 
 			_activeContainer = [];
-			};
 		};
 
-		if (_activeContainer == []) exitWith {};
+		if (_activeContainer isEqualTo []) exitWith {};
 
 		_weaponArray = (_activeContainer select {(_x select 0) == _wpn}) select 0;
 
-		_return = _weaponArray select {(_x isEqualType "STRING") && {_x != _wpn} && {_x != ""}};
-	};
+		if (_comparison) exitWith {
+			_return = _weaponArray;
+		};
 
-	case "ableToConceal": {
-
-		_input params ["_unit"];
-
-		_return = (
-			(
-				(isNull objectParent _unit) ||
-				{((assignedVehicleRole _unit) select 0) == "Turret"}
-			) &&
-			{
-				((currentWeapon _unit) isKindOf ['Pistol', configFile >> 'CfgWeapons']) ||
-				{(currentWeapon _unit) isKindOf ['Rifle', configFile >> 'CfgWeapons']}
-			} && {
-				(_unit canAddItemToUniform (currentWeapon _unit)) ||
-				{_unit canAddItemToBackpack (currentWeapon _unit)}
-			};
-		);
-	};
-
-	case "ableToGoLoud": {
-
-		_input params ["_unit"];
-
-		_return = (
-			(
-				(isNull objectParent _unit) ||
-				{((assignedVehicleRole _unit) select 0) == "Turret"}
-			) &&
-			{
-				((currentWeapon _unit == 'Throw') || (currentWeapon _unit == ''))
-			} && {
-				!((weapons _unit) count {
-					(_x isKindOf ['Pistol', configFile >> 'CfgWeapons']) ||
-					{_x isKindOf ['Rifle', configFile >> 'CfgWeapons']}
-				} != 0)
-			}
-		);
+		_return = _weaponArray select {(_x isEqualType "STRING") && {_x != _wpn}};
 	};
 
 	case "getStoredWeaponAmmoArray": {
@@ -229,14 +193,54 @@ switch (_operation) do {
 			};
 
 			_activeContainer = [];
-			};
 		};
 
-		if (_activeContainer == []) exitWith {};
+		if (_activeContainer isEqualTo []) exitWith {};
 
 		_weaponArray = (_activeContainer select {(_x select 0) == _wpn}) select 0;
 
-		_return = _weaponArray select {_x isEqualType "ARRAY"};
+		_return = _weaponArray select 4;
+	};
+
+	case "ableToConceal": {
+
+		_input params ["_unit"];
+
+		private _wpn = currentWeapon _unit;
+
+		if ((_wpn == 'Throw') || {_wpn == ''}) exitWith {_return = false};
+
+		_return = (
+			(
+				(isNull objectParent _unit) ||
+				{((assignedVehicleRole _unit) select 0) == "Turret"}
+			) && {
+				((currentWeapon _unit) isKindOf ['Pistol', configFile >> 'CfgWeapons']) ||
+				{(currentWeapon _unit) isKindOf ['Rifle', configFile >> 'CfgWeapons']}
+			} && {
+				(_unit canAddItemToUniform (currentWeapon _unit)) ||
+				{_unit canAddItemToBackpack (currentWeapon _unit)}
+			}
+		);
+	};
+
+	case "ableToGoLoud": {
+
+		_input params ["_unit"];
+
+		_return = (
+			(
+				(isNull objectParent _unit) ||
+				{((assignedVehicleRole _unit) select 0) == "Turret"}
+			) && {
+				(currentWeapon _unit == 'Throw') || {currentWeapon _unit == ''}
+			} && {
+				({
+					(_x isKindOf ['Pistol', configFile >> 'CfgWeapons']) ||
+					{_x isKindOf ['Rifle', configFile >> 'CfgWeapons']}
+				} count (weapons _unit) != 0)
+			}
+		);
 	};
 
 	case "concealWeapon": {
@@ -249,21 +253,23 @@ switch (_operation) do {
 
 		_wpn = currentWeapon _unit;
 
-		_id = -1;
+		_id = 999;
 
 		if (_wpn isKindOf ["Rifle", configFile >> "CfgWeapons"]) then {_id = 0};
 		if (_wpn isKindOf ["Pistol", configFile >> "CfgWeapons"]) then {_id = 1};
 
-		if (_id == -1) exitWith {_return = false};
+		if (_id == 999) exitWith {_return = false};
 
 		[_unit,_wpn,_id] spawn {
 			params ["_unit","_wpn","_id"];
-			private ["_mag","_ammoCount","_items","_itemsToAdd","_id","_weaponStore","_weaponArray"];
+			private ["_mag","_ammoCount","_items","_itemsToAdd","_id","_weaponStore","_weaponArray","_origItems"];
 
 			_wpn = currentWeapon _unit;
 			_mag = currentMagazine _unit;
 			_ammoCount = _unit ammo (currentWeapon _unit);
-			_items = weaponAccessories _wpn;
+			_items = _unit weaponAccessories _wpn;
+
+			sleep 0.2;
 
 			switch (_unit canAddItemToUniform _wpn) do {
 				case true: {
@@ -282,11 +288,16 @@ switch (_operation) do {
 				};
 			};
 
-			_weaponArray = [_wpn,_itemsToAdd];
-			_weaponStore = _unit getVariable ["INC_weaponStore",[[],[]]];
+			_comparisonArray = ([[_unit,_wpn],"getStoredWeaponItems",true] call INCON_fnc_civHandler);
+
+			_weaponArray = [_wpn,_items,_comparisonArray];
+			_weaponStore = _unit getVariable "INC_weaponStore";
+
+			sleep 0.1;
+
 			_weaponStore set [_id,_weaponArray];
 
-			_unit setVariable ["INC_weaponStore",_weaponArray];
+			_unit setVariable ["INC_weaponStore",_weaponStore];
 			_unit setVariable ["INC_weaponStoreActive",true];
 
 			if (isClass(configFile >> "CfgPatches" >> "ace_main")) then {
@@ -297,13 +308,13 @@ switch (_operation) do {
 
 	case "unConcealWeapon": {
 
-		private ["_id","_autoStored","_wpn","_mag","_autoStored","_ammoCount","_items","_weaponArray","_weaponStore"];
+		private ["_id","_wpn","_mag","_ammoCount","_items","_weaponArray","_weaponStore"];
 
 		_input params ["_unit"];
 
 		_return = true;
 		_weapons = [];
-		_id = -1;
+		_id = 999;
 
 		//Prioritising primary weapons, return an array of either primary or handgun weapons
 		{
@@ -323,23 +334,28 @@ switch (_operation) do {
 		};
 
 		//If there's no weapons of either type, exit
-		if (_id == -1) exitWith {_return = false};
+		if (_id == 999) exitWith {_return = false};
 
 		[_unit,_weapons,_id] spawn {
 
-			params ["_unit","_weapons"];
-			private ["_weapons","_itemsToAdd","_id","_autoStored","_wpn","_mag","_autoStored","_ammoCount","_items","_weaponArray","_weaponStore","_unitItems"];
+			params ["_unit","_weapons","_id"];
+			private ["_weapons","_itemsToAdd","_wpn","_mag","_ammoCount","_items","_weaponArray","_weaponStore","_unitItems"];
 
 			//Find out if the unit's prioritised weapon of the given id (0 being rifles, 1 being pistols) has been stored before
-			_weaponArray = (_unit getVariable ["INC_weaponStore",[[],[]]]) select _id;
+			_weaponArray = ((_unit getVariable "INC_weaponStore") select _id);
 
-			switch (!(_weaponArray isEqualTo []) && {(_weaponArray select 0) in weapons _unit}) do {
+			switch (
+				!(_weaponArray isEqualTo []) &&
+				{(_weaponArray select 0) in weapons _unit} &&
+				{
+					(_weaponArray select 2) isEqualTo ([[_unit,(_weaponArray select 0)],"getStoredWeaponItems",true] call INCON_fnc_civHandler)
+				}
+			) do {
 				case true: {
-					_autoStored = true;
 					_wpn = _weaponArray select 0;
 					_itemsToAdd = _weaponArray select 1;
 
-					_itemsToAdd = _itemsToAdd select {_x in ((uniformItems _unit) + (vestItems _unit) + (backPackItems _unit))};
+					_itemsToAdd = _itemsToAdd select {_x in ((uniformItems _unit) + (vestItems _unit) + (backPackItems _unit) + ([[_unit,(_weaponArray select 0)],"getStoredWeaponItems"] call INCON_fnc_civHandler))};
 
 					_unit removeItem _wpn;
 
@@ -347,7 +363,7 @@ switch (_operation) do {
 
 					sleep 0.1;
 
-					switch (_id) do: {
+					switch (_id) do {
 						case 0: {
 							{
 								_unit removeItem _x;
@@ -364,12 +380,13 @@ switch (_operation) do {
 					};
 				};
 
-				case false {
+				case false: {
 					_wpn = selectRandom _weapons;
-					_ammoArray = ([[_unit,_wpn] "getStoredWeaponAmmoArray"] call INCON_fnc_civHandler);
+					_ammoArray = ([[_unit,_wpn], "getStoredWeaponAmmoArray"] call INCON_fnc_civHandler);
 					_ammoArray params ["_mag","_ammoCount"];
-					_itemsToAdd = ([[_unit,_wpn] "getStoredWeaponItems"] call INCON_fnc_civHandler);
+					_itemsToAdd = ([[_unit,_wpn], "getStoredWeaponItems"] call INCON_fnc_civHandler);
 					_unit removeItem _wpn;
+					_unit addMagazine _mag;
 
 					_unit addWeapon _wpn;
 					_unit setAmmo [_wpn,_ammoCount];
@@ -378,7 +395,7 @@ switch (_operation) do {
 
 					sleep 0.1;
 
-					switch (_id) do: {
+					switch (_id) do {
 						case 0: {
 							{_unit addPrimaryWeaponItem _x} forEach _itemsToAdd;
 						};
@@ -394,33 +411,35 @@ switch (_operation) do {
 
 	case "addConcealActions": {
 
-		_input params ["_recruitedCiv","_undercoverUnit",["_dismiss",true]];
+		_input params ["_unit","_groupLead",["_dismiss",true]];
 
-		[_recruitedCiv, [
+		[_unit, [
 
 			"<t color='#334FFF'>Conceal current weapon</t>", {
+				params ["_unit"];
 
-				[_this],"concealWeapon"] call INCON_fnc_civHandler;
+				[[_unit],"concealWeapon"] call INCON_fnc_civHandler;
 
 			},[],6,false,true,"","(_this == _target) && {_this getVariable ['INC_canConcealWeapon',false]}"
 
-		]] remoteExec ["addAction", _undercoverUnit];
+		]] remoteExec ["addAction", _groupLead];
 
-		[_recruitedCiv, [
+		[_unit, [
 
 			"<t color='#FF33BB'>Get concealed weapon out</t>", {
+				params ["_unit"];
 
-				[_this],"unConcealWeapon"] call INCON_fnc_civHandler;
+				[[_unit],"unConcealWeapon"] call INCON_fnc_civHandler;
 
 			},[],6,false,true,"","(_this == _target) && {_this getVariable ['INC_canGoLoud',false]}"
 
-		]] remoteExec ["addAction", _undercoverUnit];
+		]] remoteExec ["addAction", _groupLead];
 
-		if (!isPlayer _recruitedCiv) then {
-			[[_recruitedCiv,false],"SwitchUniformAction"] call INCON_fnc_civHandler;
+		if (!isPlayer _unit) then {
+			[[_unit,false],"SwitchUniformAction"] call INCON_fnc_civHandler;
 		} else {
 
-			_recruitedCiv addEventHandler ["InventoryClosed", {
+			_unit addEventHandler ["InventoryClosed", {
 				params ["_unit"];
 				if ([[_unit,false],"switchUniforms"] call INCON_fnc_civHandler) then {
 					[[_unit,true,5],"SwitchUniformAction"] call INCON_fnc_civHandler;
@@ -428,27 +447,27 @@ switch (_operation) do {
 			}]
 		};
 
-		if ((_dismiss) || {!(_recruitedCiv getVariable ["INC_notDismissable",false])}) then {
+		if ((_dismiss) || {!(_unit getVariable ["INC_notDismissable",false])}) then {
 
-			[_recruitedCiv, [
+			[_unit, [
 				"<t color='#9933FF'>Dismiss</t>", {
 
-					private _recruitedCiv = _this select 0;
+					private _unit = _this select 0;
 					private _civComment = selectRandom ["I'll just hang around here then I suppose.","My back is killing me anyway.","It's been a pleasure.","I'm just not cut out for this.","I'll continue our good work.","See you later.","I don't need you to have a good time.","I'm my own woman.","What time is it? I need to get high.","I've got some paperwork to do anyway.","Well thank God for that."];
-					[[_recruitedCiv, _civComment] remoteExec ["globalChat",0]];
+					[[_unit, _civComment] remoteExec ["globalChat",0]];
 
-					[_recruitedCiv] join grpNull;
-					_recruitedCiv remoteExec ["removeAllActions",0];
-					_recruitedCiv setVariable ["isUndercover", false, true];
+					[_unit] join grpNull;
+					_unit remoteExec ["removeAllActions",0];
+					_unit setVariable ["isUndercover", false, true];
 
-					_wp1 = (group _recruitedCiv) addWaypoint [(getPosWorld _recruitedCiv), 3];
-					(group _recruitedCiv) setBehaviour "SAFE";
+					_wp1 = (group _unit) addWaypoint [(getPosWorld _unit), 3];
+					(group _unit) setBehaviour "SAFE";
 					_wp1 setWaypointType "DISMISS";
 
 				},[],5.8,false,true,"","((_this == _target) && (_this getVariable ['isUndercover',false]))"
-			]] remoteExec ["addAction", _undercoverUnit];
+			]] remoteExec ["addAction", _groupLead];
 		} else {
-			_recruitedCiv setVariable ["INC_notDismissable",true];
+			_unit setVariable ["INC_notDismissable",true];
 		};
 
 		_return = true;
@@ -458,11 +477,11 @@ switch (_operation) do {
 
 		if (!(isClass(configFile >> "CfgPatches" >> "ALiVE_main")) || {!isServer}) exitWith {_return = grpNull};
 
-		_input params ["_undercoverUnit"];
+		_input params ["_groupLead"];
 
 		private ["_originalGroup","_newGroup","_nonPlayableArray","_playableArray"];
 
-		_originalGroup = group _undercoverUnit;
+		_originalGroup = group _groupLead;
 
 		_newGroup = createGroup _undercoverUnitSide;
 
@@ -498,7 +517,7 @@ switch (_operation) do {
 
 		_input spawn {
 
-			params ["_civ","_undercoverUnit"];
+			params ["_civ","_groupLead"];
 
 			private ["_unitType","_civPos","_prevGroup","_civFace","_civSpeaker","_civHeadgear","_civName"];
 
@@ -506,7 +525,7 @@ switch (_operation) do {
 
 			sleep 0.1;
 
-			_unitType =  (selectRandom (["units",[(faction _undercoverUnit)]] call INCON_fnc_getFactionGear));
+			_unitType =  (selectRandom (["units",[(faction _groupLead)]] call INCON_fnc_getFactionGear));
 
 			sleep 0.2;
 
@@ -520,7 +539,7 @@ switch (_operation) do {
 
 			_skill = (0.7 + (random 0.25));
 
-			_recruitedCiv = (group _undercoverUnit) createUnit [_unitType,[0,0,0],[],0,""];
+			_recruitedCiv = (group _groupLead) createUnit [_unitType,[0,0,0],[],0,""];
 			_recruitedCiv setVariable ["noChanges",true,true];
 			_recruitedCiv setVariable ["isUndercover", true, true];
 
@@ -533,8 +552,8 @@ switch (_operation) do {
 				deleteGroup _prevGroup;
 			};
 
-			[_recruitedCiv,_civLoadout,_civHeadgear,_civFace,_civName,_civSpeaker,_undercoverUnit] spawn {
-				params ["_recruitedCiv","_civLoadout","_civHeadgear","_civFace","_civName","_civSpeaker","_undercoverUnit"];
+			[_recruitedCiv,_civLoadout,_civHeadgear,_civFace,_civName,_civSpeaker,_groupLead] spawn {
+				params ["_recruitedCiv","_civLoadout","_civHeadgear","_civFace","_civName","_civSpeaker","_groupLead"];
 
 				sleep 0.1;
 
@@ -559,8 +578,8 @@ switch (_operation) do {
 
 				sleep 1;
 
-				[[_recruitedCiv,_undercoverUnit],"addConcealActions"] call INCON_fnc_civHandler;
-				[[_recruitedCiv],"INCON\INC_undercover\initUCR.sqf"] remoteExec ["execVM",_undercoverUnit];
+				[[_recruitedCiv,_groupLead],"addConcealActions"] call INCON_fnc_civHandler;
+				[[_recruitedCiv],"INCON\INC_undercover\initUCR.sqf"] remoteExec ["execVM",_groupLead];
 				//[_recruitedCiv] remoteExecCall ["INCON_fnc_undercoverInit",_undercoverUnit];
 
 				_recruitedCiv setCombatMode "GREEN";

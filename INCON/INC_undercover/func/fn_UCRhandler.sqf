@@ -19,6 +19,7 @@ _unit setVariable ["INC_proxAlert",false]; //Proximity
 _unit setVariable ["INC_trespassAlert",false]; //Trespassing
 _unit setVariable ["INC_suspiciousValue", 1]; //How suspicious is the unit
 _unit setVariable ["INC_weirdoLevel",1]; //How weird is the unit acting
+_unit setVariable ["INC_weaponStore",[["",[""]],["",[""]]]];
 
 if (isPlayer _unit) then {
 	[[_unit,_unit,false],"addConcealActions"] call INCON_fnc_civHandler;
@@ -164,8 +165,12 @@ if (isPlayer _unit) then {
 				};
 
 				_unit setVariable ["INC_goneIncognito",true];
+				_unit setVariable ["INC_canConcealWeapon",false];
+				_unit setVariable ["INC_canGoLoud",false];
 			} else {
 				_unit setVariable ["INC_goneIncognito",false];
+				_unit setVariable ["INC_canConcealWeapon",([[_unit],"ableToConceal"] call INCON_fnc_civHandler)];
+				_unit setVariable ["INC_canGoLoud",([[_unit],"ableToGoLoud"] call INCON_fnc_civHandler)];
 			};
 
 			//Penalise people for being oddballs
@@ -268,7 +273,7 @@ if (isPlayer _unit) then {
 
 				_unit setVariable ["INC_goneIncognito",true];
 				_unit setVariable ["INC_canConcealWeapon",false];
-				_unit setVariable ["INC_canGoLoud",true];
+				_unit setVariable ["INC_canGoLoud",false];
 			} else {
 				_unit setVariable ["INC_goneIncognito",false];
 				_unit setVariable ["INC_canConcealWeapon",([[_unit],"ableToConceal"] call INCON_fnc_civHandler)];
