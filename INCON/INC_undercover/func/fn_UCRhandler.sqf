@@ -295,7 +295,7 @@ if (isPlayer _unit) then {
 				};
 			};
 
-			//Trespass check
+			//Proximity alert scenario
 			if (_unit getVariable ["INC_proxAlert",false]) then {
 
 				private ["_nearMines","_suspiciousEnemy"];
