@@ -592,14 +592,14 @@ switch (_operation) do {
 
 	case "SwitchUniformAction": {
 
-		_input params ["_unit",["_temporary",true],["_duration",10]];
+		_input params ["_unit",["_temporary",true],["_duration",12]];
 
 		if (_unit getVariable ["INC_switchUniformActionActive",false]) exitWith {_return = false};
 
 		_unit setVariable ["INC_switchUniformActionActive",true];
 
 		INC_switchUniformAction = _unit addAction [
-			"<t color='#33FF42'>Change uniform</t>", {
+			"<t color='#33FF42'>Find new disguise nearby</t>", {
 				params ["_unit"];
 
 				private ["_success"];
@@ -625,12 +625,18 @@ switch (_operation) do {
 
 			[_unit,_duration] spawn {
 
-				params ["_unit",["_duration",10]];
-				sleep _duration;
+				params ["_unit",["_timer",12]];
+
+				waitUntil {
+					sleep 3;
+					_timer = _timer - 3;
+
+					(!([[_unit,false],"switchUniforms"] call INCON_fnc_civHandler) || {_timer <= 0})
+				};
+
 				_unit removeAction INC_switchUniformAction;
 
 				_unit setVariable ["INC_switchUniformActionActive",false];
-
 			};
 		};
 
