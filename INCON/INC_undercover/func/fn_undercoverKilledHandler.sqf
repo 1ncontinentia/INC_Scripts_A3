@@ -115,7 +115,7 @@ if (_barbaric) then {
 				};
 
 				//If there is no known suspect and the killer was an undercover unit, then there's a 10% chance they will lash out against civilians
-				if ((33 > (random 100)) && {_killer getVariable ["isSneaky",false]}) then {
+				if ((33 > (random 100)) && {_killer getVariable ["isUndercover",false]}) then {
 
 					//makes this side consider civilians a threat if they start to die and know about the underCoverUnit, also make civilians hostile to this side
 					[[80,20], "INCON\INC_undercover\Scripts\civChaosHandler.sqf"] remoteExec ["execVM",2];
