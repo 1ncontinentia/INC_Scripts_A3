@@ -46,9 +46,11 @@ if (isNil "INC_asymEnySide") then {
 
 	_incognitoVests = [""];
 	_incognitoUniforms = [];
+	_incognitoBackpacks = [""];
 
 	_incognitoVests append (["vests",_incognitoFactions] call INCON_fnc_getFactionGear);
 	_incognitoUniforms append (["uniforms",_incognitoFactions] call INCON_fnc_getFactionGear);
+	_incognitoUniforms append (["backpacks",_incognitoFactions] call INCON_fnc_getFactionGear);
 
 	sleep 0.5;
 
@@ -56,6 +58,7 @@ if (isNil "INC_asymEnySide") then {
 	missionNamespace setVariable ["INC_safeUniforms",_safeUniforms,true];
 	missionNamespace setVariable ["INC_safeBackpacks",_safeBackpacks,true];
 	missionNamespace setVariable ["INC_incognitoVests",_incognitoVests,true];
+	missionNamespace setVariable ["INC_incognitoBackpacks",_incognitoBackpacks,true];
 	missionNamespace setVariable ["INC_incognitoUniforms",(_incognitoUniforms - [""]),true];
 	missionNamespace setVariable ["INC_incognitoVehArray",_incognitoVehArray,true];
 	missionNamespace setVariable ["INC_safeVehicleArray",_safeVehicleArray,true];
@@ -66,10 +69,15 @@ if (isNil "INC_asymEnySide") then {
 	sleep 0.5;
 
 	missionNamespace setVariable ["INC_sunrise",((date call BIS_fnc_sunriseSunsetTime) select 0),true];
-
 	missionNamespace setVariable ["INC_sunset",((date call BIS_fnc_sunriseSunsetTime) select 1),true];
 
-	sleep 0.2; 
+	INC_sunset - INC_sunrise = _daylightDuration;
+	_lightFactor = _daylightDuration / 24;
+
+	missionNamespace setVariable ["INC_firstLight",(INC_sunrise - _lightFactor),true];
+	missionNamespace setVariable ["INC_lastLight",(INC_sunset + _lightFactor),true];
+
+	sleep 0.2;
 
 	if ((count (missionNamespace getVariable ["INC_trespassMarkers",[]])) == 0) then {
 		//Find trespass markers
