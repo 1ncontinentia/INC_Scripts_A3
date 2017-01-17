@@ -38,30 +38,38 @@ if (isPlayer _unit) then {
 		//Proximity check for players (doesn't run if the unit is compromised)
 		if (isPlayer _unit) then {
 
-			private _disguiseValue = ((_unit getVariable ["INC_compromisedValue",1]) * (_unit getVariable ["INC_weirdoLevel",1]));
+			private ["_disguiseValue"];
+
+			_disguiseValue = ((_unit getVariable ["INC_compromisedValue",1]) * (_unit getVariable ["INC_weirdoLevel",1]) * (missionNamespace getVariable ["INC_envDisgMulti",1]));
+
+			sleep 0.1;
+
+			_unit setVariable ["INC_disguiseValue",_disguiseValue];
 
 			switch (_unit getVariable ["INC_goneIncognito",false]) do {
 
 				case true: {
 					//Needs testing
 					_nearReg = count (
-						(_unit nearEntities (_regDetectRadius * _disguiseValue)) select {
+						(_unit nearEntities ((_regDetectRadius * _disguiseValue) * 0.7)) select {
 							(side _x == INC_regEnySide) &&
-							{(_x knowsAbout _unit) > 2} &&
+							{(_x knowsAbout _unit) > 3.5} &&
 							{((_x getHideFrom _unit) distanceSqr _unit < 10)} &&
-							{alive _x}
+							{alive _x} &&
+							{(5 + (2 * _disguiseValue)) > (random 100)}
 						}
 					);
 
-					sleep 0.5;
+					sleep 0.3;
 
 					//Needs testing
 					_nearAsym = count (
-						(_unit nearEntities (_asymDetectRadius * _disguiseValue)) select {
+						(_unit nearEntities ((_asymDetectRadius * _disguiseValue) * 2)) select {
 							(side _x == INC_asymEnySide) &&
-							{(_x knowsAbout _unit) > 2} &&
+							{(_x knowsAbout _unit) > 3.5} &&
 							{((_x getHideFrom _unit) distanceSqr _unit < 10)} &&
-							{alive _x}
+							{alive _x} &&
+							{(5 + (3 * _disguiseValue)) > (random 100)}
 						}
 					);
 				};
@@ -76,7 +84,7 @@ if (isPlayer _unit) then {
 						}
 					);
 
-					sleep 0.5;
+					sleep 0.3;
 
 					_nearAsym = count (
 						(_unit nearEntities (_asymDetectRadius * _disguiseValue)) select {
@@ -88,11 +96,11 @@ if (isPlayer _unit) then {
 				};
 			};
 
-			sleep 0.5;
+			sleep 0.3;
 
 			_nearMines = {_x isKindOf "timeBombCore"} count (nearestObjects [_unit,[],4]);
 
-			sleep 0.5;
+			sleep 0.3;
 
 			if ((_nearAsym + _nearReg + _nearMines) != 0) then {
 				_unit setVariable ["INC_proxAlert",true]
@@ -101,32 +109,28 @@ if (isPlayer _unit) then {
 			};
 		};
 
-        sleep 0.4;
+        sleep 0.2;
 
-		//Trespassing check for AI and players
-		if !(_unit getVariable ["INC_trespassAlert",false]) then {
+        {
+            if (_unit inArea _x) exitWith {
 
-	        {
-	            if (_unit inArea _x) exitWith {
+                private _activeMarker = _x;
 
-	                private _activeMarker = _x;
+                _unit setVariable ["INC_trespassAlert",true];
 
-	                _unit setVariable ["INC_trespassAlert",true];
+                waitUntil {
 
-	                waitUntil {
+                    sleep 1;
 
-	                    sleep 1;
+                    !(_unit inArea _activeMarker);
+                };
 
-	                    !(_unit inArea _activeMarker);
-	                };
+                _unit setVariable ["INC_trespassAlert",false];
+            };
 
-	                _unit setVariable ["INC_trespassAlert",false];
-	            };
+            false
 
-	            false
-
-	        } count INC_trespassMarkers;
-		};
+        } count INC_trespassMarkers;
 
 		sleep 0.1;
 
@@ -157,6 +161,8 @@ if (isPlayer _unit) then {
 
 			private _suspiciousValue = 1; //Suspicious behaviour value: higher = more suspicious
 
+			private _weirdoLevel = 1; //Multiplier of radius for units near the player
+
 			//Incognito check
 			if ((uniform _unit in INC_incognitoUniforms) && {(vest _unit in INC_incognitoVests)}) then {
 
@@ -164,18 +170,20 @@ if (isPlayer _unit) then {
 					hint "You are disguised as the enemy."
 				};
 
+				if !(backpack _unit in INC_incognitoBackpacks) then {
+					_weirdoLevel = _weirdoLevel + (random 3);
+				};
+
 				_unit setVariable ["INC_goneIncognito",true];
 			} else {
 				_unit setVariable ["INC_goneIncognito",false];
 			};
-			
+
 			_unit setVariable ["INC_canConcealWeapon",([[_unit],"ableToConceal"] call INCON_fnc_civHandler)];
 			_unit setVariable ["INC_canGoLoud",([[_unit],"ableToGoLoud"] call INCON_fnc_civHandler)];
 
 			//Penalise people for being oddballs
 			if (isPlayer _unit) then {
-
-				private _weirdoLevel = 1; //Multiplier of radius for units near the player
 
 		        switch ((stance _unit == "CROUCH") || {stance _unit == "PRONE"}) do {
 
@@ -263,6 +271,8 @@ if (isPlayer _unit) then {
 
 			private _suspiciousValue = 1;
 
+			private _weirdoLevel = 1; //Multiplier of radius for units near the player
+
 			//Incognito check to go here
 			if (((typeOf vehicle _unit) in INC_incognitoVehArray) && {!((vehicle _unit) getVariable ["INC_naughtyVehicle",false])} && {uniform _unit in INC_incognitoUniforms}) then {
 
@@ -282,9 +292,18 @@ if (isPlayer _unit) then {
 			//Penalise people for being oddballs by increasing the spotting radius - wearing wrong uniform / hmd
 			if (isPlayer _unit) then {
 
-				private _weirdoLevel = 1; //Multiplier of radius for units near the player
-
 				if !(_unit getVariable ["INC_goneIncognito",false]) then {
+
+					sleep 0.25;
+
+					//Headlights check for moving vehicle at night
+					if (
+						!(missionNamespace getVariable ["INC_isDaytime",true]) &&
+						{isLightOn vehicle _unit} &&
+						{speed _unit > 5}
+					) then {
+						_suspiciousValue = _suspiciousValue + 1;
+					};
 
 			        switch (!(uniform _unit in INC_safeUniforms) || {!(vest _unit in INC_safeVests)}) do {
 
@@ -307,6 +326,16 @@ if (isPlayer _unit) then {
 						};
 					};
 				} else {
+
+					//Headlights check for moving vehicle at night
+					if (
+						!(missionNamespace getVariable ["INC_isDaytime",true]) &&
+						{isLightOn vehicle _unit} &&
+						{speed _unit > 5}
+					) then {
+						_weirdoLevel = _weirdoLevel + (random 2);
+					};
+
 					//Incognito uniform check for non-tank vehicles
 					if (!((vehicle _unit) isKindOf "Tank") && {!(vest _unit in INC_incognitoVests)}) then {
 
@@ -421,6 +450,33 @@ _unit addEventHandler["Fired", {
 		};
 	};
 }];
+
+if ((isPlayer _unit) && {!(missionNamespace getVariable ["INC_environmentMultiLoopActive",false])}) then {
+	[_unit] spawn {
+		params ["_unit"];
+		private ["_daylightMulti"];
+
+		missionNamespace setVariable ["INC_environmentMultiLoopActive",true,true];
+
+		waitUntil {
+
+			if ((daytime > INC_firstLight) && {daytime < INC_lastLight}) then {
+				_daylightMulti = 1;
+				missionNamespace setVariable ["INC_isDaytime",true,true];
+			} else {
+				_daylightMulti = (0.5 + (((moonIntensity - (overcast))/4)));
+				missionNamespace setVariable ["INC_isDaytime",false,true];
+			};
+
+			missionNamespace setVariable ["INC_envDisgMulti",(_daylightMulti - (fog/5))];
+
+			sleep 15;
+
+			(!local _unit)
+		};
+		missionNamespace setVariable ["INC_environmentMultiLoopActive",false,true];
+	};
+};
 
 
 //Add in suspicious level stuff for compromised variable and all that shizzlematiz, consolidate trespass loops into this function, consolidate detect, remove old shit

@@ -71,7 +71,7 @@ if (isNil "INC_asymEnySide") then {
 	missionNamespace setVariable ["INC_sunrise",((date call BIS_fnc_sunriseSunsetTime) select 0),true];
 	missionNamespace setVariable ["INC_sunset",((date call BIS_fnc_sunriseSunsetTime) select 1),true];
 
-	INC_sunset - INC_sunrise = _daylightDuration;
+	_daylightDuration = INC_sunset - INC_sunrise;
 	_lightFactor = _daylightDuration / 24;
 
 	missionNamespace setVariable ["INC_firstLight",(INC_sunrise - _lightFactor),true];
@@ -140,7 +140,7 @@ if (isPlayer _unit) then {
 				_unit globalChat (format ["%1 compromised: %2",_unit,(_unit getVariable ["INC_undercoverCompromised",false])]);
 				_unit globalChat (format ["%1 trespassing: %2",_unit,((_unit getVariable ["INC_proxAlert",false]) || {(_unit getVariable ["INC_trespassAlert",false])})]);
 				_unit globalChat (format ["%1 acting naughty: %2",_unit,(_unit getVariable ["INC_suspiciousValue",false])]);
-				_unit globalChat (format ["Proximity radius multiplier: %1",((_unit getVariable ["INC_compromisedValue",1]) * (_unit getVariable ["INC_weirdoLevel",1]))]);
+				_unit globalChat (format ["Proximity radius multiplier: %1",(_unit getVariable ["INC_disguiseValue",1])]);
 				_unit globalChat (format ["Enemy know about %1: %2",_unit,(_unit getVariable ["INC_AnyKnowsSO",false])]);
 				!(_unit getVariable ["isUndercover",false])
 			};
