@@ -165,13 +165,12 @@ if (isPlayer _unit) then {
 				};
 
 				_unit setVariable ["INC_goneIncognito",true];
-				_unit setVariable ["INC_canConcealWeapon",false];
-				_unit setVariable ["INC_canGoLoud",false];
 			} else {
 				_unit setVariable ["INC_goneIncognito",false];
-				_unit setVariable ["INC_canConcealWeapon",([[_unit],"ableToConceal"] call INCON_fnc_civHandler)];
-				_unit setVariable ["INC_canGoLoud",([[_unit],"ableToGoLoud"] call INCON_fnc_civHandler)];
 			};
+			
+			_unit setVariable ["INC_canConcealWeapon",([[_unit],"ableToConceal"] call INCON_fnc_civHandler)];
+			_unit setVariable ["INC_canGoLoud",([[_unit],"ableToGoLoud"] call INCON_fnc_civHandler)];
 
 			//Penalise people for being oddballs
 			if (isPlayer _unit) then {

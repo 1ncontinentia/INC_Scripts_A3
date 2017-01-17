@@ -268,6 +268,7 @@ switch (_operation) do {
 			_mag = currentMagazine _unit;
 			_ammoCount = _unit ammo (currentWeapon _unit);
 			_items = _unit weaponAccessories _wpn;
+			_baseWpn = [_wpn] call BIS_fnc_baseWeapon;
 
 			sleep 0.2;
 
@@ -275,22 +276,20 @@ switch (_operation) do {
 				case true: {
 					_unit addMagazine [_mag,_ammoCount];
 					_unit removeWeaponGlobal _wpn;
-					(uniformContainer _unit) addItemCargoGlobal [_wpn, 1];
-					_itemsToAdd = _items - ([[_unit,_wpn],"getStoredWeaponItems"] call INCON_fnc_civHandler);
-					{(uniformContainer _unit) addItemCargoGlobal [_x, 1]} forEach _itemsToAdd;
+					(uniformContainer _unit) addItemCargoGlobal [_baseWpn, 1];
+					{(uniformContainer _unit) addItemCargoGlobal [_x, 1]} forEach _items;
 				};
 				case false: {
 					_unit addMagazine [_mag,_ammoCount];
 					_unit removeWeaponGlobal _wpn;
-					(backpackContainer _unit) addItemCargoGlobal [_wpn, 1];
-					_itemsToAdd = _items - ([[_unit,_wpn],"getStoredWeaponItems"] call INCON_fnc_civHandler);
-					{(backpackContainer _unit) addItemCargoGlobal [_x, 1]} forEach _itemsToAdd;
+					(backpackContainer _unit) addItemCargoGlobal [_baseWpn, 1];
+					{(backpackContainer _unit) addItemCargoGlobal [_x, 1]} forEach _items;
 				};
 			};
 
-			_comparisonArray = ([[_unit,_wpn],"getStoredWeaponItems",true] call INCON_fnc_civHandler);
+			_comparisonArray = ([[_unit,_baseWpn,true],"getStoredWeaponItems"] call INCON_fnc_civHandler);
 
-			_weaponArray = [_wpn,_items,_comparisonArray];
+			_weaponArray = [_baseWpn,_items,_comparisonArray,[_mag,_ammoCount]];
 			_weaponStore = _unit getVariable "INC_weaponStore";
 
 			sleep 0.1;
@@ -348,7 +347,7 @@ switch (_operation) do {
 				!(_weaponArray isEqualTo []) &&
 				{(_weaponArray select 0) in weapons _unit} &&
 				{
-					(_weaponArray select 2) isEqualTo ([[_unit,(_weaponArray select 0)],"getStoredWeaponItems",true] call INCON_fnc_civHandler)
+					(_weaponArray select 2) isEqualTo ([[_unit,(_weaponArray select 0),true],"getStoredWeaponItems"] call INCON_fnc_civHandler)
 				}
 			) do {
 				case true: {
@@ -383,13 +382,16 @@ switch (_operation) do {
 				case false: {
 					_wpn = selectRandom _weapons;
 					_ammoArray = ([[_unit,_wpn], "getStoredWeaponAmmoArray"] call INCON_fnc_civHandler);
-					_ammoArray params ["_mag","_ammoCount"];
+					_ammoArray params [["_mag",""],["_ammoCount",0]];
 					_itemsToAdd = ([[_unit,_wpn], "getStoredWeaponItems"] call INCON_fnc_civHandler);
 					_unit removeItem _wpn;
-					_unit addMagazine _mag;
+
+					if !(_mag == "") then {_unit addMagazine _mag};
 
 					_unit addWeapon _wpn;
-					_unit setAmmo [_wpn,_ammoCount];
+
+					if !(_mag == "") then {_unit setAmmo [_wpn,_ammoCount]};
+
 
 					removeAllPrimaryWeaponItems _unit;
 
@@ -442,7 +444,7 @@ switch (_operation) do {
 			_unit addEventHandler ["InventoryClosed", {
 				params ["_unit"];
 				if ([[_unit,false],"switchUniforms"] call INCON_fnc_civHandler) then {
-					[[_unit,true,5],"SwitchUniformAction"] call INCON_fnc_civHandler;
+					[[_unit,true,4],"SwitchUniformAction"] call INCON_fnc_civHandler;
 				};
 			}]
 		};
@@ -616,7 +618,7 @@ switch (_operation) do {
 					} else {hint "No safe uniforms found nearby."};
 				};
 
-			},[],5.9,false,true,"","((_this == _target) && (_this getVariable ['isUndercover',false]))"
+			},[],1,false,true,"","((_this == _target) && (_this getVariable ['isUndercover',false]))"
 		];
 
 		if (_temporary) then {
