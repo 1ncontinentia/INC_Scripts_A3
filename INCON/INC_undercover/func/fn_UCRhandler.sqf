@@ -1,7 +1,73 @@
 /*
-Armed tracker - detects whethere a player is wearing a BLUFOR military uniform or a military vest, or is armed.
+Checks for:
+Suspicious behaviour
+Weird behaviour
+Nearby enemies who could blow the unit's cover
 
-Spawns a loop that checks if the unit is armed or if the unit is wearing a suspicious uniform.
+Creates:
+Loops for all checks
+Environmental loop
+Eventhandlers that auto compromise the unit if seen shooting
+
+Any suspicious behvaviour will make enemies that see the unit instantly hostile.
+Weird behaviours will increase the radius and likelihood of nearby enemies who could blow the units cover.
+Weird behaviour in proximity to enemies may cause some to take interest. If they are not dealt with quickly, they will compromise the unit.
+Unit will remain suspicious as long as there are enemies who have target knowledge of the unit, even if not doing anything suspicious anymore.
+Two or more suspicious behaviours witnessed at the same time by an enemy will compromise the unit (being both armed and trespassing).
+If the unit is compromised, the unit has a chance to kill all enemies who know about them before they spread the units identity across the AO.
+After that, the unit becomes fully compromised and must change his disguise (clothes and either goggles / headgear) to go undercover again.
+Each time unit gets fully compromised, the effects of any weird behaviour will be amplified.
+
+Suspicious / weird behaviours will vary according to:
+Whether the unit is disguised as the enemy
+Whether the unit is in a vehicle or on foot
+What time of day and weather it is (dark / moonlit / overcast / fog at night, fog during the day)
+Whether the unit has been compromised before
+
+IN DISGUISE AS ENEMY:
+
+ON FOOT:
+Weird behaviour:
+Wearing a backpack that doesn't fit the disguise
+Moving fast
+Not standing
+Wearing a uniform that the unit was recently compromised in
+
+IN VEHICLE:
+Weird behaviour:
+Driving with headlights off at night
+Wearing a non-disguise vest (if not in a tank)
+
+
+NOT IN DISGUISE AS ENEMY:
+
+ON FOOT:
+Suspicious behaviour:
+Wearing a suspicious uniform, vest or HMD
+Wearing a compromised uniform
+Holding a weapon or holding binoculars / laser designators / rangefinders
+Trespassing onto a restricted area
+
+Weird behaviour:
+Moving fast
+Not standing
+Wearing a uniform that the unit was recently compromised in
+
+IN VEHICLE:
+Suspicious behaviour:
+Driving an enemy vehicle
+Trespassing onto a restricted area
+Driving more than 30m offroad (optional)
+Driving with headlights off at night
+
+Weird behaviour:
+Wearing a suspicious uniform or vest
+Wearing a HMD (optional)
+Wearing a compromised uniform
+Driving fast (the faster, the more attention you attract)
+
+
+*
 
 
 */
@@ -49,12 +115,12 @@ if (isPlayer _unit) then {
 			switch (_unit getVariable ["INC_goneIncognito",false]) do {
 
 				case true: {
-					//Needs testing
+
 					_nearReg = count (
 						(_unit nearEntities ((_regDetectRadius * _disguiseValue) * 0.7)) select {
 							(side _x == INC_regEnySide) &&
-							{(_x knowsAbout _unit) > 3.5} &&
 							{((_x getHideFrom _unit) distanceSqr _unit < 10)} &&
+							{(_x knowsAbout _unit) > 3.5} &&
 							{alive _x} &&
 							{(5 + (2 * _disguiseValue)) > (random 100)}
 						}
@@ -62,12 +128,11 @@ if (isPlayer _unit) then {
 
 					sleep 0.3;
 
-					//Needs testing
 					_nearAsym = count (
 						(_unit nearEntities ((_asymDetectRadius * _disguiseValue) * 2)) select {
 							(side _x == INC_asymEnySide) &&
-							{(_x knowsAbout _unit) > 3.5} &&
 							{((_x getHideFrom _unit) distanceSqr _unit < 10)} &&
+							{(_x knowsAbout _unit) > 3.5} &&
 							{alive _x} &&
 							{(5 + (3 * _disguiseValue)) > (random 100)}
 						}
@@ -141,11 +206,11 @@ if (isPlayer _unit) then {
 
 //Armed / Incognito Stuff
 //=======================================================================//
-[_unit,_HMDallowed,_noOffRoad,_debug,_hints] spawn {
+[_unit,_HMDallowed,_noOffRoad,_debug,_hints,_regDetectRadius,_asymDetectRadius] spawn {
 
-	params ["_unit","_HMDallowed","_noOffRoad","_debug","_hints"];
+	params ["_unit","_HMDallowed","_noOffRoad","_debug","_hints","_regDetectRadius","_asymDetectRadius"];
 
-	private _responseTime = 0.25;
+	private _responseTime = 0.4;
 
 	if !(isPlayer _unit) then {_responseTime = (_responseTime * 3)}; //Repsonsiveness of script reduced for performance on AI
 
@@ -159,16 +224,14 @@ if (isPlayer _unit) then {
 
 			if !(isNull objectParent _unit) exitWith {true};
 
-			private _suspiciousValue = 1; //Suspicious behaviour value: higher = more suspicious
+			private ["_suspiciousValue","_weirdoLevel"];
 
-			private _weirdoLevel = 1; //Multiplier of radius for units near the player
+			_suspiciousValue = 1; //Suspicious behaviour value: higher = more suspicious
+
+			_weirdoLevel = 1; //Multiplier of radius for units near the player
 
 			//Incognito check
 			if ((uniform _unit in INC_incognitoUniforms) && {(vest _unit in INC_incognitoVests)}) then {
-
-				if ((isPlayer _unit) && {_debug}) then {
-					hint "You are disguised as the enemy."
-				};
 
 				if !(backpack _unit in INC_incognitoBackpacks) then {
 					_weirdoLevel = _weirdoLevel + (random 3);
@@ -182,50 +245,35 @@ if (isPlayer _unit) then {
 			_unit setVariable ["INC_canConcealWeapon",([[_unit],"ableToConceal"] call INCON_fnc_civHandler)];
 			_unit setVariable ["INC_canGoLoud",([[_unit],"ableToGoLoud"] call INCON_fnc_civHandler)];
 
+			sleep _responseTime;
+
 			//Penalise people for being oddballs
 			if (isPlayer _unit) then {
 
-		        switch ((stance _unit == "CROUCH") || {stance _unit == "PRONE"}) do {
-
-					case true: {
-						_weirdoLevel = _weirdoLevel + (random 2);
-
-				        if (speed _unit > 2) then {
-							_weirdoLevel = _weirdoLevel + (random 1);
-
-					        if (speed _unit > 5) then {
-								_weirdoLevel = _weirdoLevel + (random 1);
-							};
-						};
-					};
+		        switch (stance _unit == "STAND") do {
 
 					case false: {
+						_weirdoLevel = _weirdoLevel + 2 + ((speed _unit)/ 3);
+					};
 
-					    if (speed _unit > 8) then {
-							_weirdoLevel = _weirdoLevel + (random 1);
+					case true: {
 
-						    if (speed _unit > 17) then {
-								_weirdoLevel = _weirdoLevel + (random 3);
-							};
-						};
+						_weirdoLevel = _weirdoLevel + ((speed _unit)/ 10);
 					};
 				};
 
-				if (uniform _unit isEqualTo (_unit getVariable ["INC_compUniform","NONEXISTANT"])) then {_weirdoLevel = _weirdoLevel + (random 3)};
+				if (uniform _unit isEqualTo (_unit getVariable ["INC_compUniform","NONEXISTANT"])) then {_weirdoLevel = _weirdoLevel + 3};
 
 				_unit setVariable ["INC_weirdoLevel",_weirdoLevel];  //This variable acts as a detection radius multiplier
 			};
 
 			sleep _responseTime;
 
+			//Suspicious checks depending on incognito status
 			if !(_unit getVariable ["INC_goneIncognito",false]) then {
 
 				//Check if unit is wearing anything suspicious
-				if (!(uniform _unit in INC_safeUniforms) || {!(vest _unit in INC_safeVests)} || {!(backpack _unit in INC_safeBackpacks)} || {(hmd _unit != "") && !(_HMDallowed)}  || {(uniform _unit isEqualTo (_unit getVariable ["INC_compUniform","NONEXISTANT"]))}) then {
-
-					/*if ((isPlayer _unit) && {_debug}) then {
-						hint "You are wearing a suspicious item."
-					};*/
+				if (!(uniform _unit in INC_safeUniforms) || {!(vest _unit in INC_safeVests)} || {!(backpack _unit in INC_safeBackpacks)} || {(hmd _unit != "") && !(_HMDallowed)} || {uniform _unit isEqualTo (_unit getVariable ["INC_compUniform","NONEXISTANT"])}) then {
 
 					_suspiciousValue = _suspiciousValue + 1;
 				};
@@ -234,10 +282,6 @@ if (isPlayer _unit) then {
 
 				//Check if unit is armed
 				if !(((currentWeapon _unit == "") || {currentWeapon _unit == "Throw"}) && {primaryweapon _unit == ""} && {secondaryWeapon _unit == ""}) then {
-
-					/*if ((isPlayer _unit) && {_debug}) then {
-						hint "You are visibly armed."
-					};*/
 
 					_suspiciousValue = _suspiciousValue + 1;
 				};
@@ -269,16 +313,14 @@ if (isPlayer _unit) then {
 
 			if (isNull objectParent _unit) exitWith {true};
 
-			private _suspiciousValue = 1;
+			private ["_suspiciousValue","_weirdoLevel"];
 
-			private _weirdoLevel = 1; //Multiplier of radius for units near the player
+			_suspiciousValue = 1; //Suspicious behaviour value: higher = more suspicious
+
+			_weirdoLevel = 0.5; //Multiplier of radius for units near the player
 
 			//Incognito check to go here
 			if (((typeOf vehicle _unit) in INC_incognitoVehArray) && {!((vehicle _unit) getVariable ["INC_naughtyVehicle",false])} && {uniform _unit in INC_incognitoUniforms}) then {
-
-				if ((isPlayer _unit) && {_debug}) then {
-					hint "You are disguised as the enemy."
-				};
 
 				_unit setVariable ["INC_goneIncognito",true];
 				_unit setVariable ["INC_canConcealWeapon",false];
@@ -300,10 +342,15 @@ if (isPlayer _unit) then {
 					if (
 						!(missionNamespace getVariable ["INC_isDaytime",true]) &&
 						{isLightOn vehicle _unit} &&
+						{(vehicle _unit) isKindOf "LandVehicle"} &&
 						{speed _unit > 5}
 					) then {
 						_suspiciousValue = _suspiciousValue + 1;
 					};
+
+					sleep 0.25;
+
+					_weirdoLevel = _weirdoLevel + ((speed _unit)/ 10);
 
 			        switch (!(uniform _unit in INC_safeUniforms) || {!(vest _unit in INC_safeVests)}) do {
 
@@ -331,19 +378,23 @@ if (isPlayer _unit) then {
 					if (
 						!(missionNamespace getVariable ["INC_isDaytime",true]) &&
 						{isLightOn vehicle _unit} &&
-						{speed _unit > 5}
+						{speed _unit > 5} &&
+						{(vehicle _unit) isKindOf "LandVehicle"}
 					) then {
 						_weirdoLevel = _weirdoLevel + (random 2);
+						_weirdoLevel = _weirdoLevel + 2;
 					};
 
 					//Incognito uniform check for non-tank vehicles
 					if (!((vehicle _unit) isKindOf "Tank") && {!(vest _unit in INC_incognitoVests)}) then {
 
-						_weirdoLevel = _weirdoLevel + 2 + (random 1);
+						_weirdoLevel = _weirdoLevel + 2;
 					};
 				};
 
-				if (uniform _unit isEqualTo (_unit getVariable ["INC_compUniform","NONEXISTANT"])) then {_weirdoLevel = _weirdoLevel + (random 3)};
+				if (uniform _unit isEqualTo (_unit getVariable ["INC_compUniform","NONEXISTANT"])) then {
+					_weirdoLevel = _weirdoLevel + 2
+				};
 
 				_unit setVariable ["INC_weirdoLevel",_weirdoLevel]; //This variable acts as a detection radius multiplier
 			};
