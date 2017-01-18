@@ -36,27 +36,31 @@ Be aware though that the script is geared more towards undercover work dressed a
 If you are seen carrying military equipment (weapons, grenades, explosives, NVGs, binoculars / laser designators), it will blow your disguise.
 Having night vision goggles strapped to your head will blow your disguise too, even if you aren't actually using them!! (This can be turned off below).
 */
-_safeFactionVests = ["CIV_F","CIV_F_TANOA"]; //Array of factions whose vests are safe for undercover units to wear (must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])
-_safeFactionUniforms = ["CIV_F","CIV_F_TANOA"]; //Array of factions whose clothes are safe for undercover units to wear (must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])
-
-_incognitoFactions = ["OPF_F"]; //Array of enemy factions whose items can be worn as a disguise
-_incognitoVehArray = []; //(Array of classnames) Array of enemy vehicles which will disguise the player (wearing the wrong uniform will increase the range you'll be detected by if it's a truck or car)
+_civilianFactionVests = ["CIV_F","CIV_F_TANOA"]; //Array of factions whose vests are safe for undercover units to wear (must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])
+_civilianFactionUniforms = ["CIV_F","CIV_F_TANOA"]; //Array of factions whose clothes are safe for undercover units to wear (must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])
+_civilianFactionHeadgear = ["CIV_F","CIV_F_TANOA"]; //Array of factions whose clothes are safe for undercover units to wear (must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])
 
 //(Array of classnames) Safe vests (on top of the specific factions above - must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])
-_safeVests = [];
+_civilianVests = [];
 
 //(Array of classnames) Safe uniforms (on top of the specific factions above - must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])
-_safeUniforms = ["U_BG_Guerilla2_2","U_BG_Guerilla2_1","U_BG_Guerilla2_3","U_I_C_Soldier_Bandit_4_F","U_I_C_Soldier_Bandit_1_F","U_I_C_Soldier_Bandit_2_F","U_I_C_Soldier_Bandit_5_F","U_I_C_Soldier_Bandit_3_F"];
+_civilianUniforms = ["U_BG_Guerilla2_2","U_BG_Guerilla2_1","U_BG_Guerilla2_3","U_I_C_Soldier_Bandit_4_F","U_I_C_Soldier_Bandit_1_F","U_I_C_Soldier_Bandit_2_F","U_I_C_Soldier_Bandit_5_F","U_I_C_Soldier_Bandit_3_F"];
+
+//(Array of classnames) Safe headgear (will automatically include civilian headgear classes - must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])
+_civilianHeadgear = [];
 
 //(Array of classnames) Safe backpacks (will automatically include civilian backpack classes - must have quotation marks around each item, as in ["Ping_Pong_1_F","Ping_Pong_2_F"])
-_safeBackpacks = ["B_FieldPack_blk","B_FieldPack_cbr","B_FieldPack_khk","B_FieldPack_oucamo","G_FieldPack_Medic","B_Carryall_cbr","B_Carryall_khk","B_Carryall_oucamo","B_TacticalPack_blk","B_TacticalPack_rgr","B_TacticalPack_oli","B_Kitbag_cbr","B_Kitbag_rgr","B_Kitbag_sgg","B_Respawn_Sleeping_bag_blue_F","B_Respawn_Sleeping_bag_brown_F","B_Respawn_TentDome_F","B_Respawn_TentA_F","B_Parachute","ACE_NonSteerableParachute","ACE_TacticalLadder_Pack"];
+_civilianBackpacks = ["B_FieldPack_blk","B_FieldPack_cbr","B_FieldPack_khk","B_FieldPack_oucamo","G_FieldPack_Medic","B_Carryall_cbr","B_Carryall_khk","B_Carryall_oucamo","B_TacticalPack_blk","B_TacticalPack_rgr","B_TacticalPack_oli","B_Kitbag_cbr","B_Kitbag_rgr","B_Kitbag_sgg","B_Respawn_Sleeping_bag_blue_F","B_Respawn_Sleeping_bag_brown_F","B_Respawn_TentDome_F","B_Respawn_TentA_F","B_Parachute","ACE_NonSteerableParachute","ACE_TacticalLadder_Pack"];
 
 //(Array of classnames) Safe vehicles to drive in.
-_safeVehicleArray = ["C_Van_01_fuel_F","C_Hatchback_01_F","C_Hatchback_01_sport_F","C_Offroad_02_unarmed_F","C_Offroad_02_unarmed_F_black","C_Offroad_02_unarmed_F_blue","C_Offroad_02_unarmed_F_green","C_Offroad_02_unarmed_F_orange","C_Kart_01_F","C_Kart_01_Fuel_F","C_Kart_01_Red_F","C_Kart_01_Vrana_F","C_Offroad_01_F","C_Offroad_01_repair_F","C_Quadbike_01_F","C_SUV_01_F","C_Van_01_transport_F","C_Van_01_box_F","C_Truck_02_fuel_F","C_Truck_02_box_F","C_Truck_02_transport_F","C_Truck_02_covered_F","RHS_Mi8amt_civilian","C_Heli_Light_01_civil_F","C_Boat_Civil_01_F","C_Boat_Civil_01_police_F","C_Boat_Civil_01_rescue_F","C_Rubberboat","C_Boat_Transport_02_F","C_Scooter_Transport_01_F","LOP_AFR_Civ_Hatchback","LOP_AFR_Civ_Landrover","LOP_AFR_Civ_Offroad","LOP_AFR_Civ_UAZ","LOP_AFR_Civ_UAZ_Open","LOP_AFR_Civ_Ural","LOP_AFR_Civ_Ural_open","LOP_CHR_Civ_Hatchback","LOP_CHR_Civ_Landrover","LOP_CHR_Civ_Offroad","LOP_CHR_Civ_UAZ","LOP_CHR_Civ_UAZ_Open","LOP_CHR_Civ_Ural","LOP_CHR_Civ_Ural_open","LOP_TAK_Civ_Hatchback","LOP_TAK_Civ_Landrover","LOP_TAK_Civ_Offroad","LOP_TAK_Civ_UAZ","LOP_TAK_Civ_UAZ_Open","LOP_TAK_Civ_Ural","LOP_TAK_Civ_Ural_open"];
+_civilianVehicleArray = ["C_Van_01_fuel_F","C_Hatchback_01_F","C_Hatchback_01_sport_F","C_Offroad_02_unarmed_F","C_Offroad_02_unarmed_F_black","C_Offroad_02_unarmed_F_blue","C_Offroad_02_unarmed_F_green","C_Offroad_02_unarmed_F_orange","C_Kart_01_F","C_Kart_01_Fuel_F","C_Kart_01_Red_F","C_Kart_01_Vrana_F","C_Offroad_01_F","C_Offroad_01_repair_F","C_Quadbike_01_F","C_SUV_01_F","C_Van_01_transport_F","C_Van_01_box_F","C_Truck_02_fuel_F","C_Truck_02_box_F","C_Truck_02_transport_F","C_Truck_02_covered_F","RHS_Mi8amt_civilian","C_Heli_Light_01_civil_F","C_Boat_Civil_01_F","C_Boat_Civil_01_police_F","C_Boat_Civil_01_rescue_F","C_Rubberboat","C_Boat_Transport_02_F","C_Scooter_Transport_01_F","LOP_AFR_Civ_Hatchback","LOP_AFR_Civ_Landrover","LOP_AFR_Civ_Offroad","LOP_AFR_Civ_UAZ","LOP_AFR_Civ_UAZ_Open","LOP_AFR_Civ_Ural","LOP_AFR_Civ_Ural_open","LOP_CHR_Civ_Hatchback","LOP_CHR_Civ_Landrover","LOP_CHR_Civ_Offroad","LOP_CHR_Civ_UAZ","LOP_CHR_Civ_UAZ_Open","LOP_CHR_Civ_Ural","LOP_CHR_Civ_Ural_open","LOP_TAK_Civ_Hatchback","LOP_TAK_Civ_Landrover","LOP_TAK_Civ_Offroad","LOP_TAK_Civ_UAZ","LOP_TAK_Civ_UAZ_Open","LOP_TAK_Civ_Ural","LOP_TAK_Civ_Ural_open"];
 
-_HMDallowed = false; //(Bool - true or false) Are HMDs (night vision goggles etc.) safe to wear? Set to false if wearing HMDs will cause suspicion (must be stored in backpack).
+_HMDallowed = false; //(Bool - true or false) Are HMDs (night vision goggles etc.) safe to wear for units pretending to be civilians? Set to false if wearing HMDs will cause suspicion (must be stored in backpack).
 
 _noOffRoad = true; //Vehicles driving more than 50 meters from the nearest road will be considered hostile
+
+_incognitoFactions = ["OPF_F","OPF_T_F"]; //Array of enemy factions whose items can be worn as a disguise
+_incognitoVehArray = []; //(Array of classnames) Array of enemy vehicles which will disguise the player (wearing the wrong uniform will increase the range you'll be detected by if it's a truck or car)
 
 
 //-------------------------Civilian recruitment settings-------------------------

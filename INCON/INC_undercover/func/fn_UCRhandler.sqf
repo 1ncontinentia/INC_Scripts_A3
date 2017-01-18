@@ -108,7 +108,7 @@ if (isPlayer _unit) then {
 
 			_disguiseValue = ((_unit getVariable ["INC_compromisedValue",1]) * (_unit getVariable ["INC_weirdoLevel",1]) * (missionNamespace getVariable ["INC_envDisgMulti",1]));
 
-			sleep 0.1;
+			sleep 0.5;
 
 			_unit setVariable ["INC_disguiseValue",_disguiseValue];
 
@@ -126,7 +126,7 @@ if (isPlayer _unit) then {
 						}
 					);
 
-					sleep 0.3;
+					sleep 0.5;
 
 					_nearAsym = count (
 						(_unit nearEntities ((_asymDetectRadius * _disguiseValue) * 2)) select {
@@ -149,7 +149,7 @@ if (isPlayer _unit) then {
 						}
 					);
 
-					sleep 0.3;
+					sleep 0.5;
 
 					_nearAsym = count (
 						(_unit nearEntities (_asymDetectRadius * _disguiseValue)) select {
@@ -161,11 +161,11 @@ if (isPlayer _unit) then {
 				};
 			};
 
-			sleep 0.3;
+			sleep 0.5;
 
 			_nearMines = {_x isKindOf "timeBombCore"} count (nearestObjects [_unit,[],4]);
 
-			sleep 0.3;
+			sleep 0.5;
 
 			if ((_nearAsym + _nearReg + _nearMines) != 0) then {
 				_unit setVariable ["INC_proxAlert",true]
@@ -174,30 +174,35 @@ if (isPlayer _unit) then {
 			};
 		};
 
-        sleep 0.2;
+        sleep 0.5;
 
-        {
-            if (_unit inArea _x) exitWith {
+		if !(_unit getVariable ["INC_trespassAlert",true]) then {
+	        {
+	            if (_unit inArea _x) exitWith {
 
-                private _activeMarker = _x;
+	                private _activeMarker = _x;
 
-                _unit setVariable ["INC_trespassAlert",true];
+	                _unit setVariable ["INC_trespassAlert",true];
 
-                waitUntil {
+					[_unit,_activeMarker] spawn {
+						params ["_unit","_activeMarker"];
 
-                    sleep 1;
+						waitUntil {
 
-                    !(_unit inArea _activeMarker);
-                };
+							sleep 1;
 
-                _unit setVariable ["INC_trespassAlert",false];
-            };
+							!(_unit inArea _activeMarker);
+						};
+						_unit setVariable ["INC_trespassAlert",false];
 
-            false
+					};
+				};
 
-        } count INC_trespassMarkers;
+	            false
+	        } count INC_trespassMarkers;
+		};
 
-		sleep 0.1;
+		sleep 0.2;
 
 		(!(_unit getVariable ["isUndercover",false]) || {!(alive _unit)} || {!local _unit})
 	};
@@ -231,10 +236,28 @@ if (isPlayer _unit) then {
 			_weirdoLevel = 1; //Multiplier of radius for units near the player
 
 			//Incognito check
-			if ((uniform _unit in INC_incognitoUniforms) && {(vest _unit in INC_incognitoVests)}) then {
+			if (uniform _unit in INC_incognitoUniforms) then {
+
+				_weirdoLevel = 0.5; //Multiplier of radius for units near the player
 
 				if !(backpack _unit in INC_incognitoBackpacks) then {
-					_weirdoLevel = _weirdoLevel + (random 3);
+					_weirdoLevel = _weirdoLevel + 0.5;
+				};
+
+				if !(vest _unit in INC_incognitoVests) then {
+					_weirdoLevel = _weirdoLevel + 1;
+				};
+
+				if !(headgear _unit in INC_incognitoHeadgear) then {
+					_weirdoLevel = _weirdoLevel + 0.8;
+
+					if (((headgear _unit) find "elmet") >= 0) then {
+						_weirdoLevel = _weirdoLevel + 2;
+					};
+				};
+
+				if !(currentWeapon _unit in INC_incognitoWpns) then {
+					_weirdoLevel = _weirdoLevel + 0.8;
 				};
 
 				_unit setVariable ["INC_goneIncognito",true];
@@ -250,19 +273,46 @@ if (isPlayer _unit) then {
 			//Penalise people for being oddballs
 			if (isPlayer _unit) then {
 
-		        switch (stance _unit == "STAND") do {
-
-					case false: {
-						_weirdoLevel = _weirdoLevel + 2 + ((speed _unit)/ 3);
-					};
+		        switch !(stance _unit == "STAND") do {
 
 					case true: {
+						_weirdoLevel = _weirdoLevel + 2;
 
-						_weirdoLevel = _weirdoLevel + ((speed _unit)/ 10);
+				        if (speed _unit > 2) then {
+							_weirdoLevel = _weirdoLevel + 0.5;
+
+					        if (speed _unit > 5) then {
+								_weirdoLevel = _weirdoLevel + 0.5;
+							};
+						};
+					};
+
+					case false: {
+
+					    if (speed _unit > 8) then {
+							_weirdoLevel = _weirdoLevel + 0.5;
+
+						    if (speed _unit > 17) then {
+								_weirdoLevel = _weirdoLevel + 1.5;
+							};
+						};
 					};
 				};
 
-				if (uniform _unit isEqualTo (_unit getVariable ["INC_compUniform","NONEXISTANT"])) then {_weirdoLevel = _weirdoLevel + 3};
+
+				sleep _responseTime;
+
+				//Check if unit is wearing anything suspicious
+				if (!(_unit getVariable ["INC_goneIncognito",false]) && {(((headgear _unit) find "elmet") >= 0) || {((goggles _unit) find "alaclava") >= 0}}) then {
+
+					_weirdoLevel = _weirdoLevel + 2;
+				};
+
+				sleep _responseTime;
+
+				if (uniform _unit isEqualTo (_unit getVariable ["INC_compUniform","NONEXISTANT"])) then {
+					_weirdoLevel = _weirdoLevel + 3;
+				};
 
 				_unit setVariable ["INC_weirdoLevel",_weirdoLevel];  //This variable acts as a detection radius multiplier
 			};
@@ -273,7 +323,7 @@ if (isPlayer _unit) then {
 			if !(_unit getVariable ["INC_goneIncognito",false]) then {
 
 				//Check if unit is wearing anything suspicious
-				if (!(uniform _unit in INC_safeUniforms) || {!(vest _unit in INC_safeVests)} || {!(backpack _unit in INC_safeBackpacks)} || {(hmd _unit != "") && !(_HMDallowed)} || {uniform _unit isEqualTo (_unit getVariable ["INC_compUniform","NONEXISTANT"])}) then {
+				if (!(uniform _unit in INC_civilianUniforms) || {!(vest _unit in INC_civilianVests)} || {!(headgear _unit in INC_civilianHeadgear)}  || {!(backpack _unit in INC_civilianBackpacks)} || {(hmd _unit != "") && !(_HMDallowed)} || {uniform _unit isEqualTo (_unit getVariable ["INC_compUniform","NONEXISTANT"])}) then {
 
 					_suspiciousValue = _suspiciousValue + 1;
 				};
@@ -309,49 +359,54 @@ if (isPlayer _unit) then {
 					{((_x getHideFrom _unit) distanceSqr _unit < 10)} &&
 					{(_x knowsAbout _unit) > 3.5} &&
 					{alive _x} &&
-					{(5 * (_unit getVariable ["INC_disguiseValue",1])) > (random 100)}
+					{(6 * (_unit getVariable ["INC_disguiseValue",1])) > (random 100)}
 				});
 
-				[_unit,_suspiciousEnemy] spawn {
-					params ["_unit","_suspiciousEnemy"];
+				if (!isNil "_suspiciousEnemy") then {
 
-					if (37 > (random 100)) then {
-						private ["_comment"];
-						switch (_unit getVariable ["INC_goneIncognito",false]) do {
-							case true: {
-								_comment = selectRandom ["Who the fuck are you?","I don't recognise you.","I don't like the look of you.","You look strange.","What are you doing?","I'd like to know which unit you're from.","Who are you with?","You're not supposed to be here.","You're not with us are you?"];
+					[_unit,_suspiciousEnemy] spawn {
+						params ["_unit","_suspiciousEnemy"];
+
+						if (45 > (random 100)) then {
+							private ["_comment"];
+							switch (_unit getVariable ["INC_goneIncognito",false]) do {
+								case true: {
+									_comment = selectRandom ["Who the fuck are you?","I don't recognise you.","I don't like the look of you.","You look strange.","What are you doing?","I'd like to know which unit you're from.","Who are you with?","You're not supposed to be here.","You're not with us are you?"];
+								};
+								case false: {
+									_comment = selectRandom ["I recognise you from somewhere.","You hiding something?","Stop right there, let me get a good look at you.","Stop. Don't move.","Stay right there."];
+								};
 							};
-							case false: {
-								_comment = selectRandom ["I recognise you from somewhere.","You hiding something?","Stop right there, let me get a good look at you.","Stop. Don't move.","Stay right there."];
-							};
+							[[_suspiciousEnemy, _comment] remoteExec ["globalChat",_unit]];
 						};
-						[[_suspiciousEnemy, _comment] remoteExec ["globalChat",_unit]];
-					};
-
-					_suspiciousEnemy doWatch _unit;
-
-					sleep (random 15);
-
-					if !(50 * (_unit getVariable ["INC_disguiseValue",1])) > (random 100) exitWith {};
-
-					(group _unit) setSpeedMode "LIMITED";
-
-					waitUntil {
-
-						_suspiciousEnemy doMove ([(getPosWorld _unit),10] call CBA_fnc_Randpos);
-
-						sleep (random 15);
 
 						_suspiciousEnemy doWatch _unit;
 
-						_suspiciousEnemy doTarget _unit;
+						sleep (random 15);
 
-						if ((5 * (_unit getVariable ["INC_disguiseValue",1])) > (random 100)) exitWith {
-							[_unit,INC_regEnySide,INC_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCompromised",_unit];
-							true
+						if !((50 * (_unit getVariable ["INC_disguiseValue",1])) > (random 100)) exitWith {};
+
+						(group _unit) setSpeedMode "LIMITED";
+
+						waitUntil {
+
+							_suspiciousEnemy doMove ([(getPosWorld _unit),10] call CBA_fnc_Randpos);
+
+							sleep (random 15);
+
+							_suspiciousEnemy doWatch _unit;
+
+							_suspiciousEnemy doTarget _unit;
+
+							if (((((speed _unit) + 4) / 1.6) * (_unit getVariable ["INC_disguiseValue",1])) > (random 100)) exitWith {
+								[_unit,INC_regEnySide,INC_asymEnySide] remoteExecCall ["INCON_fnc_undercoverCompromised",_unit];
+								true
+							};
+
+							if !((70 * (_unit getVariable ["INC_disguiseValue",1])) > (random 100)) exitWith {true};
+
+							(!((_suspiciousEnemy getHideFrom _unit) distanceSqr _unit < 30) || {!alive _suspiciousEnemy} || {!captive _unit})
 						};
-
-						(!((_suspiciousEnemy getHideFrom _unit) distanceSqr _unit < 30) || {!alive _suspiciousEnemy} || {!captive _unit})
 					};
 				};
 			};
@@ -407,15 +462,15 @@ if (isPlayer _unit) then {
 
 					_weirdoLevel = _weirdoLevel + ((speed _unit)/ 10);
 
-			        switch (!(uniform _unit in INC_safeUniforms) || {!(vest _unit in INC_safeVests)}) do {
+			        switch (!(uniform _unit in INC_civilianUniforms) || {!(vest _unit in INC_civilianVests)}) do {
 
 						case true: {
 
-							_weirdoLevel = _weirdoLevel + (random 2);
+							_weirdoLevel = _weirdoLevel + 2.5;
 
 							if ((hmd _unit != "") && {!(_HMDallowed)}) then {
 
-								_weirdoLevel = _weirdoLevel + (random 1);
+								_weirdoLevel = _weirdoLevel + 1;
 							};
 						};
 
@@ -423,7 +478,7 @@ if (isPlayer _unit) then {
 
 							if ((hmd _unit != "") && {!(_HMDallowed)}) then {
 
-								_weirdoLevel = _weirdoLevel + (random 1.5);
+								_weirdoLevel = _weirdoLevel + 1.5;
 							};
 						};
 					};
@@ -458,7 +513,7 @@ if (isPlayer _unit) then {
 			if !(_unit getVariable ["INC_goneIncognito",false]) then {
 
 				//Suspicious vehicle check
-				if !(((typeof vehicle _unit) in INC_safeVehicleArray) && {!((vehicle _unit) getVariable ["INC_naughtyVehicle",false])}) then {
+				if !(((typeof vehicle _unit) in INC_civilianVehicleArray) && {!((vehicle _unit) getVariable ["INC_naughtyVehicle",false])}) then {
 
 					if ((isPlayer _unit) && {(_debug) || {_hints}}) then {
 						hint "You are in a suspicious vehicle.";

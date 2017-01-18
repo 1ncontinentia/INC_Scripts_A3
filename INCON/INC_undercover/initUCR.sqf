@@ -5,7 +5,7 @@ Author: Incontinentia
 
 */
 
-private ["_trespassMarkers","_safeVests","_safeUniforms","_safeBackpacks","_safeFactionVests","_safeFactionUniforms","_civPackArray","_incognitoVests","_incognitoUniforms","_incognitoFactions"];
+private ["_trespassMarkers","_civilianVests","_civilianUniforms","_civilianBackpacks","_civilianFactionVests","_civilianFactionUniforms","_civPackArray","_incognitoVests","_incognitoUniforms","_incognitoFactions"];
 
 params [["_unit",objNull]];
 
@@ -34,34 +34,51 @@ if (((_debug) || {_hints}) && {isPlayer _unit}) then {hint "Undercover initialis
 if (isNil "INC_asymEnySide") then {
 
 	//Initial stuff
-	_safeVests append [""];
-	_safeUniforms append [""];
-	_safeBackpacks append [""];
+	_civilianVests append [""];
+	_civilianUniforms append [""];
+	_civilianHeadgear append [""];
+	_civilianBackpacks append [""];
 
-	_safeVests append (["vests",_safeFactionVests] call INCON_fnc_getFactionGear);
-	_safeUniforms append (["uniforms",_safeFactionUniforms] call INCON_fnc_getFactionGear);
-	_safeBackpacks append _civPackArray;
+	_civilianVests append (["vests",_civilianFactionVests] call INCON_fnc_getFactionGear);
+	_civilianUniforms append (["uniforms",_civilianFactionUniforms] call INCON_fnc_getFactionGear);
+
+	sleep 0.5;
+
+	_civilianHeadgear append (["headgear",_civilianFactionHeadgear] call INCON_fnc_getFactionGear);
+	_civilianHeadgear append (["possibleHeadgear",_civilianFactionHeadgear] call INCON_fnc_getFactionGear);
+	_civilianBackpacks append _civPackArray;
 
 	sleep 0.5;
 
 	_incognitoVests = [""];
 	_incognitoUniforms = [];
+	_incognitoHeadgear = [""];
 	_incognitoBackpacks = [""];
+	_incognitoWpns = [""];
 
 	_incognitoVests append (["vests",_incognitoFactions] call INCON_fnc_getFactionGear);
 	_incognitoUniforms append (["uniforms",_incognitoFactions] call INCON_fnc_getFactionGear);
-	_incognitoUniforms append (["backpacks",_incognitoFactions] call INCON_fnc_getFactionGear);
+	_incognitoWpns append (["weapons",_incognitoFactions] call INCON_fnc_getFactionGear);
 
 	sleep 0.5;
 
-	missionNamespace setVariable ["INC_safeVests",_safeVests,true];
-	missionNamespace setVariable ["INC_safeUniforms",_safeUniforms,true];
-	missionNamespace setVariable ["INC_safeBackpacks",_safeBackpacks,true];
+	_incognitoHeadgear append (["headgear",_incognitoFactions] call INCON_fnc_getFactionGear);
+	_incognitoHeadgear append (["possibleHeadgear",_incognitoFactions] call INCON_fnc_getFactionGear);
+	_incognitoBackpacks append (["backpacks",_incognitoFactions] call INCON_fnc_getFactionGear);
+
+	sleep 0.5;
+
+	missionNamespace setVariable ["INC_civilianVests",_civilianVests,true];
+	missionNamespace setVariable ["INC_civilianUniforms",_civilianUniforms,true];
+	missionNamespace setVariable ["INC_civilianHeadgear",_civilianHeadgear,true];
+	missionNamespace setVariable ["INC_civilianBackpacks",_civilianBackpacks,true];
 	missionNamespace setVariable ["INC_incognitoVests",_incognitoVests,true];
-	missionNamespace setVariable ["INC_incognitoBackpacks",_incognitoBackpacks,true];
 	missionNamespace setVariable ["INC_incognitoUniforms",(_incognitoUniforms - [""]),true];
+	missionNamespace setVariable ["INC_incognitoWpns",_incognitoWpns,true];
+	missionNamespace setVariable ["INC_incognitoBackpacks",_incognitoBackpacks,true];
+	missionNamespace setVariable ["INC_incognitoHeadgear",_incognitoHeadgear,true];
 	missionNamespace setVariable ["INC_incognitoVehArray",_incognitoVehArray,true];
-	missionNamespace setVariable ["INC_safeVehicleArray",_safeVehicleArray,true];
+	missionNamespace setVariable ["INC_civilianVehicleArray",_civilianVehicleArray,true];
 	missionNamespace setVariable ["INC_regEnySide",_regEnySide,true];
 	missionNamespace setVariable ["INC_asymEnySide",_asymEnySide,true];
 	missionNamespace setVariable ["INC_civilianRecruitEnabled",_civRecruitEnabled,true];
@@ -139,8 +156,8 @@ if (isPlayer _unit) then {
 				_unit globalChat (format ["%1 cover intact: %2",_unit,(captive _unit)]);
 				_unit globalChat (format ["%1 compromised: %2",_unit,(_unit getVariable ["INC_undercoverCompromised",false])]);
 				_unit globalChat (format ["%1 trespassing: %2",_unit,((_unit getVariable ["INC_proxAlert",false]) || {(_unit getVariable ["INC_trespassAlert",false])})]);
-				_unit globalChat (format ["%1 acting naughty: %2",_unit,(_unit getVariable ["INC_suspiciousValue",false])]);
-				_unit globalChat (format ["Proximity radius multiplier: %1",(_unit getVariable ["INC_disguiseValue",1])]);
+				_unit globalChat (format ["%1 suspicious level: %2",_unit,(_unit getVariable ["INC_suspiciousValue",false])]);
+				_unit globalChat (format ["%1 weirdo level: %2",_unit,(_unit getVariable ["INC_disguiseValue",1])]);
 				_unit globalChat (format ["Enemy know about %1: %2",_unit,(_unit getVariable ["INC_AnyKnowsSO",false])]);
 				!(_unit getVariable ["isUndercover",false])
 			};

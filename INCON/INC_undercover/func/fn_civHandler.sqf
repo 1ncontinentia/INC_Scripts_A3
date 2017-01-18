@@ -675,7 +675,7 @@ switch (_operation) do {
 					!(((_x select 0) find _origUnif) == 0) ||
 					{_origUnif == ""}
 				} &&
-				{(_x select 0) in (INC_safeUniforms + INC_incognitoUniforms)}
+				{(_x select 0) in (INC_civilianUniforms + INC_incognitoUniforms)}
 			)
 		}) select 0);
 

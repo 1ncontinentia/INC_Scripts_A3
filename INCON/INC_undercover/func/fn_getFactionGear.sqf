@@ -2,9 +2,10 @@
 
 Author: Spyderblack723
 
+Modified by: Incontinentia
 */
 
-private ["_unit","_linkedItems"];
+private ["_unit","_linkedItems","_pack","_uniform","_headgearList"];
 
 params ["_gearType","_factions"];
 
@@ -29,6 +30,13 @@ for "_i" from 0 to (count _cfgVehicles - 1) do {
 
 switch (_gearType) do {
 
+    case "backpacks": {
+        {
+            _pack =  getText (_x >> "backpack");;
+            _result pushbackunique _pack;
+        } forEach _units;
+    };
+
     case "headgear": {
         {
             _unit = _x;
@@ -47,6 +55,27 @@ switch (_gearType) do {
                         };
                     };
             } forEach _linkedItems;
+        } forEach _units;
+    };
+
+    case "possibleHeadgear": {
+        {
+            _unit = _x;
+            _headgearList = (getArray (_unit >> "headgearList")) select {typeName _x == "STRING"};
+
+            {
+                _item = _x;
+                _configPath = configFile >> "CfgWeapons" >> _item;
+                    if (isClass _configPath) then {
+                        _itemInfo = getNumber (_configPath >> "ItemInfo" >> "Type");
+
+                        switch (str _itemInfo) do {
+                            case "605": {
+                                _result pushbackunique _item;
+                            };
+                        };
+                    };
+            } forEach _headgearList;
         } forEach _units;
     };
 
@@ -70,26 +99,6 @@ switch (_gearType) do {
         } forEach _units;
     };
 
-    case "backpacks": {
-        {
-            _unit = _x;
-            _linkedItems = getArray (_unit >> "linkedItems");
-            {
-                _item = _x;
-                _configPath = configFile >> "CfgWeapons" >> _item;
-                    if (isClass _configPath) then {
-                        _itemInfo = getNumber (_configPath >> "ItemInfo" >> "Type");
-
-                        switch (str _itemInfo) do {
-                            case "901": {
-                                _result pushbackunique _item;
-                            };
-                        };
-                    };
-            } forEach _linkedItems;
-        } forEach _units;
-    };
-
     case "uniforms": {
         {
             _uniform = getText (_x >> "uniformClass");
@@ -103,6 +112,20 @@ switch (_gearType) do {
             if ((_unit isKindOf "Man") && {(((str _x) find "Pilot") == -1)} && {(((str _x) find "pilot") == -1)}) then {
                 _result pushbackunique _unit
             };
+        } forEach _units;
+    };
+
+    case "weapons": {
+        {
+            _unit = _x;
+            _weaponArray = getArray (_unit >> "weapons");
+            {
+                _item = _x;
+                _configPath = configFile >> "CfgWeapons" >> _item;
+                    if (isClass _configPath) then {
+						_result pushbackunique _item;
+                    };
+            } forEach _weaponArray;
         } forEach _units;
     };
 };
