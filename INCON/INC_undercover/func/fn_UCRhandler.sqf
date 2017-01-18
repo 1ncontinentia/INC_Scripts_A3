@@ -245,7 +245,7 @@ if (isPlayer _unit) then {
 				};
 
 				if !(vest _unit in INC_incognitoVests) then {
-					_weirdoLevel = _weirdoLevel + 1;
+					_weirdoLevel = _weirdoLevel + 2;
 				};
 
 				if !(headgear _unit in INC_incognitoHeadgear) then {
