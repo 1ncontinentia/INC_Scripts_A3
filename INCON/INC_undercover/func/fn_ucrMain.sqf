@@ -73,7 +73,7 @@ switch (_operation) do {
 				_civ = _backpack getVariable "owner";
 				private _civComment = selectRandom ["Get the fuck out of my backpack","What are you doing?","Leave me alone!","Get out!","What are you playing at?"];
 				[[_civ, _civComment] remoteExec ["globalChat",0]];
-				[[_civ,"runAway"] remoteExecCall ["INCON_fnc_civHandler",_civ]];
+				[[_civ,"runAway"] remoteExecCall ["INCON_fnc_ucrMain",_civ]];
 				}
 			];
 		}] remoteExec ["call", 0,true];
@@ -86,7 +86,7 @@ switch (_operation) do {
 		_input params ["_unit"];
 
 		private _wpn = selectRandom _civWpnArray;
-		private _magsArray = ([_wpn,"getCompatMags"] call INCON_fnc_civHandler);
+		private _magsArray = ([_wpn,"getCompatMags"] call INCON_fnc_ucrMain);
 
 		_return = true;
 
@@ -287,7 +287,7 @@ switch (_operation) do {
 				};
 			};
 
-			_comparisonArray = ([[_unit,_baseWpn,true],"getStoredWeaponItems"] call INCON_fnc_civHandler);
+			_comparisonArray = ([[_unit,_baseWpn,true],"getStoredWeaponItems"] call INCON_fnc_ucrMain);
 
 			_weaponArray = [_baseWpn,_items,_comparisonArray,[_mag,_ammoCount]];
 			_weaponStore = _unit getVariable "INC_weaponStore";
@@ -347,14 +347,14 @@ switch (_operation) do {
 				!(_weaponArray isEqualTo []) &&
 				{(_weaponArray select 0) in weapons _unit} &&
 				{
-					(_weaponArray select 2) isEqualTo ([[_unit,(_weaponArray select 0),true],"getStoredWeaponItems"] call INCON_fnc_civHandler)
+					(_weaponArray select 2) isEqualTo ([[_unit,(_weaponArray select 0),true],"getStoredWeaponItems"] call INCON_fnc_ucrMain)
 				}
 			) do {
 				case true: {
 					_wpn = _weaponArray select 0;
 					_itemsToAdd = _weaponArray select 1;
 
-					_itemsToAdd = _itemsToAdd select {_x in ((uniformItems _unit) + (vestItems _unit) + (backPackItems _unit) + ([[_unit,(_weaponArray select 0)],"getStoredWeaponItems"] call INCON_fnc_civHandler))};
+					_itemsToAdd = _itemsToAdd select {_x in ((uniformItems _unit) + (vestItems _unit) + (backPackItems _unit) + ([[_unit,(_weaponArray select 0)],"getStoredWeaponItems"] call INCON_fnc_ucrMain))};
 
 					_unit removeItem _wpn;
 
@@ -381,9 +381,9 @@ switch (_operation) do {
 
 				case false: {
 					_wpn = selectRandom _weapons;
-					_ammoArray = ([[_unit,_wpn], "getStoredWeaponAmmoArray"] call INCON_fnc_civHandler);
+					_ammoArray = ([[_unit,_wpn], "getStoredWeaponAmmoArray"] call INCON_fnc_ucrMain);
 					_ammoArray params [["_mag",""],["_ammoCount",0]];
-					_itemsToAdd = ([[_unit,_wpn], "getStoredWeaponItems"] call INCON_fnc_civHandler);
+					_itemsToAdd = ([[_unit,_wpn], "getStoredWeaponItems"] call INCON_fnc_ucrMain);
 					_unit removeItem _wpn;
 
 					if !(_mag == "") then {_unit addMagazine _mag};
@@ -420,7 +420,7 @@ switch (_operation) do {
 			"<t color='#334FFF'>Conceal current weapon</t>", {
 				params ["_unit"];
 
-				[[_unit],"concealWeapon"] call INCON_fnc_civHandler;
+				[[_unit],"concealWeapon"] call INCON_fnc_ucrMain;
 
 			},[],6,false,true,"","(_this == _target) && {_this getVariable ['INC_canConcealWeapon',false]}"
 
@@ -431,20 +431,20 @@ switch (_operation) do {
 			"<t color='#FF33BB'>Get concealed weapon out</t>", {
 				params ["_unit"];
 
-				[[_unit],"unConcealWeapon"] call INCON_fnc_civHandler;
+				[[_unit],"unConcealWeapon"] call INCON_fnc_ucrMain;
 
 			},[],6,false,true,"","(_this == _target) && {_this getVariable ['INC_canGoLoud',false]}"
 
 		]] remoteExec ["addAction", _groupLead];
 
 		if (!isPlayer _unit) then {
-			[[_unit,false],"SwitchUniformAction"] call INCON_fnc_civHandler;
+			[[_unit,false],"SwitchUniformAction"] call INCON_fnc_ucrMain;
 		} else {
 
 			_unit addEventHandler ["InventoryClosed", {
 				params ["_unit"];
-				if ([[_unit,false],"switchUniforms"] call INCON_fnc_civHandler) then {
-					[[_unit,true,4],"SwitchUniformAction"] call INCON_fnc_civHandler;
+				if ([[_unit,false],"switchUniforms"] call INCON_fnc_ucrMain) then {
+					[[_unit,true,4],"SwitchUniformAction"] call INCON_fnc_ucrMain;
 				};
 			}]
 		};
@@ -580,7 +580,7 @@ switch (_operation) do {
 
 				sleep 1;
 
-				[[_recruitedCiv,_groupLead],"addConcealActions"] call INCON_fnc_civHandler;
+				[[_recruitedCiv,_groupLead],"addConcealActions"] call INCON_fnc_ucrMain;
 				[[_recruitedCiv],"INCON\INC_undercover\initUCR.sqf"] remoteExec ["execVM",_groupLead];
 				//[_recruitedCiv] remoteExecCall ["INCON_fnc_undercoverInit",_undercoverUnit];
 
@@ -604,7 +604,7 @@ switch (_operation) do {
 
 				private ["_success"];
 
-				_success = [[_unit,true],"switchUniforms"] call INCON_fnc_civHandler;
+				_success = [[_unit,true],"switchUniforms"] call INCON_fnc_ucrMain;
 
 				if (_success) then {
 					if (!isPlayer _unit) then {
@@ -631,7 +631,7 @@ switch (_operation) do {
 					sleep 3;
 					_timer = _timer - 3;
 
-					(!([[_unit,false],"switchUniforms"] call INCON_fnc_civHandler) || {_timer <= 0})
+					(!([[_unit,false],"switchUniforms"] call INCON_fnc_ucrMain) || {_timer <= 0})
 				};
 
 				_unit removeAction INC_switchUniformAction;
@@ -682,7 +682,7 @@ switch (_operation) do {
 		if (isNil "_newUnif") exitWith {
 			_return = false;
 			if (_autoReAttempt && {_attempt <= 2}) then {
-				_return = [[_unit,_switchUniform,(_attempt + 1)],"switchUniforms"] call INCON_fnc_civHandler;
+				_return = [[_unit,_switchUniform,(_attempt + 1)],"switchUniforms"] call INCON_fnc_ucrMain;
 			};
 		};
 

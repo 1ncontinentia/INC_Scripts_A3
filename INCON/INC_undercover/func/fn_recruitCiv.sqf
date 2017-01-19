@@ -51,7 +51,7 @@ if (_unit getVariable ["isPrisonGuard",false]) exitWith {};
 			};
 
 			case false: {
-				[[_giver,"runAway"] remoteExecCall ["INCON_fnc_civHandler",_giver]];
+				[[_giver,"runAway"] remoteExecCall ["INCON_fnc_ucrMain",_giver]];
 				if (rating _reciever > 800) then {_reciever addrating -800};
 				private _civComment = selectRandom ["You can fuck off.","What am I going to wear?","Creep!","Go away!","Is this how you treat your women?","Sounds like a dirty ruse.","So now the truth comes out.","This is my favourite shirt.","You'd like that wouldn't you?"];
 				[[_giver, _civComment] remoteExec ["globalChat",0]];
@@ -64,14 +64,14 @@ if (_unit getVariable ["isPrisonGuard",false]) exitWith {};
 ]] remoteExec ["addAction", 0,true];
 
 if (30 > (random 100)) then {
-	[_unit,"addBackpack"] call INCON_fnc_civHandler;
+	[_unit,"addBackpack"] call INCON_fnc_ucrMain;
 };
 
 if (_armedCivPercentage > (random 100)) then {
 
-	[_unit,"addWeapon"] call INCON_fnc_civHandler;
+	[_unit,"addWeapon"] call INCON_fnc_ucrMain;
 };
 
 if (50 > (random 100)) then {
-	[_unit,"addItems"] call INCON_fnc_civHandler;
+	[_unit,"addItems"] call INCON_fnc_ucrMain;
 };

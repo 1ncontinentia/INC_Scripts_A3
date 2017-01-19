@@ -1,5 +1,5 @@
 
-class civHandler {allowedTargets=0;};
+class ucrMain {allowedTargets=0;};
 class countAlerted {allowedTargets=0;};
 class getFactionGear {allowedTargets=0;};
 class recruitAttempt {allowedTargets=0;};

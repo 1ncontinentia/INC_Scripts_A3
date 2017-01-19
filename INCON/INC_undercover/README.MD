@@ -21,7 +21,7 @@ I cannot vouch for server performance above 10 players.
 * Order them to get concealed weapons out without faffing about with their inventories
 * Define a side as asymmetric or regular for different detection systems
 * (EXPERIMENTAL) Persistence for non-playable AI teammates (requires INC_groupPersist - included - and iniDBI2).
-* (EXPERIMENTAL) Turn recruited units into a profiled group to be used by AI commander of the same faction as the undercover unit (add to object init: this addaction ["Profile group","[player,'profileGroup'] remoteExecCall ['INCON_fnc_civHandler',2]",[],1,false,true]);
+* (EXPERIMENTAL) Turn recruited units into a profiled group to be used by AI commander of the same faction as the undercover unit (add to object init: this addaction ["Profile group","[player,'profileGroup'] remoteExecCall ['INCON_fnc_ucrMain',2]",[],1,false,true]);
 
 
 Undercover units remain incognito unless they

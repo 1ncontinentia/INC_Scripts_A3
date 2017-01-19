@@ -88,7 +88,7 @@ _unit setVariable ["INC_weirdoLevel",1]; //How weird is the unit acting
 _unit setVariable ["INC_weaponStore",[["",[""]],["",[""]]]];
 
 if (isPlayer _unit) then {
-	[[_unit,_unit,false],"addConcealActions"] call INCON_fnc_civHandler;
+	[[_unit,_unit,false],"addConcealActions"] call INCON_fnc_ucrMain;
 };
 
 
@@ -265,8 +265,8 @@ if (isPlayer _unit) then {
 				_unit setVariable ["INC_goneIncognito",false];
 			};
 
-			_unit setVariable ["INC_canConcealWeapon",([[_unit],"ableToConceal"] call INCON_fnc_civHandler)];
-			_unit setVariable ["INC_canGoLoud",([[_unit],"ableToGoLoud"] call INCON_fnc_civHandler)];
+			_unit setVariable ["INC_canConcealWeapon",([[_unit],"ableToConceal"] call INCON_fnc_ucrMain)];
+			_unit setVariable ["INC_canGoLoud",([[_unit],"ableToGoLoud"] call INCON_fnc_ucrMain)];
 
 			sleep _responseTime;
 
@@ -437,8 +437,8 @@ if (isPlayer _unit) then {
 				_unit setVariable ["INC_canGoLoud",false];
 			} else {
 				_unit setVariable ["INC_goneIncognito",false];
-				_unit setVariable ["INC_canConcealWeapon",([[_unit],"ableToConceal"] call INCON_fnc_civHandler)];
-				_unit setVariable ["INC_canGoLoud",([[_unit],"ableToGoLoud"] call INCON_fnc_civHandler)];
+				_unit setVariable ["INC_canConcealWeapon",([[_unit],"ableToConceal"] call INCON_fnc_ucrMain)];
+				_unit setVariable ["INC_canGoLoud",([[_unit],"ableToGoLoud"] call INCON_fnc_ucrMain)];
 			};
 
 			//Penalise people for being oddballs by increasing the spotting radius - wearing wrong uniform / hmd

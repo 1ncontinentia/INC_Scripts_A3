@@ -1,7 +1,7 @@
 class undercoverRecruit
 {
 	file = "INCON\INC_undercover\func";
-	class civHandler {description = "Contains functions for arming recruitable civilians."};
+	class ucrMain {description = "Contains functions for arming recruitable civilians."};
 	class countAlerted {description = "Counts units of the defined side who have been alerted to a unit.";};
 	class getFactionGear {description = "Gets a faction's gear.";};
 	class recruitAttempt {description = "Attempt to recruit - requires ALiVE.";};

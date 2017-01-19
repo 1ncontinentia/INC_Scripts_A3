@@ -114,7 +114,7 @@ if (isNil "INC_asymEnySide") then {
 	sleep 0.5;
 
 	//Spawn the rebel commader
-	[_unit,"spawnRebelCommander"] remoteExecCall ["INCON_fnc_civHandler",2];
+	[_unit,"spawnRebelCommander"] remoteExecCall ["INCON_fnc_ucrMain",2];
 };
 
 sleep 0.5;
@@ -180,7 +180,7 @@ if (isPlayer _unit) then {
 					_x setVariable ["noChanges",true,true];
 					_x setVariable ["isUndercover", true, true];
 					sleep 0.2;
-					[[_x,_unit],"addConcealActions"] call INCON_fnc_civHandler;
+					[[_x,_unit],"addConcealActions"] call INCON_fnc_ucrMain;
 				};
 			} forEach units group _unit;
 		};
