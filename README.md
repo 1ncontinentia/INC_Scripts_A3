@@ -1,6 +1,8 @@
 # INC_Scripts_A3
 Incontinentia's Mission Scripts for Arma 3
 
+## THIS PROJECT IS NO LONGER SUPPORTED - SEE INDIVIDUAL PROJECTS IN MY REPO FOR THE NEW, IMPROVED VERSIONS
+
 INC_Scripts_A3 is a collection of scripts for Arma 3 mission makers. They are primarily designed to be used with ALiVE and ACE in SP / Coop scenarios but some can be used standalone.
 
 These are currently available as a (very) early Alpha. More scripts will be released in the upcoming weeks as and when I get the time to test them.
